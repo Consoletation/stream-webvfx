@@ -22,17 +22,17 @@ function init(source) {
 
     isInit = true;
 
-    if(source) setSource(source);
+    if(source) setSourceNode(source);
 
     analyzerNode.connect(AUDIO.destination);
 }
 
-function getBinLength() {
+function getBufferLength() {
     _checkInit();
     return bufferLength;
 }
 
-function getBinData() {
+function getBufferData() {
     _checkInit();
     analyzerNode.getByteFrequencyData(dataArray);
     return dataArray;
@@ -63,11 +63,10 @@ function getContext() {
 var Analyzer = {
     init: init,
     getContext: getContext,
-    setSource: setSource,
-    getBinData: getBinData,
-    getBinLength: getBinLength,
-    getFreqData: getFreqData,
-    getTimeData: getTimeData
+    setSourceNode: setSourceNode,
+    setStreamAsSource: setStreamAsSource,
+    getBufferLength: getBufferLength,
+    getBufferData: getBufferData
 }
 
 module.exports = Analyzer;

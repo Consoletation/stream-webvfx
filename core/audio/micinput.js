@@ -16,8 +16,8 @@ function _onError(error) {
 }
 
 function init(callback) {
-    var getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
-    getMedia(mediaTypes,
+    navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+    navigator.getMedia(mediaTypes,
         function(stream) {
             _onSuccess(stream, callback);
         },

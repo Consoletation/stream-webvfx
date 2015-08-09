@@ -1,12 +1,13 @@
 
-var Analyzer = require('./analyzer'),
-    MicInput = require('./micinput');
+var Analyzer = require('./analyzer');
+var MicInput = require('./micinput');
 
 function init() {
 
     Analyzer.init();
     MicInput.init(function(stream) {
         Analyzer.setStreamAsSource(stream);
+        console.info('Audio: ready');
     });
 }
 
