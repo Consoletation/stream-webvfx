@@ -1,4 +1,4 @@
-var Audio = require('../../core/audio');
+var Pumper = require('pumper');
 
 var c, ctx;
 var data, dataLength;
@@ -8,8 +8,9 @@ var CW = 600,
     BAR_WIDTH = 5;
 
 function update() {
-    data = Audio.Analyzer.getBufferData();
-    dataLength = Audio.Analyzer.getBufferLength();
+    Pumper.update();
+    data = Pumper.getData();
+    dataLength = data.length;
 }
 
 function render() {
