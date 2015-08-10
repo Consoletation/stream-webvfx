@@ -1,9 +1,9 @@
 var Audio = require('./core/audio'),
-    Test = require('./channels/test');
+    SplashLogo = require('./channels/splashlogo');
 
-Audio.init();
+//Audio.init();
 
-Test.init();
+SplashLogo.init();
 
-console.log('AUDIO', Audio);
+console.log(SplashLogo);
 
