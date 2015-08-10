@@ -5,8 +5,8 @@ module.exports = {
         filename: "bundle.js"
     },
     resolve: {
-        aliases: {
-
+        alias: {
+            'pumper': __dirname + '/core/audio'
         }
     }
 };
