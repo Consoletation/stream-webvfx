@@ -127,14 +127,27 @@ function update(_t) {
     });
 }
 
-function render(_t) {
-    main.ctx.fillStyle = (Pumper.isSpiking) ? 'white' : 'black';
-    main.ctx.fillRect(0, 0, main.W, main.H);
+function _drawLines() {
     main.ctx.lineWidth = 8;
     main.ctx.setLineDash([20,15]);
     lines.forEach(function(line) {
         line.render();
     });
+}
+
+function _drawText() {
+    main.ctx.font = '200px VT323';
+    main.ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    main.ctx.textAlign = 'center';
+    main.ctx.textBaseline = 'middle';
+    main.ctx.fillText(Common.HASHTAG, main.CX, main.CY);
+}
+
+function render(_t) {
+    main.ctx.fillStyle = (Pumper.isSpiking) ? 'white' : 'black';
+    main.ctx.fillRect(0, 0, main.W, main.H);
+    if(Pumper.isSpiking) _drawText();
+    _drawLines();
 }
 
 var Lines = {

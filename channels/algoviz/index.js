@@ -53,7 +53,6 @@ function update() {
 
 function render() {
     if(_t - _rft > RENDER_FPS) {
-        console.log('render');
         _rft = _t;
         handlers[currentHandler].render(_t);
         dctx.clearRect(0, 0, MAIN.W, MAIN.H);
