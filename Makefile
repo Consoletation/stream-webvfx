@@ -6,7 +6,7 @@ venv/bin/activate: requirements.txt
 	venv/bin/pip install -Ur requirements.txt
 	touch venv/bin/activate
 
-fe-deps:
+fe-deps: package.json
 	npm install
 
 run: venv fe-deps
