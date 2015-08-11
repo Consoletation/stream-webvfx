@@ -15,13 +15,14 @@ var glitchTimeout;
 var bassCheck = Pumper.createBand(20, 60, 127, 8 );
 
 var INVERT_INTERVAL = 1000 / 100;
-
+var colors = [0xce1748, 0x14abbe, 0xfca412];
+var currentColor = 0;
 
 var main;
 
 var camera, scene, renderer, composer;
 var object, light;
-
+var RehabCross, RehabCrossMaterial;
 var glitchPass;
 
 
@@ -60,9 +61,9 @@ function setup(mainConfig) {
     ls.lineTo( -lr, sr );
     ls.lineTo( -sr, sr );
 
-    var material = new THREE.MeshPhongMaterial( { color: 0xff0000, shading: THREE.FlatShading } );
+    RehabCrossMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
     var gl = new THREE.ExtrudeGeometry(ls, { amount: sr * 2, bevelEnabled: false }),
-    RehabCross = new THREE.Mesh(gl, material);
+    RehabCross = new THREE.Mesh(gl, RehabCrossMaterial);
     RehabCross.castShadow = true;
     RehabCross.receiveShadow = false;
     RehabCross.position.y = 400;
@@ -104,6 +105,12 @@ function update(_t) {
             var scale = 50 + Math.floor((bassCheck.volume / 255) * 400);
 
             if(glitchPass.goWild === false){
+                currentColor ++;
+                if(currentColor > colors.length - 1){
+                    currentColor = 0;
+                }
+                console.log(colors[currentColor]);
+                RehabCrossMaterial.color.setHex( colors[currentColor] );
                 glitchPass.goWild = bassCheck.isSpiking;
                 glitchTimeout = setTimeout(function (){
                     glitchPass.goWild = false;
