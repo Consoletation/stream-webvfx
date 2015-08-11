@@ -3,5 +3,9 @@
     "webpack": "~1.11.0",
     "webpack-dev-server": "~1.10.1",
     "three": "~0.71.0"
+  },
+  "dependencies": {
+    "imports-loader": "^0.6.4",
+    "three": "^0.71.0"
   }
 }
