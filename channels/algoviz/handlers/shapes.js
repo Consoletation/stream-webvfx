@@ -1,11 +1,13 @@
 var THREE = require('three');
 require('imports?THREE=three!../../../libs/shaders/CopyShader');
 require('imports?THREE=three!../../../libs/shaders/DigitalGlitch');
+require('imports?THREE=three!../../../libs/shaders/FilmShader');
 require('imports?THREE=three!../../../libs/postprocessing/EffectComposer');
 require('imports?THREE=three!../../../libs/postprocessing/RenderPass');
 require('imports?THREE=three!../../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../../libs/postprocessing/GlitchPassCustom');
+require('imports?THREE=three!../../../libs/postprocessing/FilmPass');
 var Pumper = require('pumper');
 
 var _ift = Date.now();
@@ -58,7 +60,7 @@ function setup(mainConfig) {
     ls.lineTo( -lr, sr );
     ls.lineTo( -sr, sr );
 
-    var material = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } );
+    var material = new THREE.MeshPhongMaterial( { color: 0xff0000, shading: THREE.FlatShading } );
     var gl = new THREE.ExtrudeGeometry(ls, { amount: sr * 2, bevelEnabled: false }),
     RehabCross = new THREE.Mesh(gl, material);
     RehabCross.castShadow = true;
@@ -80,8 +82,12 @@ function setup(mainConfig) {
 	composer.addPass( new THREE.RenderPass( scene, camera ) );
 
 	glitchPass = new THREE.GlitchPass();
-	glitchPass.renderToScreen = true;
+	// glitchPass.renderToScreen = true;
 	composer.addPass( glitchPass );
+
+    effectFilmPass = new THREE.FilmPass( 0.35, 0.1, 648, false );
+	effectFilmPass.renderToScreen = true;
+    composer.addPass( effectFilmPass );
 
 	window.addEventListener( 'resize', onWindowResize, false );
     glitchPass.goWild = false;
@@ -96,7 +102,6 @@ function update(_t) {
 
         if(bassCheck.isSpiking === true) {
             var scale = 50 + Math.floor((bassCheck.volume / 255) * 400);
-            console.log(scale);
 
             if(glitchPass.goWild === false){
                 glitchPass.goWild = bassCheck.isSpiking;
