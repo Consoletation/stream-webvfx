@@ -5,6 +5,7 @@
     "three": "~0.71.0"
   },
   "dependencies": {
+    "imports-loader": "^0.6.4",
     "three": "^0.71.0"
   }
 }

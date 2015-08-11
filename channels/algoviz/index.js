@@ -4,10 +4,11 @@ var UPDATE_FPS = 1000 / 30,
     RENDER_FPS = 1000 / 50;
 
 var handlers = {
+    'shapes': require('./handlers/shapes'),
     'blackwhite': require('./handlers/blackwhite')
 };
 
-var currentHandler = 'blackwhite';
+var currentHandler = 'shapes';
 var _t, _ft, _rft;
 var MAIN = {};
 
@@ -55,7 +56,9 @@ function frame() {
 }
 
 function init() {
+    dc.id = 'main';
     document.body.appendChild(dc);
+
     _onResize();
 
     for(var h in handlers) {
