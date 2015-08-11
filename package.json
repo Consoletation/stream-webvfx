@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "imports-loader": "^0.6.4",
+    "pex-geom": "^0.14.0",
     "three": "^0.71.0"
   }
 }
