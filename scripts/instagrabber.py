@@ -4,6 +4,7 @@ import errno
 import os
 import requests
 
+from apscheduler.schedulers.blocking import BlockingScheduler
 from instagram.client import InstagramAPI
 
 client_id = "e57454d58e8a43b5b1e523b0016e42d1"
@@ -21,17 +22,31 @@ except OSError as exception:
         raise
 
 api = InstagramAPI(client_id=client_id, client_secret=client_secret)
-rehab_party, next_ = api.tag_recent_media(tag_name=tag_name, count=20)
 
-for media in rehab_party:
-    if media.type != 'image':
-        pass  # fuck videos man
 
-    # Name file after media id
-    filename = media.id + ".jpg"
-    output_file = os.path.join(output_dir, filename)
-    if not os.path.exists(output_file):
-        print "Downloading {}...".format(filename)
-        r = requests.get(media.images['standard_resolution'].url)
-        with open(output_file, 'wb') as f:
-            f.write(r.content)
+def get_images():
+    rehab_party, _ = api.tag_recent_media(tag_name=tag_name, count=20)
+
+    for media in rehab_party:
+        if media.type != 'image':
+            pass  # fuck videos man
+
+        # Name file after media id
+        filename = media.id + ".jpg"
+        output_file = os.path.join(output_dir, filename)
+        if not os.path.exists(output_file):
+            print "Downloading {}...".format(filename)
+            r = requests.get(media.images['standard_resolution'].url)
+            with open(output_file, 'wb') as f:
+                f.write(r.content)
+
+
+if __name__ == "__main__":
+    get_images()  # do one now for good measure
+    scheduler = BlockingScheduler()
+    scheduler.add_job(get_images, 'interval', minutes=15)
+
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        pass
