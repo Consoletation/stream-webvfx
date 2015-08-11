@@ -1,13 +1,17 @@
-var Pumper = require('pumper');
+var Pumper = require('pumper'),
+    Common = require('./handlers/_common');
 
 var UPDATE_FPS = 1000 / 30,
     RENDER_FPS = 1000 / 50;
 
 var handlers = {
-    'blackwhite': require('./handlers/blackwhite')
+    'blackwhite': require('./handlers/blackwhite'),
+    'lines': require('./handlers/lines')
 };
 
-var currentHandler = 'blackwhite';
+var handlerIDs = Object.keys(handlers);
+
+var currentHandler = 'lines';
 var _t, _ft, _rft;
 var MAIN = {};
 
@@ -27,7 +31,7 @@ function _onResize() {
 }
 
 function setHandler(handlerName) {
-    if(!handlerName in handers) return false;
+    if(!(handlerName in handlers)) return false;
     currentHandler = handlerName;
 }
 
@@ -68,6 +72,12 @@ function init() {
 }
 
 window.addEventListener('resize', _onResize, false);
+
+setInterval(function() {
+    var k = handlerIDs[Common.getRndInt(0,1)];
+    console.log('set', k);
+    setHandler(k);
+}, 2000);
 
 var AlgoViz = {
     init: init
