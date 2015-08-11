@@ -74,5 +74,3 @@ var AlgoViz = {
 };
 
 module.exports = AlgoViz;
-
-
