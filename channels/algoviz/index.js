@@ -1,14 +1,20 @@
-var Pumper = require('pumper');
+var Pumper = require('pumper'),
+    Common = require('./handlers/_common');
 
 var UPDATE_FPS = 1000 / 30,
-    RENDER_FPS = 1000 / 50;
+    RENDER_FPS = 1000 / 50,
+    HANDLER_CHANGE_TIME = 5000;
 
 var handlers = {
-    'shapes': require('./handlers/shapes'),
-    'blackwhite': require('./handlers/blackwhite')
+    //'shapes': require('./handlers/shapes'),
+    'blackwhite': require('./handlers/blackwhite'),
+    'lines': require('./handlers/lines')
 };
 
-var currentHandler = 'shapes';
+var handlerIDs = Object.keys(handlers);
+
+var currentHandler = 'lines';
+
 var _t, _ft, _rft;
 var MAIN = {};
 
@@ -28,8 +34,13 @@ function _onResize() {
 }
 
 function setHandler(handlerName) {
-    if(!handlerName in handers) return false;
+    if(!(handlerName in handlers)) return false;
     currentHandler = handlerName;
+}
+
+function _setRandomHandler() {
+    var k = handlerIDs[Common.getRndInt(0, handlerIDs.length - 1)];
+    setHandler(k);
 }
 
 function update() {
@@ -42,6 +53,7 @@ function update() {
 
 function render() {
     if(_t - _rft > RENDER_FPS) {
+        console.log('render');
         _rft = _t;
         handlers[currentHandler].render(_t);
         dctx.clearRect(0, 0, MAIN.W, MAIN.H);
@@ -71,6 +83,8 @@ function init() {
 }
 
 window.addEventListener('resize', _onResize, false);
+
+setInterval(_setRandomHandler, HANDLER_CHANGE_TIME);
 
 var AlgoViz = {
     init: init

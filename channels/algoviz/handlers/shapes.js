@@ -44,7 +44,6 @@ function setup(mainConfig) {
 	scene.add( object );
 
 
-
     var lr = 200, sr = 50;
     var ls = new THREE.Shape();
 

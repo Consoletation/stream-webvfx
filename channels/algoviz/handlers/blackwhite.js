@@ -1,11 +1,16 @@
-var Pumper = require('pumper');
+var Pumper = require('pumper'),
+    Common = require('./_common');
 
 var TOGGLE_CHANCE = 0.5,
     COLORS = ['black', 'white'],
-    EQ_COLORS = ['#ce1748', '#14abbe', '#fca412'],
+    EQ_COLORS = [
+        Common.BRAND_COLORS.red, 
+        Common.BRAND_COLORS.blue, 
+        Common.BRAND_COLORS.yellow
+    ],
     EQ_COLOR_IDX = 0,
     INVERT_INTERVAL = 1000 / 30,
-    TEXT = '#REHAB10';
+    TEXT = Common.HASHTAG.toUpperCase();
 
 var bassCheck = Pumper.createBand(40,60);
 bassCheck.spikeTolerance = 2;
