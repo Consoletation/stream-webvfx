@@ -6,7 +6,13 @@ require('imports?THREE=three!../../../libs/postprocessing/RenderPass');
 require('imports?THREE=three!../../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../../libs/postprocessing/GlitchPassCustom');
+var Pumper = require('pumper');
 
+var _ift = Date.now();
+var glitchTimeout;
+var bassCheck = Pumper.createBand(20, 60, 127, 8 );
+
+var INVERT_INTERVAL = 1000 / 100;
 
 
 var main;
@@ -25,29 +31,42 @@ function setup(mainConfig) {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
 
-	camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-	camera.position.z = 400;
+	camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 3000 );
+	camera.position.z = 900;
 
 	scene = new THREE.Scene();
-	scene.fog = new THREE.Fog( 0x000000, 1, 1000 );
+	scene.fog = new THREE.Fog( 0x000000, 1, 2000 );
 
 	object = new THREE.Object3D();
 	scene.add( object );
 
-	var geometry = new THREE.SphereGeometry( 1, 4, 4 );
-	var material = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } );
 
-	for ( var i = 0; i < 10; i ++ ) {
-		material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random(), shading: THREE.FlatShading } );
 
-		var mesh = new THREE.Mesh( geometry, material );
-		mesh.position.set( Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5 ).normalize();
-		mesh.position.multiplyScalar( Math.random() * 400 );
-		mesh.rotation.set( Math.random() * 2, Math.random() * 2, Math.random() * 2 );
-		mesh.scale.x = mesh.scale.y = mesh.scale.z = Math.random() * 50;
-		object.add( mesh );
+    var lr = 200, sr = 50;
+    var ls = new THREE.Shape();
 
-	}
+    ls.moveTo( -sr, lr );
+    ls.lineTo( sr, lr );
+    ls.lineTo( sr, sr );
+    ls.lineTo( lr, sr );
+    ls.lineTo( lr, -sr );
+    ls.lineTo( sr, -sr );
+    ls.lineTo( sr, -lr );
+    ls.lineTo( -sr, -lr );
+    ls.lineTo( -sr, -sr );
+    ls.lineTo( -lr, -sr );
+    ls.lineTo( -lr, sr );
+    ls.lineTo( -sr, sr );
+
+    var material = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } );
+    var gl = new THREE.ExtrudeGeometry(ls, { amount: sr * 2, bevelEnabled: false }),
+    RehabCross = new THREE.Mesh(gl, material);
+    RehabCross.castShadow = true;
+    RehabCross.receiveShadow = false;
+    RehabCross.position.y = 400;
+
+    object.add( RehabCross );
+
 
 	scene.add( new THREE.AmbientLight( 0x222222 ) );
 
@@ -65,17 +84,30 @@ function setup(mainConfig) {
 	composer.addPass( glitchPass );
 
 	window.addEventListener( 'resize', onWindowResize, false );
-
     glitchPass.goWild = false;
-    setInterval(function(){
-        glitchPass.goWild = true;
-        setTimeout(function (){
-            glitchPass.goWild = false;
-        }, 200)
-    }, 1000)
 }
 
 function update(_t) {
+        Pumper.update();
+
+        // scale = 0.5 + ((bassCheck.volume / 255) * 2);
+
+        // glitchPass.goWild = Pumper.isSpiking;
+        // glitchPass.goWild = bassCheck.isSpiking;
+
+        if(bassCheck.isSpiking === true) {
+            if(glitchPass.goWild === false){
+                glitchPass.goWild = bassCheck.isSpiking;
+                glitchTimeout = setTimeout(function (){
+                    glitchPass.goWild = false;
+                }, 100)
+            }else{
+                clearTimeout( glitchTimeout )
+                glitchTimeout = setTimeout(function (){
+                    glitchPass.goWild = false;
+                }, 100)
+            }
+        }
 }
 
 
