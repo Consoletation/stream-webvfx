@@ -90,22 +90,24 @@ function setup(mainConfig) {
 function update(_t) {
         Pumper.update();
 
-        // scale = 0.5 + ((bassCheck.volume / 255) * 2);
 
         // glitchPass.goWild = Pumper.isSpiking;
         // glitchPass.goWild = bassCheck.isSpiking;
 
         if(bassCheck.isSpiking === true) {
+            var scale = 50 + Math.floor((bassCheck.volume / 255) * 400);
+            console.log(scale);
+
             if(glitchPass.goWild === false){
                 glitchPass.goWild = bassCheck.isSpiking;
                 glitchTimeout = setTimeout(function (){
                     glitchPass.goWild = false;
-                }, 100)
+                }, scale)
             }else{
                 clearTimeout( glitchTimeout )
                 glitchTimeout = setTimeout(function (){
                     glitchPass.goWild = false;
-                }, 100)
+                }, scale)
             }
         }
 }
