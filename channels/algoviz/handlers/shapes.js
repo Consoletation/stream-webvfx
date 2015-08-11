@@ -102,14 +102,13 @@ function update(_t) {
         // glitchPass.goWild = bassCheck.isSpiking;
 
         if(bassCheck.isSpiking === true) {
-            var scale = 50 + Math.floor((bassCheck.volume / 255) * 400);
+            var scale =Math.floor((bassCheck.volume / 255) * 400);
 
             if(glitchPass.goWild === false){
                 currentColor ++;
                 if(currentColor > colors.length - 1){
                     currentColor = 0;
                 }
-                console.log(colors[currentColor]);
                 RehabCrossMaterial.color.setHex( colors[currentColor] );
                 glitchPass.goWild = bassCheck.isSpiking;
                 glitchTimeout = setTimeout(function (){
