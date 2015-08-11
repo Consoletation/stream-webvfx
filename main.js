@@ -4,7 +4,7 @@ var Pumper = require('pumper'),
 var TRACK = 'https://dl.dropboxusercontent.com/u/42386473/cp/Hotline%20Miami%202%20OST%20-%20Sexualizer%20%28Perturbator%29.mp3';
 
 Pumper.start(TRACK, true);
-Pumper.globalSpikeTolerance = 15;
+Pumper.globalSpikeTolerance = 10;
 //Pumper.start('mic');
 
 AlgoViz.init();
