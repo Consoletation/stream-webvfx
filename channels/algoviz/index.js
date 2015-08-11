@@ -6,7 +6,6 @@ var UPDATE_FPS = 1000 / 30,
     HANDLER_CHANGE_TIME = 5000;
 
 var handlers = {
-    //'shapes': require('./handlers/shapes'),
     'blackwhite': require('./handlers/blackwhite'),
     'lines': require('./handlers/lines')
 };
