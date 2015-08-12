@@ -19,7 +19,8 @@ var els = {
     osd: getEl('osd'),
     channelName: getEl('channel-name'),
     channelAuthor: getEl('channel-author'),
-    mainframe: getEl('mainframe')
+    mainframe: getEl('mainframe'),
+    instructions: getEl('instructions')
 };
 
 var _ti;
@@ -59,9 +60,9 @@ $(document).on('keypress', function(e) {
     }
 });
 
-/*setTimeout(function() {
-    changeChannel('algoviz');
-}, 4000);*/
+setTimeout(function() {
+    els.instructions.classList.remove('visible');
+}, 6000);
 
 
 
