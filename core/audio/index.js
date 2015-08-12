@@ -26,6 +26,7 @@
  * - Pumper.globalThreshold - arbitrary threshold value for global volume level
  * - Pumper.isSpiking - true if there was a volume spike since the last time update() was called
  * - Pumper.isOverThreshold - true if the current global volume exceeds the set global threshold
+ * - Pumper.data - raw frequency data array
 **/
 
 var DEFAULTS = {
@@ -84,6 +85,7 @@ Pumper.isOverThreshold = false;
 Pumper.globalThreshold = DEFAULTS.threshold;
 Pumper.globalSpikeTolerance = DEFAULTS.spikeTolerance;
 Pumper.sensitivity = 1;
+Pumper.data = 0;
 Pumper.bands = [];
 
 /**
@@ -166,6 +168,8 @@ Pumper.createBand = function(start, end, threshold, spikeTolerance) {
  **/
 Pumper.update = function() {
     analyzer.getByteFrequencyData(dataArray);
+
+    Pumper.data = dataArray;
 
     var rangeSize = RANGE_END - RANGE_START,
         globTotal = 0;
