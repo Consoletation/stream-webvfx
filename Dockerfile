@@ -23,4 +23,4 @@ RUN cp -a /tmp/node_modules /app/
 RUN webpack
 
 EXPOSE 8080
-CMD ["make", "run"]
+CMD ["supervisord", "-c", "supervisord-docker.conf", "-n"]
