@@ -1,8 +1,11 @@
 module.exports = {
-    entry: "./main.js",
+    entry: {
+        main: './main.js',
+        mosaic: './mosaic.js'
+    },
     output: {
         path: __dirname,
-        filename: "bundle.js"
+        filename: '[name].bundle.js'
     },
     resolve: {
         alias: {

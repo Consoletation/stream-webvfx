@@ -1,13 +1,20 @@
-var Pumper = require('pumper');
+var Pumper = require('pumper'),
+    Common = require('./handlers/_common');
 
 var UPDATE_FPS = 1000 / 30,
-    RENDER_FPS = 1000 / 50;
+    RENDER_FPS = 1000 / 60,
+    HANDLER_CHANGE_TIME = 5000;
 
 var handlers = {
-    'blackwhite': require('./handlers/blackwhite')
+    'blackwhite': require('./handlers/blackwhite'),
+    'lines': require('./handlers/lines'),
+    'tunnel': require('./handlers/tunnel')
 };
 
-var currentHandler = 'blackwhite';
+var handlerIDs = Object.keys(handlers);
+
+var currentHandler;
+
 var _t, _ft, _rft;
 var MAIN = {};
 
@@ -27,8 +34,13 @@ function _onResize() {
 }
 
 function setHandler(handlerName) {
-    if(!handlerName in handers) return false;
+    if(!(handlerName in handlers)) return false;
     currentHandler = handlerName;
+}
+
+function _setRandomHandler() {
+    var k = handlerIDs[Common.getRndInt(0, handlerIDs.length - 1)];
+    setHandler(k);
 }
 
 function update() {
@@ -55,24 +67,27 @@ function frame() {
 }
 
 function init() {
+    dc.id = 'main';
     document.body.appendChild(dc);
+
+    window.addEventListener('resize', _onResize, false);
     _onResize();
 
     for(var h in handlers) {
         handlers[h].setup(MAIN);
     }
 
+    _setRandomHandler();
+    setInterval(_setRandomHandler, HANDLER_CHANGE_TIME);
+
     _t = _ft = _rft = Date.now();
 
     frame();
 }
 
-window.addEventListener('resize', _onResize, false);
 
 var AlgoViz = {
     init: init
 };
 
 module.exports = AlgoViz;
-
-
