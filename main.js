@@ -3,6 +3,9 @@ console.log('loaded');
 var CHANNELS = {
     'algoviz' : {
         author: 'Neil'
+    },
+    'beatprocessing' : {
+        author: 'Mick'
     }
 }
 var CHANNEL_IDS = Object.keys(CHANNELS);
@@ -63,6 +66,3 @@ $(document).on('keypress', function(e) {
 setTimeout(function() {
     els.instructions.classList.remove('visible');
 }, 6000);
-
-
-

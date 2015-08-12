@@ -1,6 +1,6 @@
 var CHANNELS = [
     'algoviz',
-    //'beatprocessing',
+    'beatprocessing',
     //'reactivelogo',
     //'splashlogo',
     //'test'
