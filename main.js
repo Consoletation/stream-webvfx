@@ -6,7 +6,7 @@ var TRACK = 'audio/audio.mp3';
 
 // Pumper.start('mic');
 Pumper.start(TRACK, true);
-Pumper.globalSpikeTolerance = 8;
+Pumper.globalSpikeTolerance = 12;
 
 
 AlgoViz.init();

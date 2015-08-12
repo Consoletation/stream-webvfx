@@ -13,7 +13,7 @@ require('gsap');
 
 
 var Pumper = require('pumper');
-var Shapes = require('./shapes')
+var Datas = require('./datas')
 
 var _ift = Date.now();
 var glitchTimeout;
@@ -28,6 +28,8 @@ var camera, scene, renderer, composer;
 var shapesContainer, light;
 var shapeMesh, shapeMaterial, shapeGeometry;
 var shapeStrokeLine, shapeStrokeLine, shapeStrokeGeometry;
+var namesMesh = [];
+var currentName = 0;
 var currentShape = 0;
 var glitchPass;
 
@@ -48,6 +50,7 @@ function init() {
     scene.fog = new THREE.Fog( 0x000000, 1, 2000 );
 
     initShape();
+    initName();
 
     //Bring the lights
     scene.add( new THREE.AmbientLight( 0x222222 ) );
@@ -66,13 +69,53 @@ function init() {
     frame();
 }
 
+function initName(){
+    //Create shapes container
+    var namesSize = 1024;
+    namesContainer = new THREE.Object3D();
+    namesContainer.position.x =  window.innerWidth * 0.5;
+    namesContainer.position.y =  window.innerHeight * -0.5;
+    scene.add( namesContainer );
+
+    var txtWidth, bitmap,
+        g,
+        texture, material, nameMesh, nameSlicesContainer;
+
+    //create text image
+    for (var i = 0 ; i < Datas.names.length ; i ++){
+        bitmap = document.createElement('canvas');
+        g = bitmap.getContext('2d');
+        bitmap.width = namesSize;
+        bitmap.height = namesSize;
+        g.font = 'bold 140px Arial';
+        g.fillStyle = 'white';
+        g.fillText(Datas.names[i], 0, 140);
+        txtWidth = g.measureText(Datas.names[i]).width;
+
+        // canvas contents will be used for a texture
+        texture = new THREE.Texture(bitmap)
+        texture.left = -600
+        texture.needsUpdate = true;
+        material = new THREE.MeshBasicMaterial( {
+            map : texture, color: 0xffffff, transparent: true
+        });
+        nameSlicesContainer = new THREE.Mesh(new THREE.PlaneBufferGeometry(namesSize, namesSize), material);
+        nameSlicesContainer.position.x = txtWidth * -0.5;
+        nameSlicesContainer.position.y = -100;
+        nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(namesSize, namesSize), material);
+        nameSlicesContainer.add( nameMesh );
+        namesMesh.push(nameSlicesContainer);
+    }
+    namesContainer.add( namesMesh[0] );
+
+}
 function initShape(){
     //Create shapes container
     shapesContainer = new THREE.Object3D();
     scene.add( shapesContainer );
 
     //Create current shape and its stroke
-    var shapeStaticPoints = Shapes[currentShape].points;
+    var shapeStaticPoints = Datas.shapes[currentShape].points;
     shapePoints = [];
     //Get shape's points from the shapes file
     for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
@@ -83,7 +126,6 @@ function initShape(){
     shape = new THREE.Shape( shapePoints );
 	shapeStrokeGeometry = shape.createPointsGeometry();
 	var spacedPoints = shape.createSpacedPointsGeometry( 50 );
-    console.log(spacedPoints);
 
 
 	shapeGeometry = new THREE.ShapeGeometry( shape );
@@ -91,8 +133,6 @@ function initShape(){
     shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
 	shapeMesh = new THREE.Mesh( shapeGeometry, shapeMaterial );
     shapesContainer.add( shapeMesh );
-
-
 
     //Create stroke
     shapeStrokeMaterial = new THREE.LineBasicMaterial( {
@@ -102,9 +142,6 @@ function initShape(){
     shapeStrokeLine.scale.set(1.2, 1.2, 1.2)
     shapesContainer.add( shapeStrokeLine );
     // shapeStrokeLine.rotation.x = 10;
-
-        console.log('shapeGeometry.vertices: ', shapeGeometry.vertices);
-        console.log('shapeStrokeGeometry.vertices: ', shapeStrokeGeometry.vertices);
 }
 
 function initPostProcessing(){
@@ -140,8 +177,16 @@ function tweenVertices(duration){
     shapeMaterial.color.setHex( colors[currentColor] );
     shapeStrokeMaterial.color.setHex( colors[currentColor] );
 
+    //Change name
+    namesContainer.remove( namesMesh[currentName] );
+    currentName ++;
+    if(currentName > namesMesh.length - 1){
+        currentName = 0;
+    }
+    namesContainer.add( namesMesh[currentName] );
+
     //Rotate shape
-    var shapeRotation = Math.floor(Math.random() * 90) * Math.PI / 180;
+    var shapeRotation = THREE.Math.randInt(-45, 45) * Math.PI / 180;
     TweenMax.to(shapeMesh.rotation, duration, {
         z:  shapeRotation,
         ease: Cubic.easeInOut
@@ -153,10 +198,10 @@ function tweenVertices(duration){
 
     //Change shape
     currentShape ++ ;
-    if( currentShape >= Shapes.length ){
+    if( currentShape >= Datas.shapes.length ){
         currentShape = 0;
     }
-    var shapeStaticPoints = Shapes[currentShape].points;
+    var shapeStaticPoints = Datas.shapes[currentShape].points;
     shapePoints = [];
     //Get shape's points from the shapes file
     for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
@@ -205,7 +250,7 @@ function update() {
         var volume = Math.floor((bassCheck.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
 
-            tweenVertices(scale * 0.02);
+        tweenVertices(scale * 0.02);
 
         if(glitchPass.goWild === false){
             // glitchPass.goWild = bassCheck.isSpiking;
