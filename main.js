@@ -5,7 +5,7 @@ var Pumper = require('pumper'),
 var TRACK = 'audio/audio.mp3';
 
 // Pumper.start('mic');
-Pumper.start(TRACK, true);
+Pumper.start(TRACK, false);
 Pumper.globalSpikeTolerance = 8;
 
 

@@ -8,6 +8,10 @@ require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../libs/postprocessing/GlitchPassCustom');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
+
+require('gsap');
+
+
 var Pumper = require('pumper');
 var Shapes = require('./shapes')
 
@@ -24,6 +28,7 @@ var camera, scene, renderer, composer;
 var shapesContainer, light;
 var shapeMesh, shapeMaterial, shapeGeometry;
 var shapeStrokeLine, shapeStrokeLine, shapeStrokeGeometry;
+var currentShape = 0;
 var glitchPass;
 
 function init() {
@@ -32,6 +37,7 @@ function init() {
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
+    renderer.domElement.addEventListener('click', simulateBeat);
 
     //Create camera
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 3000 );
@@ -66,9 +72,9 @@ function initShape(){
     scene.add( shapesContainer );
 
     //Create current shape and its stroke
-    var currentShape = 2;
     var shape = new THREE.Shape();
     var shapePoints = Shapes[currentShape].points;
+    // shapeGeometry = new THREE.Geometry( );
     shapeStrokeGeometry = new THREE.Geometry( );
 
     //Get shape's points from the shapes file
@@ -78,14 +84,14 @@ function initShape(){
         shape.lineTo( shapePoints[i].x, shapePoints[i].y );
         shapeStrokeGeometry.vertices.push( new THREE.Vector3( shapePoints[i].x, shapePoints[i].y, 0) );
     }
+    shape.lineTo( shapePoints[0].x, shapePoints[0].y );
     shapeStrokeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
 
     //Create current shape
-    shapeGeometry = new THREE.ShapeGeometry( shape );
+    shapeGeometry = new THREE.PlaneGeometry( shape );
+    shapeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
     shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
     shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial);
-    // shapeMesh.castShadow = true;
-    // shapeMesh.receiveShadow = false;
     shapesContainer.add( shapeMesh );
 
     //Create stroke
@@ -113,6 +119,56 @@ function initPostProcessing(){
 }
 
 
+function simulateBeat(){
+    glitchPass.goWild = true;
+    setTimeout(function (){
+        glitchPass.goWild = false;
+    }, 300)
+
+    tweenVertices(0.5);
+}
+
+function tweenVertices(duration){
+    currentShape ++ ;
+    if( currentShape >= Shapes.length ){
+        currentShape = 0;
+    }
+    var shapePoints = Shapes[currentShape].points;
+
+    console.log('shapeGeometry.vertices: ', shapeGeometry.vertices);
+    console.log('shapeStrokeGeometry.vertices: ', shapeStrokeGeometry.vertices);
+
+    shapeGeometry.verticesNeedUpdate = true;
+    shapeStrokeGeometry.verticesNeedUpdate = true;
+
+    for (var i = 0 ; i < shapePoints.length ; i ++){
+        // shapeGeometry.vertices[i] =  new THREE.Vector3( shapePoints[i].x, shapePoints[i].y, 0) ;
+        // shapeStrokeGeometry.vertices[i] =  new THREE.Vector3( shapePoints[i].x, shapePoints[i].y, 0) ;
+        // console.log(shapeStrokeGeometry.vertices[i]);
+        TweenMax.to(shapeGeometry.vertices[i], duration, {
+            x: shapePoints[i].x,
+            y: shapePoints[i].y,
+            delay: 0,
+            ease: Cubic.easeInOut,
+            onUpdate: function(){
+                shapeGeometry.verticesNeedUpdate = true;
+                shapeStrokeGeometry.verticesNeedUpdate = true;
+            }
+        })
+        TweenMax.to(shapeStrokeGeometry.vertices[i], duration + 0.1, {
+            x: shapePoints[i].x,
+            y: shapePoints[i].y,
+            delay: 0,
+            ease: Cubic.easeInOut,
+            onUpdate: function(){
+                shapeGeometry.verticesNeedUpdate = true;
+                shapeStrokeGeometry.verticesNeedUpdate = true;
+            }
+        })
+    }
+    // shapeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
+    // shapeStrokeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
+}
 
 function update() {
     _t = Date.now();
@@ -136,6 +192,7 @@ function update() {
             shapeStrokeMaterial.color.setHex( colors[currentColor] );
             // glitchPass.goWild = bassCheck.isSpiking;
             glitchPass.goWild = Pumper.isSpiking;
+            tweenVertices(scale);
             glitchTimeout = setTimeout(function (){
                 if(Pumper.isSpiking === false){
                     glitchPass.goWild = false;
