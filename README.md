@@ -25,23 +25,23 @@ Dockerfile is present for deployment to rehab-labs. _[TODO: documentation]_
 Deployment is done via a push-to-deploy service on rehab-labs. To use this
 you must add another git remote using the following command:
 
-```git remote add labs ssh://git@build.rehab-labs.com/git/RS/10th-birthday-visuals.git
-```
+`git remote add labs ssh://git@build.rehab-labs.com/git/RS/10th-birthday-visuals.git`
 
 To deploy the master branch then you simply run:
 
-```git push -f labs master
-```
+`git push -f labs master`
 
 If you wish to deploy a branch other than master, use the following:
 
-```git push -f <branch-you-are-deploying>:master
-```
+`git push -f <branch-you-are-deploying>:master`
 
 For example, to deploy develop:
 
-```git push -f develop:master
-```
+`git push -f develop:master`
+
+The deployed code will be built upon push and made available at
+
+`https://party-viz.rehab-labs.com`
 
 ### Notes / About
 
