@@ -23,6 +23,7 @@ var colors = [0xce1748, 0x14abbe, 0xfca412];
 var currentColor = 0;
 
 var main;
+var divisions = 16, bands = [];
 
 var camera, scene, renderer, composer;
 var shapesContainer, light;
@@ -34,6 +35,14 @@ var currentShape = 0;
 var glitchPass;
 
 function init() {
+    //Create bands
+    var bandMin = 10;
+    var bandSize = 80 / divisions;
+    for (var i = 0 ; i < divisions ; i++){
+        Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
+        bandMin += bandSize;
+    }
+
     //Create renderer
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -79,8 +88,10 @@ function initName(){
 
     var txtWidth, bitmap,
         g,
-        texture, material, nameMesh, nameSlicesContainer,
-        divisions = 10, divisionWidth, slices,
+        texture, material, nameSlicesContainer,
+        nameMesh, nameMesh2, nameMesh3, nameMesh4, nameMesh5,
+        divisionWidth, slices1, slices2, slices3, slices4, slices5,
+        posX, posY,
         i = 0, j = 0;
 
     //create text image
@@ -91,7 +102,11 @@ function initName(){
         nameSlicesContainer.position.x = namesSize * -0.5;
         nameSlicesContainer.position.y = 0;
 
-        slices = []
+        slices1 = []
+        slices2 = []
+        slices3 = []
+        slices4 = []
+        slices5 = []
         for (j = 0 ; j < divisions ; j ++){
             //Dirty as fuck, but I've got to create a canvas per name's slice
             //Also, weirdly the width can't seem to be set after adding a text in
@@ -105,7 +120,7 @@ function initName(){
             divisionWidth = txtWidth / divisions
 
             bitmap.width = divisionWidth;
-            g.font = 'bold 100px Arial';
+            g.font = 'bold 70px Arial';
             g.fillStyle = 'white';
             txtWidth = g.measureText(Datas.names[i]).width;
             g.fillText(Datas.names[i], (divisionWidth * j) * -1, 100 );
@@ -114,18 +129,38 @@ function initName(){
             texture.needsUpdate = true;
 
             material = new THREE.MeshBasicMaterial( {
-                map : texture, color: 0xffffff, transparent: true
+                map : texture, color: 0xffffff, transparent: true, opacity: 1
             });
 
+            posX = j * (divisionWidth) - txtWidth * 0.5;
+            posY = 0;
+
             nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-            nameMesh.position.x = j * divisionWidth - txtWidth * 0.5;
-            nameMesh.position.y = 200;
+            nameMesh.position.set(posX, posY, 0);
             nameSlicesContainer.add( nameMesh );
-            slices.push(nameMesh)
+            slices1.push(nameMesh)
+
+            nameMesh2 = nameMesh.clone();
+            nameMesh2.material = material.clone();
+            nameMesh2.position.set(posX, posY, 0);
+            nameMesh2.material.opacity = 0.2;
+            nameSlicesContainer.add( nameMesh2 );
+            slices2.push(nameMesh2)
+
+            nameMesh3 = nameMesh.clone();
+            nameMesh3.material = material.clone();
+            nameMesh3.position.set(posX, posY, 0);
+            nameMesh3.material.opacity = 0.5;
+            nameSlicesContainer.add( nameMesh3 );
+            slices3.push(nameMesh3)
         }
         namesMesh.push({
             container: nameSlicesContainer,
-            slices: slices
+            slices1: slices1,
+            slices2: slices2,
+            slices3: slices3,
+            slices4: slices4,
+            slices5: slices5
         });
     }
     namesContainer.add( namesMesh[0].container );
@@ -264,8 +299,20 @@ function update() {
 
     Pumper.update();
 
-    // glitchPass.goWild = Pumper.isSpiking;
-    // glitchPass.goWild = bassCheck.isSpiking;
+    //Animate names based on bands
+    var currentNameSlices1 = namesMesh[currentName].slices1;
+    var currentNameSlices2 = namesMesh[currentName].slices2;
+    var currentNameSlices3 = namesMesh[currentName].slices3;
+    // console.log(Pumper.bands[0].volume);
+    var bandVolume;
+    for (var i = 0 ; i < currentNameSlices1.length ; i ++){
+        bandVolume = Pumper.bands[i].volume;
+        // currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
+
+        currentNameSlices2[i].position.y = bandVolume * -0.2;
+
+        currentNameSlices3[i].position.y = bandVolume * 0.3;
+    }
 
     // if(bassCheck.isSpiking === true) {
     if(Pumper.isSpiking === true) {
