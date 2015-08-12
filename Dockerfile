@@ -8,5 +8,4 @@ RUN apt-get install -y nodejs
 RUN npm install -g webpack
 
 ADD . /static
-RUN cd /static; npm install
-RUN cd /static; webpack
+RUN cd /static; npm install; webpack
