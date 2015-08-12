@@ -132,6 +132,7 @@ function simulateBeat(){
 }
 
 function tweenVertices(duration){
+    //Change color of the shape
     currentColor ++;
     if(currentColor > colors.length - 1){
         currentColor = 0;
@@ -139,7 +140,18 @@ function tweenVertices(duration){
     shapeMaterial.color.setHex( colors[currentColor] );
     shapeStrokeMaterial.color.setHex( colors[currentColor] );
 
-    console.log(duration);
+    //Rotate shape
+    var shapeRotation = Math.floor(Math.random() * 90) * Math.PI / 180;
+    TweenMax.to(shapeMesh.rotation, duration, {
+        z:  shapeRotation,
+        ease: Cubic.easeInOut
+    })
+    TweenMax.to(shapeStrokeLine.rotation, duration + 0.05, {
+        z:  shapeRotation,
+        ease: Cubic.easeInOut
+    })
+
+    //Change shape
     currentShape ++ ;
     if( currentShape >= Shapes.length ){
         currentShape = 0;
@@ -151,6 +163,13 @@ function tweenVertices(duration){
         shapePoints.push( new THREE.Vector3( shapeStaticPoints[i].x, shapeStaticPoints[i].y, 0) );
     }
     shapePoints.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
+
+    TweenMax.to(shapeGeometry.vertices[i], duration, {
+        x: shapePoints[i].x,
+        y: shapePoints[i].y,
+        delay: 0,
+        ease: Cubic.easeInOut
+    })
 
     //Tween vertices
     for (var i = 0 ; i < shapePoints.length ; i ++){
