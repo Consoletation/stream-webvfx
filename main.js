@@ -32,9 +32,5 @@ setTimeout(function() {
     changeChannel('algoviz');
 }, 4000);
 
-setTimeout(function() {
-    changeChannel(null);
-}, 12000);
-
 
 
