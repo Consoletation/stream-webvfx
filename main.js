@@ -13,6 +13,9 @@ var CHANNELS = {
     },
     'mosaic': {
         author: 'Grieve'
+    },
+    'dirtygif': {
+        author: 'Neil'
     }
 };
 

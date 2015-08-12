@@ -10,15 +10,15 @@
  * Instantiated as a singleton - pass it around the app via require().
  *
  * API:
- * - Pumper.start(source, doAutoplay) 
+ * - Pumper.start(source, doAutoplay)
  *      - source can be a media URL or 'mic'
  *
- * - Pumper.update() 
+ * - Pumper.update()
  *      - updates all exposed properties with latest data
  *
  * - Pumper.createBand(rangeStart, rangeEnd, threshold, spikeTolerance)
  *      - creates a new frequency range monitor and returns the instance
- * 
+ *
  * Exposed properties:
  * - Pumper.bands - array of all Band instances in the order they were created
  * - Pumper.volume - current global average volume level. Set via Pumper.update()
@@ -104,8 +104,9 @@ Pumper.start = function(srcValue, autoPlay) {
     // Set up analyzer
     analyzer = AUDIO.createAnalyser();
     analyzer.fftSize = 256;
-    bufferLength = analyzer.frequencyBinCount;
+    Pumper.bufferLength = bufferLength = analyzer.frequencyBinCount;
     dataArray = new Uint8Array(bufferLength);
+    analyzer.getByteTimeDomainData(dataArray);
 
     if (srcValue === 'mic') {
         // Request mic access, create source node and connect to analyzer
@@ -215,6 +216,9 @@ Pumper.update = function() {
             band.isOverThreshold = false;
         }
     });
+
+    analyzer.getByteTimeDomainData(dataArray);
+    Pumper.timeDomainData = dataArray;
 };
 
 Pumper.getData = function() {

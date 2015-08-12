@@ -3,7 +3,8 @@
 var CHANNELS = [
     'algoviz',
     'beatprocessing',
-    'mosaic'
+    'mosaic',
+    'dirtygif'
     //'reactivelogo',
     //'splashlogo',
     //'test'
