@@ -11,7 +11,7 @@ Animations available:
 
 * *blackwhite* - plusing monochrome rehab '+' with color graphic EQ
 * *lines* - random 'rehab hacking lines' reacting to different frequency bands
-* *tunnel* - infinite rehab '+' tunnel with reactive colors
+* *tunnel* - infinite shape tunnel with reactive effects
 * *asteroids* - vector-style rehab shapes breaking up like Asteroids
 
 ### Todo
