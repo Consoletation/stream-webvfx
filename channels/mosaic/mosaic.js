@@ -4,6 +4,7 @@
 
 var geom = require('pex-geom');
 var Tile = require('./tile');
+var TWEEN = require('tween.js');
 
 var Mosaic = function(image, data) {
     this.data = data;
@@ -14,9 +15,14 @@ var Mosaic = function(image, data) {
 };
 
 Mosaic.prototype.ready = function() {
+    var self = this;
+
     this.generatePalette();
     this.createRenderer();
-    this.createMosaic(10);
+
+    setTimeout(function() {
+        self.createMosaic(10);
+    }, 2000);
 };
 
 Mosaic.prototype.loadAllImages = function(callback) {
@@ -39,7 +45,7 @@ Mosaic.prototype.loadAllImages = function(callback) {
     }
 };
 
-Mosaic.prototype.generatePalette = function() {
+Mosaic.prototype.generatePalette = function(cb) {
     console.log('Generating spatial palette...');
     var palette = new geom.Octree(
         new geom.Vec3(0, 0, 0),
@@ -66,14 +72,14 @@ Mosaic.prototype.generatePalette = function() {
 };
 
 Mosaic.prototype.createRenderer = function() {
-    var stage = new PIXI.Stage(0x000000);
-    var container = new PIXI.DisplayObjectContainer();
-    stage.addChild(container);
+    var container = new PIXI.Container();
 
     this.width = window.innerWidth;
     this.height = window.innerHeight;
 
-    var renderer = PIXI.autoDetectRenderer(this.width, this.height);
+    var renderer = PIXI.autoDetectRenderer(this.width, this.height, {
+        transparent: true
+    });
 
     renderer.view.style.position = 'absolute';
     renderer.view.style.top = '0px';
@@ -88,37 +94,44 @@ Mosaic.prototype.createRenderer = function() {
     var self = this;
     var step = 0;
 
-    var now;
+    var then;
     var delta;
-    var then = Date.now();
     var interval = 1000 / 30;
     var stepDelta = 0.006;
 
-    function anim() {
+    function anim(time) {
         window.requestAnimationFrame(anim);
-        now = Date.now();
-        delta = now - then;
-
-        then = now - (delta % interval);
         stats.begin();
+
+        TWEEN.update(time);
+
+        if (then === undefined) {
+            then = time;
+        }
+        delta = time - then;
+        then = time;
+
         step += stepDelta * (delta / interval);
         var size = (Math.sin(step) + 1) * 47 + 6;
         var scale = size / 100;
+
         container.scale.x = container.scale.y = scale;
         self.tiles.map(function(tile) {
             tile.adjustTint(scale);
         });
+
         container.position.x = (self.width - (size * 100)) / 2;
         container.position.x += Math.sin(step) * (50 + size * 10);
         container.position.y = (self.height - (size * 100)) / 2;
         container.position.y += Math.cos(step) * (50 + size * 10);
-        renderer.render(stage);
+
+        renderer.render(container);
+
         stats.end();
     }
 
     window.requestAnimationFrame(anim);
 
-    this.stage = stage;
     this.renderer = renderer;
     this.container = container;
 };
@@ -156,7 +169,6 @@ Mosaic.prototype.createMosaic = function() {
         self.tiles.push(tile);
         this.container.addChild(tile);
     }
-    var self = this;
 };
 
 module.exports = Mosaic;

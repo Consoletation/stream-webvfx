@@ -6,14 +6,10 @@ var Tile = function(color, img, x, y) {
     this.color = color;
     var tex = PIXI.Texture.fromImage('../../assets/faces/' + img);
     PIXI.Sprite.prototype.constructor.call(this, tex);
-    this.index = {
-        x: x,
-        y: y
-    };
-    this.position.x = x * 100;
-    this.position.y = y * 100;
-    this.width = this.height = 100;
 
+    this.x = x * 100;
+    this.y = y * 100;
+    this.width = this.height = 100;
     this.adjustTint(0.0);
 };
 
