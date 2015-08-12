@@ -67,7 +67,6 @@ function init() {
     light.position.set( 1, 1, 1 );
     scene.add( light );
 
-
     initPostProcessing();
 
     window.addEventListener( 'resize', onWindowResize, false );
@@ -96,71 +95,43 @@ function initName(){
 
     //create text image
     for (i = 0 ; i < Datas.names.length ; i ++){
+        //Create shapes container
+        var namesSize = 1024;
+        namesContainer = new THREE.Object3D();
+        namesContainer.position.x =  window.innerWidth * 0.5;
+        namesContainer.position.y =  window.innerHeight * -0.5;
+        scene.add( namesContainer );
 
-        // canvas contents will be used for a texture
-        nameSlicesContainer = new THREE.Object3D();
-        nameSlicesContainer.position.x = namesSize * -0.5;
-        nameSlicesContainer.position.y = 0;
+        var txtWidth, bitmap,
+            g,
+            texture, material, nameMesh, nameSlicesContainer;
 
-        slices1 = []
-        slices2 = []
-        slices3 = []
-        for (j = 0 ; j < divisions ; j ++){
-            //Dirty as fuck, but I've got to create a canvas per name's slice
-            //Also, weirdly the width can't seem to be set after adding a text in
+        //create text image
+        for (var i = 0 ; i < Datas.names.length ; i ++){
             bitmap = document.createElement('canvas');
             g = bitmap.getContext('2d');
             bitmap.width = namesSize;
-            bitmap.height = 200;
+            bitmap.height = namesSize;
             g.font = 'bold 100px Arial';
             g.fillStyle = 'white';
+            g.fillText(Datas.names[i], 0, 140);
             txtWidth = g.measureText(Datas.names[i]).width;
-            divisionWidth = txtWidth / divisions
 
-            bitmap.width = divisionWidth;
-            g.font = 'bold 70px Arial';
-            g.fillStyle = 'white';
-            txtWidth = g.measureText(Datas.names[i]).width;
-            g.fillText(Datas.names[i], (divisionWidth * j) * -1, 100 );
-
+            // canvas contents will be used for a texture
             texture = new THREE.Texture(bitmap)
             texture.needsUpdate = true;
-
             material = new THREE.MeshBasicMaterial( {
-                map : texture, color: 0xffffff, transparent: true, opacity: 1
+                map : texture, color: 0xffffff, transparent: true
             });
-
-            posX = j * (divisionWidth) - txtWidth * 0.5;
-            posY = 0;
-
-            nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-            nameMesh.position.set(posX, posY, 0);
+            nameSlicesContainer = new THREE.Mesh(new THREE.PlaneBufferGeometry(namesSize, namesSize), material);
+            nameSlicesContainer.position.x = txtWidth * -0.5;
+            nameSlicesContainer.position.y = -100;
+            nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(namesSize, namesSize), material);
             nameSlicesContainer.add( nameMesh );
-            slices1.push(nameMesh)
-
-            nameMesh2 = nameMesh.clone();
-            nameMesh2.material = material.clone();
-            nameMesh2.position.set(posX, posY, 0);
-            nameMesh2.material.opacity = 0.2;
-            nameSlicesContainer.add( nameMesh2 );
-            slices2.push(nameMesh2)
-
-            nameMesh3 = nameMesh.clone();
-            nameMesh3.material = material.clone();
-            nameMesh3.position.set(posX, posY, 0);
-            nameMesh3.material.opacity = 0.3;
-            nameSlicesContainer.add( nameMesh3 );
-            slices3.push(nameMesh3)
+            namesMesh.push(nameSlicesContainer);
         }
-        namesMesh.push({
-            container: nameSlicesContainer,
-            slices1: slices1,
-            slices2: slices2,
-            slices3: slices3
-        });
+        namesContainer.add( namesMesh[0] );
     }
-    namesContainer.add( namesMesh[0].container );
-
 }
 function initShape(){
     //Create shapes container
@@ -201,11 +172,9 @@ function initPostProcessing(){
     // postprocessing
     composer = new THREE.EffectComposer( renderer );
     composer.addPass( new THREE.RenderPass( scene, camera ) );
-
     glitchPass = new THREE.GlitchPass();
     // glitchPass.renderToScreen = true;
     composer.addPass( glitchPass );
-
     effectFilmPass = new THREE.FilmPass( 0.35, 0.1, 648, false );
     effectFilmPass.renderToScreen = true;
     composer.addPass( effectFilmPass );
@@ -231,12 +200,12 @@ function tweenVertices(duration){
     shapeStrokeMaterial.color.setHex( colors[currentColor] );
 
     //Change name
-    namesContainer.remove( namesMesh[currentName].container );
+    namesContainer.remove( namesMesh[currentName] );
     currentName ++;
     if(currentName > namesMesh.length - 1){
         currentName = 0;
     }
-    namesContainer.add( namesMesh[currentName].container );
+    namesContainer.add( namesMesh[currentName] );
 
     //Rotate shape
     var shapeRotation = THREE.Math.randInt(-45, 45) * Math.PI / 180;
@@ -296,16 +265,16 @@ function update() {
     Pumper.update();
 
     //Animate names based on bands
-    var currentNameSlices1 = namesMesh[currentName].slices1;
-    var currentNameSlices2 = namesMesh[currentName].slices2;
-    var currentNameSlices3 = namesMesh[currentName].slices3;
-    var bandVolume;
-    for (var i = 0 ; i < Pumper.bufferLength ; i ++){
-        var v = Pumper.timeDomainData[i] / 128;
-        currentNameSlices1[i].position.y = v * 5;
-        currentNameSlices2[i].position.y = v * -10;
-        currentNameSlices3[i].position.y = v * 10;
-    }
+    // var currentNameSlices1 = namesMesh[currentName].slices1;
+    // var currentNameSlices2 = namesMesh[currentName].slices2;
+    // var currentNameSlices3 = namesMesh[currentName].slices3;
+    // var bandVolume;
+    // for (var i = 0 ; i < Pumper.bufferLength ; i ++){
+    //     var v = Pumper.timeDomainData[i] / 128;
+    //     currentNameSlices1[i].position.y = v * 5;
+    //     currentNameSlices2[i].position.y = v * -10;
+    //     currentNameSlices3[i].position.y = v * 10;
+    // }
     // for (var i = 0 ; i < currentNameSlices1.length ; i ++){
     //     bandVolume = Pumper.bands[i].volume;
     //     currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
@@ -316,24 +285,24 @@ function update() {
     // }
 
     // return;
-    if(Pumper.isSpiking === true) {
+    if(bassCheck.isSpiking === true) {
         var volume = Math.floor((bassCheck.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
 
         tweenVertices(scale * 0.02);
 
         if(glitchPass.goWild === false){
-            // glitchPass.goWild = bassCheck.isSpiking;
-            glitchPass.goWild = Pumper.isSpiking;
+            glitchPass.goWild = bassCheck.isSpiking;
+            // glitchPass.goWild = Pumper.isSpiking;
             glitchTimeout = setTimeout(function (){
-                if(Pumper.isSpiking === false){
+                if(bassCheck.isSpiking === false){
                     glitchPass.goWild = false;
                 }
             }, volume)
         }else{
             clearTimeout( glitchTimeout )
             glitchTimeout = setTimeout(function (){
-                if(Pumper.isSpiking === false){
+                if(bassCheck.isSpiking === false){
                     glitchPass.goWild = false;
                 }
             }, volume)
