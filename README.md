@@ -4,9 +4,15 @@ Because rehab is/was 10 years old and we wanted to do some demoscene-type visual
 
 ### Installation
 
-You need Webpack installed globally.
+You need Python 2.7, Node.js, and npm installed in your environment.
 
-Just clone the repo and run `npm install` to set up, followed by `webpack-dev-server --progress --colors` to build & watch.  Local server is on `localhost:8080`.
+Just clone the repo and run the Makefile to get started. Here are some examples:
+
+  * `make run` - Runs webpack-dev-server and all python support scripts
+  * `make clean` - Cleans all temporary files from your directory
+
+`make run` will also ensure virtualenv and npm modules are up to date. If you want to run these manually, just do `make venv` or `make fe-deps`.
+Local server is on `localhost:8080`.
 
 Dockerfile is present for deployment to rehab-labs. _[TODO: documentation]_
 
