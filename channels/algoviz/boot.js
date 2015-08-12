@@ -1,4 +1,4 @@
-/*var Pumper = require('pumper'),
+var Pumper = require('pumper'),
     AlgoViz = require('./channels/algoviz');
 
 // var TRACK = 'https://dl.dropboxusercontent.com/u/42386473/cp/Hotline%20Miami%202%20OST%20-%20Sexualizer%20%28Perturbator%29.mp3';
@@ -9,4 +9,4 @@ Pumper.globalSpikeTolerance = 8;
 
 //Pumper.start('mic');
 
-AlgoViz.init();*/
+AlgoViz.init();
