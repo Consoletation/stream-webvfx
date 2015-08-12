@@ -307,9 +307,9 @@ function update() {
     var bandVolume;
     for (var i = 0 ; i < currentNameSlices1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        // currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
+        currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
 
-        currentNameSlices2[i].position.y = bandVolume * -0.2;
+        currentNameSlices2[i].position.y = bandVolume * -0.5;
 
         currentNameSlices3[i].position.y = bandVolume * 0.3;
     }
