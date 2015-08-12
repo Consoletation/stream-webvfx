@@ -17,7 +17,7 @@ var Datas = require('./datas')
 
 var _ift = Date.now();
 var glitchTimeout;
-var bassCheck = Pumper.createBand(20, 60, 127, 4 );
+var bassCheck = Pumper.createBand(20, 60, 127, 6 );
 
 var colors = [0xce1748, 0x14abbe, 0xfca412];
 var currentColor = 0;
@@ -102,11 +102,9 @@ function initName(){
         nameSlicesContainer.position.x = namesSize * -0.5;
         nameSlicesContainer.position.y = 0;
 
-        slices1 = []
-        slices2 = []
-        slices3 = []
-        slices4 = []
-        slices5 = []
+        slices1 = [];
+        slices2 = [];
+        slices3 = [];
         for (j = 0 ; j < divisions ; j ++){
             //Dirty as fuck, but I've got to create a canvas per name's slice
             //Also, weirdly the width can't seem to be set after adding a text in
@@ -136,6 +134,7 @@ function initName(){
             posY = 0;
 
             nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
+            nameMesh.material.opacity = 0.4;
             nameMesh.position.set(posX, posY, 0);
             nameSlicesContainer.add( nameMesh );
             slices1.push(nameMesh)
@@ -150,7 +149,7 @@ function initName(){
             nameMesh3 = nameMesh.clone();
             nameMesh3.material = material.clone();
             nameMesh3.position.set(posX, posY, 0);
-            nameMesh3.material.opacity = 0.5;
+            nameMesh3.material.opacity = 0.2;
             nameSlicesContainer.add( nameMesh3 );
             slices3.push(nameMesh3)
         }
@@ -158,9 +157,7 @@ function initName(){
             container: nameSlicesContainer,
             slices1: slices1,
             slices2: slices2,
-            slices3: slices3,
-            slices4: slices4,
-            slices5: slices5
+            slices3: slices3
         });
     }
     namesContainer.add( namesMesh[0].container );
@@ -181,14 +178,18 @@ function initShape(){
 
     //Create current shape
     shape = new THREE.Shape( shapePoints );
-	shapeStrokeGeometry = shape.createPointsGeometry();
-	var spacedPoints = shape.createSpacedPointsGeometry( 50 );
+    shapeStrokeGeometry = shape.createPointsGeometry();
+    var spacedPoints = shape.createSpacedPointsGeometry( 20 );
+    console.log(spacedPoints.vertices);
 
 
-	shapeGeometry = new THREE.ShapeGeometry( shape );
+    shapeGeometry = new THREE.ShapeGeometry( shape );
+    // shapeGeometry.vertices = shape.createSpacedPointsGeometry( 20 ).vertices;
     shapeGeometry.vertices.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
+    // shapeGeometry.verticesNeedUpdate = true;
+    // shapeGeometry.dirtyVertices = true;
     shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
-	shapeMesh = new THREE.Mesh( shapeGeometry, shapeMaterial );
+    shapeMesh = new THREE.Mesh( shapeGeometry, shapeMaterial );
     shapesContainer.add( shapeMesh );
 
     //Create stroke
@@ -278,13 +279,11 @@ function tweenVertices(duration){
         TweenMax.to(shapeGeometry.vertices[i], duration, {
             x: shapePoints[i].x,
             y: shapePoints[i].y,
-            delay: 0,
             ease: Cubic.easeInOut
         })
         TweenMax.to(shapeStrokeGeometry.vertices[i], duration + 0.05, {
             x: shapePoints[i].x,
             y: shapePoints[i].y,
-            delay: 0,
             ease: Cubic.easeInOut,
             onUpdate: function(){
                 shapeGeometry.verticesNeedUpdate = true;
@@ -308,14 +307,12 @@ function update() {
     for (var i = 0 ; i < currentNameSlices1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
         // currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
-
-        currentNameSlices2[i].position.y = bandVolume * -0.2;
-
-        currentNameSlices3[i].position.y = bandVolume * 0.3;
+        currentNameSlices1[i].position.y = bandVolume * 0.1;
+        currentNameSlices2[i].position.y = bandVolume * -0.1;
+        currentNameSlices3[i].position.y = bandVolume * 0.15;
     }
-
     // if(bassCheck.isSpiking === true) {
-    if(Pumper.isSpiking === true) {
+    if(bassCheck.isSpiking === true) {
         var volume = Math.floor((bassCheck.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
 
@@ -323,16 +320,16 @@ function update() {
 
         if(glitchPass.goWild === false){
             // glitchPass.goWild = bassCheck.isSpiking;
-            glitchPass.goWild = Pumper.isSpiking;
+            glitchPass.goWild = bassCheck.isSpiking;
             glitchTimeout = setTimeout(function (){
-                if(Pumper.isSpiking === false){
+                if(bassCheck.isSpiking === false){
                     glitchPass.goWild = false;
                 }
             }, volume)
         }else{
             clearTimeout( glitchTimeout )
             glitchTimeout = setTimeout(function (){
-                if(Pumper.isSpiking === false){
+                if(bassCheck.isSpiking === false){
                     glitchPass.goWild = false;
                 }
             }, volume)
@@ -357,9 +354,9 @@ function frame() {
 }
 
 function onWindowResize() {
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize( window.innerWidth, window.innerHeight );
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 
