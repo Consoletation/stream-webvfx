@@ -88,20 +88,32 @@ Mosaic.prototype.createRenderer = function() {
     var self = this;
     var step = 0;
 
+    var now;
+    var delta;
+    var then = Date.now();
+    var interval = 1000 / 30;
+    var stepDelta = 0.006;
+
     function anim() {
+        window.requestAnimationFrame(anim);
+        now = Date.now();
+        delta = now - then;
+
+        then = now - (delta % interval);
         stats.begin();
-        step += 0.006;
+        step += stepDelta * (delta / interval);
         var size = (Math.sin(step) + 1) * 47 + 6;
+        var scale = size / 100;
+        container.scale.x = container.scale.y = scale;
         self.tiles.map(function(tile) {
-            tile.update(size);
+            tile.adjustTint(scale);
         });
         container.position.x = (self.width - (size * 100)) / 2;
-        container.position.x += Math.sin(step * 2) * (50 + size * 10);
+        container.position.x += Math.sin(step) * (50 + size * 10);
         container.position.y = (self.height - (size * 100)) / 2;
-        container.position.y += Math.cos(step * 2) * (50 + size * 10);
+        container.position.y += Math.cos(step) * (50 + size * 10);
         renderer.render(stage);
         stats.end();
-        window.requestAnimationFrame(anim);
     }
 
     window.requestAnimationFrame(anim);
@@ -135,6 +147,7 @@ Mosaic.prototype.createMosaic = function() {
         var coord = Math.floor(idx / 4);
 
         var tile = new Tile(
+            pixel,
             chunk.data,
             (coord % this.image.width),
             Math.floor(coord / this.image.width)
@@ -143,6 +156,7 @@ Mosaic.prototype.createMosaic = function() {
         self.tiles.push(tile);
         this.container.addChild(tile);
     }
+    var self = this;
 };
 
 module.exports = Mosaic;
