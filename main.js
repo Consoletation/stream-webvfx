@@ -31,8 +31,15 @@ var els = {
     channelName: getEl('channel-name'),
     channelAuthor: getEl('channel-author'),
     mainframe: getEl('mainframe'),
-    instructions: getEl('instructions')
+    instructions: getEl('instructions'),
+    channelList: getEl('channel-list')
 };
+
+CHANNEL_IDS.forEach(function(name, idx) {
+    var item = document.createElement('p');
+    item.textContent = (idx + 1) + ' - ' + name;
+    els.channelList.appendChild(item);
+});
 
 var _ti;
 function changeChannel(id) {
