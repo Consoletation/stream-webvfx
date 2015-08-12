@@ -5,7 +5,7 @@ var Pumper = require('pumper'),
 var TRACK = '../../audio/audio.mp3';
 
 Pumper.start(TRACK, true);
-Pumper.globalSpikeTolerance = 8;
 //Pumper.start('mic');
+Pumper.globalSpikeTolerance = 12;
 
 BeatProcessing.init();

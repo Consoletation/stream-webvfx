@@ -104,8 +104,9 @@ Pumper.start = function(srcValue, autoPlay) {
     // Set up analyzer
     analyzer = AUDIO.createAnalyser();
     analyzer.fftSize = 256;
-    bufferLength = analyzer.frequencyBinCount;
+    Pumper.bufferLength = bufferLength = analyzer.frequencyBinCount;
     dataArray = new Uint8Array(bufferLength);
+    analyzer.getByteTimeDomainData(dataArray);
 
     if (srcValue === 'mic') {
         // Request mic access, create source node and connect to analyzer
@@ -194,11 +195,6 @@ Pumper.update = function() {
         Pumper.isOverThreshold = false;
     }
 
-    console.log( dataArray );
-    // console.log( analyzer.getByteTimeDomainData(dataArray) );
-    // Pumper.timeDomain = analyzer.getByteTimeDomainData(dataArray);
-    // console.log(Pumper.timeDomain);
-
     // Calc band volume levels
     Pumper.bands.forEach(function(band) {
         var total = 0;
@@ -220,6 +216,9 @@ Pumper.update = function() {
             band.isOverThreshold = false;
         }
     });
+
+    analyzer.getByteTimeDomainData(dataArray);
+    Pumper.timeDomainData = dataArray;
 };
 
 Pumper.getData = function() {

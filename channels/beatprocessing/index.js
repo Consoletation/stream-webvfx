@@ -23,7 +23,7 @@ var colors = [0xce1748, 0x14abbe, 0xfca412];
 var currentColor = 0;
 
 var main;
-var divisions = 16, bands = [];
+var divisions = 128, bands = [];
 
 var camera, scene, renderer, composer;
 var shapesContainer, light;
@@ -105,8 +105,6 @@ function initName(){
         slices1 = []
         slices2 = []
         slices3 = []
-        slices4 = []
-        slices5 = []
         for (j = 0 ; j < divisions ; j ++){
             //Dirty as fuck, but I've got to create a canvas per name's slice
             //Also, weirdly the width can't seem to be set after adding a text in
@@ -150,7 +148,7 @@ function initName(){
             nameMesh3 = nameMesh.clone();
             nameMesh3.material = material.clone();
             nameMesh3.position.set(posX, posY, 0);
-            nameMesh3.material.opacity = 0.5;
+            nameMesh3.material.opacity = 0.3;
             nameSlicesContainer.add( nameMesh3 );
             slices3.push(nameMesh3)
         }
@@ -158,9 +156,7 @@ function initName(){
             container: nameSlicesContainer,
             slices1: slices1,
             slices2: slices2,
-            slices3: slices3,
-            slices4: slices4,
-            slices5: slices5
+            slices3: slices3
         });
     }
     namesContainer.add( namesMesh[0].container );
@@ -303,18 +299,23 @@ function update() {
     var currentNameSlices1 = namesMesh[currentName].slices1;
     var currentNameSlices2 = namesMesh[currentName].slices2;
     var currentNameSlices3 = namesMesh[currentName].slices3;
-    // console.log(Pumper.bands[0].volume);
     var bandVolume;
-    for (var i = 0 ; i < currentNameSlices1.length ; i ++){
-        bandVolume = Pumper.bands[i].volume;
-        currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
-
-        currentNameSlices2[i].position.y = bandVolume * -0.5;
-
-        currentNameSlices3[i].position.y = bandVolume * 0.3;
+    for (var i = 0 ; i < Pumper.bufferLength ; i ++){
+        var v = Pumper.timeDomainData[i] / 128;
+        currentNameSlices1[i].position.y = v * 5;
+        currentNameSlices2[i].position.y = v * -10;
+        currentNameSlices3[i].position.y = v * 10;
     }
+    // for (var i = 0 ; i < currentNameSlices1.length ; i ++){
+    //     bandVolume = Pumper.bands[i].volume;
+    //     currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
+    //
+    //     currentNameSlices2[i].position.y = bandVolume * -0.5;
+    //
+    //     currentNameSlices3[i].position.y = bandVolume * 0.3;
+    // }
 
-    // if(bassCheck.isSpiking === true) {
+    // return;
     if(Pumper.isSpiking === true) {
         var volume = Math.floor((bassCheck.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
