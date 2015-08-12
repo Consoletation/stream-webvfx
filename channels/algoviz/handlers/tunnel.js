@@ -3,12 +3,9 @@ var Pumper = require('pumper'),
 
 var main;
 
-function setup(mainConfig) {
-    main = mainConfig;
-}
-
 var SPEED = 2,
     NUM_SEGS = 350,
+    NUM_STARS = 40,
     DRIFT_DIST = 300,
     X_DRIFT = 0.09,
     Y_DRIFT = 0.1,
@@ -19,7 +16,8 @@ var SPEED = 2,
     STROKE_SIZE = 10,
     TOTAL_LEN = NUM_SEGS * SEG_SIZE;
 
-var segments = [];
+var segments = [],
+    stars = [];
 var travelDist = 0;
 
 var CAM = {
@@ -76,40 +74,49 @@ var Shapes = {
     }
 }
 var shapeNames = Object.keys(Shapes);
+
 function getRndShape() {
     return shapeNames[Common.getRndInt(0,shapeNames.length - 1)];
 }
 
-for(var i = 0; i < NUM_SEGS; i++) {
-    var s = {
-        id: i,
-        name: getRndShape(),
-        x: Math.sin(i * X_DRIFT) * DRIFT_DIST,
-        y: Math.sin(i * Y_DRIFT) * DRIFT_DIST,
-        z: i * SEG_SIZE,
-        r: 0.5 + (Math.sin(i * 0.1) * 0.5),//Math.random(),
-        light: 0.2 + (Math.abs(Math.sin(i * 0.5) * 0.8)),
-        special: (i % 5 === 0),
-        color: Common.TRICOLOR_RGB[Common.getRndInt(0,2)]
-    };
-    segments.push(s);
+function setup(mainConfig) {
+    main = mainConfig;
+
+    for(var i = 0; i < NUM_SEGS; i++) {
+        var s = {
+            id: i,
+            name: getRndShape(),
+            x: Math.sin(i * X_DRIFT) * DRIFT_DIST,
+            y: Math.sin(i * Y_DRIFT) * DRIFT_DIST,
+            z: i * SEG_SIZE,
+            r: 0.5 + (Math.sin(i * 0.1) * 0.5),//Math.random(),
+            light: 0.2 + (Math.abs(Math.sin(i * 0.5) * 0.8)),
+            special: (i % 5 === 0),
+            color: Common.TRICOLOR_RGB[Common.getRndInt(0,2)]
+        };
+        segments.push(s);
+    }
+
+    for(var i = 0; i < NUM_STARS; i++) {
+        var baseF = 10;
+        stars.push({
+            f: baseF + i,   // target freq band
+            x: 0,
+            y: 0,
+            s: Common.getRndInt(2,6), // size
+        });
+    }
+    _positionStars();
 }
 
-function _moveCamera(_t) {
-    travelDist += SPEED;
-    if (travelDist >= TOTAL_LEN) travelDist = 0;
-    
-    var currentSegId = Math.floor(travelDist / SEG_SIZE),
-        nextSegId = (currentSegId < NUM_SEGS - 1) ? currentSegId + 1 : 0,
-        segProgress = (travelDist % SEG_SIZE) / SEG_SIZE,
-        xofs = segments[nextSegId].x - segments[currentSegId].x,
-        yofs = segments[nextSegId].y - segments[currentSegId].y,
-        xdiff = xofs * segProgress,
-        ydiff = yofs * segProgress;
-
-    CAM.x = -segments[currentSegId].x - xdiff;
-    CAM.y = -segments[currentSegId].y - ydiff;  
+function _positionStars() {
+    var range = DRIFT_DIST * 1.5;
+    stars.forEach(function(star) {
+        star.x = main.CX + Common.getRndInt(-range, range);
+        star.y = main.CY + Common.getRndInt(-range, range);
+    });
 }
+
 
 var scalar = 0.5;
 
@@ -120,7 +127,6 @@ function update(_t) {
     if(scalar > 0.2) scalar -= (scalar - 0.5) * 0.1;
     
 }
-
 
 function _drawShape(shape, maxDist, zofs) {
 
@@ -161,13 +167,35 @@ function _drawShape(shape, maxDist, zofs) {
     
 }
 
-function render(_t) {
-    _moveCamera(_t);
+function _moveCamera(_t) {
+    travelDist += SPEED;
+    if (travelDist >= TOTAL_LEN) travelDist = 0;
     
-    main.ctx.clearRect(0, 0, main.W, main.H);
-    main.ctx.setLineDash([]);
+    var currentSegId = Math.floor(travelDist / SEG_SIZE),
+        nextSegId = (currentSegId < NUM_SEGS - 1) ? currentSegId + 1 : 0,
+        segProgress = (travelDist % SEG_SIZE) / SEG_SIZE,
+        xofs = segments[nextSegId].x - segments[currentSegId].x,
+        yofs = segments[nextSegId].y - segments[currentSegId].y,
+        xdiff = xofs * segProgress,
+        ydiff = yofs * segProgress;
 
-    // Calculate closest and farthest segment to the camera,
+    CAM.x = -segments[currentSegId].x - xdiff;
+    CAM.y = -segments[currentSegId].y - ydiff;  
+}
+
+function _drawStars() {
+    stars.forEach(function(star) {
+        var f = Pumper.data[star.f];
+        if(f > Pumper.globalThreshold) {
+            var brightness = 0.2 + ((f - Pumper.globalThreshold) / (255 - Pumper.globalThreshold) * 0.8);
+            main.ctx.fillStyle = 'rgba(255,255,255,' + brightness + ')';
+            main.ctx.fillRect(star.x, star.y, star.s, star.s);
+        }
+    });
+}
+
+function _drawTunnel() {
+     // Calculate closest and farthest segment to the camera,
     // based on our current travel position
     var currentSegId = Math.floor(travelDist / SEG_SIZE),
         farSegId = currentSegId + DRAW_DIST;
@@ -194,10 +222,42 @@ function render(_t) {
     }
 }
 
+function _drawUI() {
+    main.ctx.font = '30px VT323';
+    main.ctx.textAlign = 'left';
+    main.ctx.textBaseline = 'top';
+    main.ctx.fillStyle = 'white';
+    main.ctx.fillText('#REHAB10', main.CX - DRIFT_DIST, 10);
+
+    main.ctx.textAlign = 'right';
+    main.ctx.fillText('DIST ' + travelDist * 1000, main.CX + DRIFT_DIST, 10);
+    main.ctx.fillText('PUMP ' + ((Pumper.volume / 255) * 100).toFixed(2) + '%', main.CX + DRIFT_DIST, 40);
+}
+
+function _drawRasterLines() {
+    main.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    for(var i = 0; i < main.H; i++) {
+        if(i % 4 === 0) main.ctx.fillRect(0, i, main.W, 1);
+    }
+}
+
+function render(_t) {
+    _moveCamera(_t);
+    
+    main.ctx.clearRect(0, 0, main.W, main.H);
+    main.ctx.setLineDash([]);
+
+    _drawStars();
+    _drawTunnel();
+    _drawUI();
+    _drawRasterLines();
+}
+
 var Tunnel = {
     setup: setup,
     update: update,
-    render: render
+    render: render,
+    canvasSize: 600
 };
 
 module.exports = Tunnel;
