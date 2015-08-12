@@ -22,6 +22,7 @@ build: be-build fe-build
 
 clean:
 	rm -f *.bundle.js
+	rm -f *.bundle.js.map
 	rm -f npm-debug.log
 	rm -f supervisord.log
 	rm -rf assets/instagram_photos/
