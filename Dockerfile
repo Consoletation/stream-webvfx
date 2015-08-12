@@ -1,26 +1,25 @@
-FROM debian
+FROM debian:jessie
 
+# Python and other dependencies
 RUN apt-get update && \
-    apt-get install -y \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
         python \
         python-dev \
         python-pip \
-        python-virtualenv
-RUN curl -sL https://deb.nodesource.com/setup | bash -
-RUN apt-get install -y nodejs
+        python-virtualenv && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-ADD requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
-
-ADD package.json /tmp/package.json
-RUN cd /tmp && npm install
-RUN npm install -g webpack
+# Install Node stable
+RUN curl -sL https://deb.nodesource.com/setup | bash - && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY . /app
 WORKDIR /app
-RUN cp -a /tmp/node_modules /app/
-RUN webpack
+RUN make clean && make build
 
 EXPOSE 8080
-CMD ["supervisord", "-c", "supervisord-docker.conf", "-n"]
+CMD ["make", "run"]
