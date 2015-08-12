@@ -53,6 +53,18 @@ Some of them accept live audio input to generate reactive visuals.
 
 Check the README and comments in each channel for more details.
 
+#### Channels
+
+'Channels' are subdirectories of `/channels` which must contain an `index.html` and a `boot.js`.
+Webpack uses the `boot.js` as a bundle entrypoint and outputs `<channelname>.bundle.js` inside the channel
+directory.  The `index.html` must load this bundle.
+
+`index.html` and `main.js` comprise a 'channel changer' system.  They will load the 
+`index.html` of whatever channel is selected.  Channels must be added to the `CHANNELS` object 
+in `index.js` to be picked up by the system.
+
+Numeric keyboard shortcuts will change active channels, with 0 chaning to a screen of static.
+
 ### Todos
 
  - Documentation & comments
