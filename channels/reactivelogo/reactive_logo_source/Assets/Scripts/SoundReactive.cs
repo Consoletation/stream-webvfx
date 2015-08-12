@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class SoundReactive : MonoBehaviour {
+	
+	private AudioClip m_clip;
 
 	public static bool DRAW_SPECTRUM = false;
 
@@ -61,12 +63,27 @@ public class SoundReactive : MonoBehaviour {
 		m_source = gameObject.AddComponent<AudioSource> ();
 		m_averageValues = new List<float> ();
 	}
+		
 
 	void Start()
 	{
-		StartCoroutine (RequestMic ());
+		#if !UNITY_WEBGL
+			StartCoroutine (RequestMic ());
+		#endif
 	}
 
+	private float m_outValue = 0;
+	public void UpdateSound(float value)
+	{
+		m_outValue = value;
+	}
+
+	/*void OnGUI()
+	{
+		//GUI.Label (new Rect(10,10,100,100) , "value: " + m_outValue);
+	}*/
+
+	#if !UNITY_WEBGL
 
 	IEnumerator RequestMic () {
 		yield return Application.RequestUserAuthorization(UserAuthorization.Microphone);
@@ -87,6 +104,7 @@ public class SoundReactive : MonoBehaviour {
 		}
 
 	}
+	#endif 
 	
 
 	void Update(){

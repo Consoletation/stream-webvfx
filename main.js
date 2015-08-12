@@ -1,12 +1,68 @@
-var Pumper = require('pumper'),
-    AlgoViz = require('./channels/beatprocessing');
+console.log('loaded');
 
-// var TRACK = 'https://dl.dropboxusercontent.com/u/42386473/cp/Hotline%20Miami%202%20OST%20-%20Sexualizer%20%28Perturbator%29.mp3';
-var TRACK = 'audio/audio.mp3';
+var CHANNELS = {
+    'algoviz' : {
+        author: 'Neil'
+    },
+    'beatprocessing' : {
+        author: 'Mick'
+    }
+}
+var CHANNEL_IDS = Object.keys(CHANNELS);
 
-// Pumper.start('mic');
-Pumper.start(TRACK, false);
-Pumper.globalSpikeTolerance = 8;
+var OSD_HANG_TIME = 2000;
 
+var currentChannel = null;
 
-AlgoViz.init();
+function getEl(id) {
+    return document.getElementById(id);
+}
+
+var els = {
+    osd: getEl('osd'),
+    channelName: getEl('channel-name'),
+    channelAuthor: getEl('channel-author'),
+    mainframe: getEl('mainframe'),
+    instructions: getEl('instructions')
+};
+
+var _ti;
+function changeChannel(id) {
+    console.log('change channel', id);
+    var src = (id === null) ? '' : './channels/' + id;
+    els.mainframe.setAttribute('src', src);
+    currentChannel = id;
+
+    var name, author;
+
+    if(currentChannel) {
+        name = id;
+        author = CHANNELS[currentChannel].author;
+    } else {
+        name = 'RHB';
+        author = '...';
+    }
+
+    clearTimeout(_ti);
+    els.channelName.textContent = name;
+    els.channelAuthor.textContent = author;
+    els.osd.classList.add('visible');
+    setTimeout(function() {
+        els.osd.classList.remove('visible');
+    }, OSD_HANG_TIME);
+}
+
+$(document).on('keypress', function(e) {
+    var k = e.which || e.keyCode,
+        nk = k - 48;
+        console.log('keypress', k, nk);
+
+    if (nk >= 0 && nk <= CHANNEL_IDS.length) {
+        var cid = (nk) ? CHANNEL_IDS[nk - 1] : null;
+        changeChannel(cid);
+    }
+});
+
+setTimeout(function() {
+    els.instructions.classList.remove('visible');
+}, 6000);

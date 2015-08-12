@@ -1,11 +1,24 @@
+var CHANNELS = [
+    'algoviz',
+    'beatprocessing',
+    //'reactivelogo',
+    //'splashlogo',
+    //'test'
+];
+
+var _entries = {};
+
+CHANNELS.forEach(function(c) {
+    _entries[c] = './channels/' + c + '/boot.js';
+});
+
+console.log('ENTRIES', _entries);
+
 module.exports = {
-    entry: {
-        main: './main.js',
-        mosaic: './mosaic.js'
-    },
+    entry: _entries,
     output: {
         path: __dirname,
-        filename: '[name].bundle.js'
+        filename: './channels/[name]/[name].bundle.js'
     },
     resolve: {
         alias: {
