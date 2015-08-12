@@ -10,11 +10,12 @@ You need Python 2.7, Node.js, and npm installed in your environment.
 Just clone the repo and run the Makefile to get started. Here are some
 examples:
 
+  * `make build` - Builds frontend and backend components
   * `make run` - Runs webpack-dev-server and all python support scripts
   * `make clean` - Cleans all temporary files from your directory
 
-`make run` will also ensure frontend and backend components are installed and
-built. If you want to run these manually, just do `make build` or `make deps`.
+`make run` will NOT build for you, you must run `make build` before running
+the project.
 
 Local server is on `localhost:8080`.
 

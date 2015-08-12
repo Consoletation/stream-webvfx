@@ -29,5 +29,5 @@ clean:
 	rm -rf node_modules
 	rm -rf venv
 
-run: build
+run:
 	venv/bin/supervisord -c supervisord.conf -n
