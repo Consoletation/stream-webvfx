@@ -13,8 +13,8 @@ examples:
   * `make run` - Runs webpack-dev-server and all python support scripts
   * `make clean` - Cleans all temporary files from your directory
 
-`make run` will also ensure virtualenv and npm modules are up to date. If you
-want to run these manually, just do `make venv` or `make fe-deps`.
+`make run` will also ensure frontend and backend components are installed and
+built. If you want to run these manually, just do `make build` or `make deps`.
 
 Local server is on `localhost:8080`.
 
