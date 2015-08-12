@@ -24,6 +24,7 @@ var Datas = {
         }
     ],
     names: [
+        '+rehabstudio',
         'Mickael',
         'Tom',
         'Tim',

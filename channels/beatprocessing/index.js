@@ -79,34 +79,56 @@ function initName(){
 
     var txtWidth, bitmap,
         g,
-        texture, material, nameMesh, nameSlicesContainer;
+        texture, material, nameMesh, nameSlicesContainer,
+        divisions = 10, divisionWidth, slices,
+        i = 0, j = 0;
 
     //create text image
-    for (var i = 0 ; i < Datas.names.length ; i ++){
-        bitmap = document.createElement('canvas');
-        g = bitmap.getContext('2d');
-        bitmap.width = namesSize;
-        bitmap.height = namesSize;
-        g.font = 'bold 140px Arial';
-        g.fillStyle = 'white';
-        g.fillText(Datas.names[i], 0, 140);
-        txtWidth = g.measureText(Datas.names[i]).width;
+    for (i = 0 ; i < Datas.names.length ; i ++){
 
         // canvas contents will be used for a texture
-        texture = new THREE.Texture(bitmap)
-        texture.left = -600
-        texture.needsUpdate = true;
-        material = new THREE.MeshBasicMaterial( {
-            map : texture, color: 0xffffff, transparent: true
+        nameSlicesContainer = new THREE.Object3D();
+        nameSlicesContainer.position.x = namesSize * -0.5;
+        nameSlicesContainer.position.y = 0;
+
+        slices = []
+        for (j = 0 ; j < divisions ; j ++){
+            //Dirty as fuck, but I've got to create a canvas per name's slice
+            //Also, weirdly the width can't seem to be set after adding a text in
+            bitmap = document.createElement('canvas');
+            g = bitmap.getContext('2d');
+            bitmap.width = namesSize;
+            bitmap.height = 200;
+            g.font = 'bold 100px Arial';
+            g.fillStyle = 'white';
+            txtWidth = g.measureText(Datas.names[i]).width;
+            divisionWidth = txtWidth / divisions
+
+            bitmap.width = divisionWidth;
+            g.font = 'bold 100px Arial';
+            g.fillStyle = 'white';
+            txtWidth = g.measureText(Datas.names[i]).width;
+            g.fillText(Datas.names[i], (divisionWidth * j) * -1, 100 );
+
+            texture = new THREE.Texture(bitmap)
+            texture.needsUpdate = true;
+
+            material = new THREE.MeshBasicMaterial( {
+                map : texture, color: 0xffffff, transparent: true
+            });
+
+            nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
+            nameMesh.position.x = j * divisionWidth - txtWidth * 0.5;
+            nameMesh.position.y = 200;
+            nameSlicesContainer.add( nameMesh );
+            slices.push(nameMesh)
+        }
+        namesMesh.push({
+            container: nameSlicesContainer,
+            slices: slices
         });
-        nameSlicesContainer = new THREE.Mesh(new THREE.PlaneBufferGeometry(namesSize, namesSize), material);
-        nameSlicesContainer.position.x = txtWidth * -0.5;
-        nameSlicesContainer.position.y = -100;
-        nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(namesSize, namesSize), material);
-        nameSlicesContainer.add( nameMesh );
-        namesMesh.push(nameSlicesContainer);
     }
-    namesContainer.add( namesMesh[0] );
+    namesContainer.add( namesMesh[0].container );
 
 }
 function initShape(){
@@ -178,12 +200,12 @@ function tweenVertices(duration){
     shapeStrokeMaterial.color.setHex( colors[currentColor] );
 
     //Change name
-    namesContainer.remove( namesMesh[currentName] );
+    namesContainer.remove( namesMesh[currentName].container );
     currentName ++;
     if(currentName > namesMesh.length - 1){
         currentName = 0;
     }
-    namesContainer.add( namesMesh[currentName] );
+    namesContainer.add( namesMesh[currentName].container );
 
     //Rotate shape
     var shapeRotation = THREE.Math.randInt(-45, 45) * Math.PI / 180;
