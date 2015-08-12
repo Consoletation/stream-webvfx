@@ -72,27 +72,27 @@ function initShape(){
     scene.add( shapesContainer );
 
     //Create current shape and its stroke
-    var shape = new THREE.Shape();
-    var shapePoints = Shapes[currentShape].points;
-    // shapeGeometry = new THREE.Geometry( );
-    shapeStrokeGeometry = new THREE.Geometry( );
-
+    var shapeStaticPoints = Shapes[currentShape].points;
+    shapePoints = [];
     //Get shape's points from the shapes file
-    shape.moveTo( shapePoints[0].x, shapePoints[0].y );
-    shapeStrokeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
-    for (var i = 1 ; i < shapePoints.length ; i ++){
-        shape.lineTo( shapePoints[i].x, shapePoints[i].y );
-        shapeStrokeGeometry.vertices.push( new THREE.Vector3( shapePoints[i].x, shapePoints[i].y, 0) );
+    for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
+        shapePoints.push( new THREE.Vector3( shapeStaticPoints[i].x, shapeStaticPoints[i].y, 0) );
     }
-    shape.lineTo( shapePoints[0].x, shapePoints[0].y );
-    shapeStrokeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
 
     //Create current shape
-    shapeGeometry = new THREE.PlaneGeometry( shape );
-    shapeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
+    shape = new THREE.Shape( shapePoints );
+	shapeStrokeGeometry = shape.createPointsGeometry();
+	var spacedPoints = shape.createSpacedPointsGeometry( 50 );
+    console.log(spacedPoints);
+
+
+	shapeGeometry = new THREE.ShapeGeometry( shape );
+    shapeGeometry.vertices.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
     shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
-    shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial);
+	shapeMesh = new THREE.Mesh( shapeGeometry, shapeMaterial );
     shapesContainer.add( shapeMesh );
+
+
 
     //Create stroke
     shapeStrokeMaterial = new THREE.LineBasicMaterial( {
@@ -102,6 +102,9 @@ function initShape(){
     shapeStrokeLine.scale.set(1.2, 1.2, 1.2)
     shapesContainer.add( shapeStrokeLine );
     // shapeStrokeLine.rotation.x = 10;
+
+        console.log('shapeGeometry.vertices: ', shapeGeometry.vertices);
+        console.log('shapeStrokeGeometry.vertices: ', shapeStrokeGeometry.vertices);
 }
 
 function initPostProcessing(){
@@ -129,33 +132,35 @@ function simulateBeat(){
 }
 
 function tweenVertices(duration){
+    currentColor ++;
+    if(currentColor > colors.length - 1){
+        currentColor = 0;
+    }
+    shapeMaterial.color.setHex( colors[currentColor] );
+    shapeStrokeMaterial.color.setHex( colors[currentColor] );
+
+    console.log(duration);
     currentShape ++ ;
     if( currentShape >= Shapes.length ){
         currentShape = 0;
     }
-    var shapePoints = Shapes[currentShape].points;
+    var shapeStaticPoints = Shapes[currentShape].points;
+    shapePoints = [];
+    //Get shape's points from the shapes file
+    for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
+        shapePoints.push( new THREE.Vector3( shapeStaticPoints[i].x, shapeStaticPoints[i].y, 0) );
+    }
+    shapePoints.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
 
-    console.log('shapeGeometry.vertices: ', shapeGeometry.vertices);
-    console.log('shapeStrokeGeometry.vertices: ', shapeStrokeGeometry.vertices);
-
-    shapeGeometry.verticesNeedUpdate = true;
-    shapeStrokeGeometry.verticesNeedUpdate = true;
-
+    //Tween vertices
     for (var i = 0 ; i < shapePoints.length ; i ++){
-        // shapeGeometry.vertices[i] =  new THREE.Vector3( shapePoints[i].x, shapePoints[i].y, 0) ;
-        // shapeStrokeGeometry.vertices[i] =  new THREE.Vector3( shapePoints[i].x, shapePoints[i].y, 0) ;
-        // console.log(shapeStrokeGeometry.vertices[i]);
         TweenMax.to(shapeGeometry.vertices[i], duration, {
             x: shapePoints[i].x,
             y: shapePoints[i].y,
             delay: 0,
-            ease: Cubic.easeInOut,
-            onUpdate: function(){
-                shapeGeometry.verticesNeedUpdate = true;
-                shapeStrokeGeometry.verticesNeedUpdate = true;
-            }
+            ease: Cubic.easeInOut
         })
-        TweenMax.to(shapeStrokeGeometry.vertices[i], duration + 0.1, {
+        TweenMax.to(shapeStrokeGeometry.vertices[i], duration + 0.05, {
             x: shapePoints[i].x,
             y: shapePoints[i].y,
             delay: 0,
@@ -166,8 +171,6 @@ function tweenVertices(duration){
             }
         })
     }
-    // shapeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
-    // shapeStrokeGeometry.vertices.push( new THREE.Vector3( shapePoints[0].x, shapePoints[0].y, 0) );
 }
 
 function update() {
@@ -183,16 +186,11 @@ function update() {
         var volume = Math.floor((bassCheck.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
 
+            tweenVertices(scale * 0.02);
+
         if(glitchPass.goWild === false){
-            currentColor ++;
-            if(currentColor > colors.length - 1){
-                currentColor = 0;
-            }
-            shapeMaterial.color.setHex( colors[currentColor] );
-            shapeStrokeMaterial.color.setHex( colors[currentColor] );
             // glitchPass.goWild = bassCheck.isSpiking;
             glitchPass.goWild = Pumper.isSpiking;
-            tweenVertices(scale);
             glitchTimeout = setTimeout(function (){
                 if(Pumper.isSpiking === false){
                     glitchPass.goWild = false;
