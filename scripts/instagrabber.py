@@ -13,7 +13,7 @@ from instagram.client import InstagramAPI
 client_id = "e57454d58e8a43b5b1e523b0016e42d1"
 client_secret = "2be7470623f54bb98d3f1ebe86299ed1"
 tag_name = "rehabstudio"
-output_dir = "instagram_photos"
+output_dir = "assets/instagram_photos"
 
 
 output_dir = os.path.abspath(output_dir)
