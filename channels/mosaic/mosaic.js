@@ -1,28 +1,9 @@
-/* global PIXI */
+/* global PIXI, Stats */
 
 'use strict';
 
 var geom = require('pex-geom');
-
-var Tile = function(img, x, y) {
-    var tex = PIXI.Texture.fromImage('./assets/faces/' + img);
-    PIXI.Sprite.prototype.constructor.call(this, tex);
-    this.index = {
-        x: x,
-        y: y
-    };
-    this.width = 5;
-    this.height = 5;
-};
-
-Tile.prototype = Object.create(PIXI.Sprite.prototype);
-Tile.prototype.constructor = Tile;
-
-Tile.prototype.update = function(size) {
-    this.width = this.height = size;
-    this.position.x = this.index.x * this.width;
-    this.position.y = this.index.y * this.width;
-};
+var Tile = require('./tile');
 
 var Mosaic = function(image, data) {
     this.data = data;
@@ -88,13 +69,15 @@ Mosaic.prototype.createRenderer = function() {
     var stage = new PIXI.Stage(0x000000);
     var container = new PIXI.DisplayObjectContainer();
     stage.addChild(container);
-    var container = new PIXI.DisplayObjectContainer();
-    stage.addChild(container);
-    var renderer = PIXI.autoDetectRenderer(1000, 1000);
+
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+
+    var renderer = PIXI.autoDetectRenderer(this.width, this.height);
+
     renderer.view.style.position = 'absolute';
-    renderer.view.style.top = '50%';
-    renderer.view.style.left = '50%';
-    renderer.view.style.transform = 'translate(-50%, -50%)';
+    renderer.view.style.top = '0px';
+    renderer.view.style.left = '0px';
     document.body.appendChild(renderer.view);
 
     var stats = new Stats();
@@ -108,13 +91,13 @@ Mosaic.prototype.createRenderer = function() {
     function anim() {
         stats.begin();
         step += 0.006;
-        var size = (Math.sin(step) + 1) * 47 + 6; 
+        var size = (Math.sin(step) + 1) * 47 + 6;
         self.tiles.map(function(tile) {
             tile.update(size);
         });
-        container.position.x = (1000 - (size * 100)) / 2;
+        container.position.x = (self.width - (size * 100)) / 2;
         container.position.x += Math.sin(step * 2) * (50 + size * 10);
-        container.position.y = (1000 - (size * 100)) / 2;
+        container.position.y = (self.height - (size * 100)) / 2;
         container.position.y += Math.cos(step * 2) * (50 + size * 10);
         renderer.render(stage);
         stats.end();
@@ -162,18 +145,4 @@ Mosaic.prototype.createMosaic = function() {
     }
 };
 
-function start() {
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (request.readyState === 4) {
-            var data = JSON.parse(request.responseText);
-            var mosaic = new Mosaic('./assets/test_mosaic.png', data);
-            console.log('Started mosaic:', mosaic);
-        }
-    };
-
-    request.open('GET', './assets/faces.json');
-    request.send();
-}
-
-start();
+module.exports = Mosaic;
