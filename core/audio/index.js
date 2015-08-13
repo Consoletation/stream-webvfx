@@ -233,8 +233,5 @@ Pumper.update = function() {
 
 };
 
-Pumper.getData = function() {
-    return dataArray;
-};
 
 module.exports = Pumper;
