@@ -148,7 +148,7 @@ Mosaic.prototype.createMosaic = function() {
         self.tileGeneration(image);
         setTimeout(function() {
             self.recreate = true;
-        }, 45000);
+        }, 30000);
     };
 
 };
@@ -166,6 +166,15 @@ Mosaic.prototype.tileGeneration = function(image) {
 
     this.tiles = [];
     this.container.removeChildren();
+
+    var bgSpr = new PIXI.Sprite(PIXI.Texture.fromImage(
+        image.src,
+        false,
+        PIXI.SCALE_MODES.NEAREST
+    ));
+    bgSpr.width = 10000;
+    bgSpr.height = 10000;
+    this.container.addChild(bgSpr);
 
     for (var idx = 0; idx < pixels.data.length; idx += 4) {
         var pixel = new geom.Vec3(
