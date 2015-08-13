@@ -15,14 +15,12 @@
 		<script type="text/javascript">
 		<!--
 			var config = {
-				width: window.innerWidth,
-				height: window.innerHeight,
-				params: { enableDebugging:"0"},
-				logoimage:""
+				width: 1600, 
+				height: 1200,
+				params: { enableDebugging:"0" }
 				
 			};
 			config.params["disableContextMenu"] = true;
-			config.params["logoimage"] = "";
 			var u = new UnityObject2(config);
 			
 			jQuery(function() {
@@ -70,10 +68,6 @@
 			background-color: white;
 			color: black;
 			text-align: center;
-			margin:0px;
-			padding:0px;
-			width:100%;
-			height:100%;
 		}
 		a:link, a:visited {
 			color: #000;
@@ -92,8 +86,7 @@
 		}
 		div.content {
 			margin: auto;
-			width: 100%;
-			height:100%;
+			width: 1600px;
 		}
 		div.broken,
 		div.missing {
@@ -117,17 +110,14 @@
 		}
 		div#unityPlayer {
 			cursor: default;
-			height: 1000px;
-			width: 100%;
-		}
-		embed
-		{
-			width:100% !important;
+			height: 1200px;
+			width: 1600px;
 		}
 		-->
 		</style>
 	</head>
 	<body>
+		<p class="header"><span>Unity Web Player | </span>SummerParty</p>
 		<div class="content">
 			<div id="unityPlayer">
 				<div class="missing">
@@ -137,6 +127,6 @@
 				</div>
 			</div>
 		</div>
-		<script src="./reactivelogo.bundle.js"></script>
+		<p class="footer">&laquo; created with <a href="http://unity3d.com/unity/" title="Go to unity3d.com">Unity</a> &raquo;</p>
 	</body>
 </html>

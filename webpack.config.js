@@ -4,8 +4,8 @@ var CHANNELS = [
     'algoviz',
     'beatprocessing',
     'mosaic',
-    'dirtygif'
-    //'reactivelogo',
+    'dirtygif',
+    'reactivelogo'
     //'splashlogo',
     //'test'
 ];

@@ -16,6 +16,9 @@ var CHANNELS = {
     },
     'dirtygif': {
         author: 'Neil'
+    },
+    'reactivelogo': {
+        author: 'Pedro'
     }
 };
 
