@@ -28,5 +28,13 @@ module.exports = {
         alias: {
             'pumper': __dirname + '/core/audio'
         }
+    },
+    module: {
+        loaders: [
+            {
+                test: /\.glsl$/,
+                loader: 'webpack-glsl'
+            }
+        ]
     }
 };
