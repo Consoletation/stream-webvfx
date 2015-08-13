@@ -14,14 +14,17 @@ fe-deps: package.json
 	npm install
 
 fe-build: fe-deps
-	node node_modules/webpack/bin/webpack.js
+	node node_modules/webpack/bin/webpack.js -d 
 
 deps: be-deps fe-deps
 
 build: be-build fe-build
 
-docker-build:
+docker-build: .docker-build
+
+.docker-build: Dockerfile package.json requirements.txt
 	docker build -t party-viz .
+	touch $@;
 
 clean:
 	rm -f *.bundle.js
@@ -33,8 +36,11 @@ clean:
 	rm -rf node_modules
 	rm -rf venv
 
-docker-run:
-	docker run -p 8080:8080 -p 8443:8443 party-viz
+docker-run: .docker-build
+	docker run -ti --rm -p 8080:8080 -p 8443:8443 -v $(CURDIR)/channels:/app/channels party-viz
+
+watch:
+	node node_modules/webpack/bin/webpack.js -d  --watch
 
 run:
 	venv/bin/supervisord -c supervisord.conf -n
