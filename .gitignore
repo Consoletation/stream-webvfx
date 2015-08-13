@@ -3,6 +3,7 @@ venv
 instagram_photos
 *bundle.js
 *.map
+.docker-build
 
 assets/instagram_photos.json
 

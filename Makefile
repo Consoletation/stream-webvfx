@@ -37,7 +37,7 @@ clean:
 	rm -rf venv
 
 docker-run: .docker-build
-	docker run -ti --rm -p 8080:8080 -p 8443:8443 -v $(CURDIR):/app party-viz
+	docker run -ti --rm -p 8080:8080 -p 8443:8443 -v $(CURDIR)/channels:/app/channels party-viz
 
 watch:
 	node node_modules/webpack/bin/webpack.js -d  --watch
