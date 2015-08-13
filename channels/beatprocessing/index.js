@@ -2,12 +2,15 @@ var THREE = require('three');
 require('imports?THREE=three!../../libs/shaders/CopyShader');
 require('imports?THREE=three!../../libs/shaders/DigitalGlitch');
 require('imports?THREE=three!../../libs/shaders/FilmShader');
+require('imports?THREE=three!../../libs/shaders/DotScreenShader');
+require('imports?THREE=three!../../libs/shaders/VignetteShader');
 require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
 require('imports?THREE=three!../../libs/postprocessing/RenderPass');
 require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../libs/postprocessing/GlitchPassCustom');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
+require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 
 require('gsap');
 
@@ -33,6 +36,10 @@ var namesMesh = [];
 var currentName = 0;
 var currentShape = 0;
 var glitchPass;
+
+var randomCircleScale = 0;
+var cameraAngle = 0;
+var cameraMovementIncrease = Math.PI * 2 / 500;
 
 function init() {
     //Create bands
@@ -60,6 +67,7 @@ function init() {
     // scene.fog = new THREE.Fog( 0x000000, 1, 2000 );
 
     initShape();
+    initCircle();
     initName();
 
     //Bring the lights
@@ -100,8 +108,8 @@ function initName(){
 
         // canvas contents will be used for a texture
         nameSlicesContainer = new THREE.Object3D();
-        nameSlicesContainer.position.x = namesSize * -0.5;
-        nameSlicesContainer.position.y = 0;
+        nameSlicesContainer.position.x = window.innerWidth * -0.5;
+        nameSlicesContainer.position.y = window.innerHeight * 0.5;
 
         slices1 = [];
         slices2 = [];
@@ -114,16 +122,16 @@ function initName(){
             g = bitmap.getContext('2d');
             bitmap.width = namesSize;
             bitmap.height = 200;
-            g.font = 'bold 100px Apercu';
+            g.font = 'bold 160px Apercu';
             g.fillStyle = 'white';
             txtWidth = g.measureText(Datas.names[i]).width;
             divisionWidth = txtWidth / divisions
 
             bitmap.width = divisionWidth;
-            g.font = 'bold 70px Apercu';
+            g.font = 'bold 160px Apercu';
             g.fillStyle = 'white';
             txtWidth = g.measureText(Datas.names[i]).width;
-            g.fillText(Datas.names[i], (divisionWidth * j) * -1, 100 );
+            g.fillText(Datas.names[i], (divisionWidth * j) * -1, 160 );
 
             texture = new THREE.Texture(bitmap)
             texture.needsUpdate = true;
@@ -136,26 +144,30 @@ function initName(){
             posY = 0;
 
             nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-            nameMesh.material.opacity = 0.4;
+            nameMesh.material.opacity = 0.6;
             nameMesh.position.set(posX, posY, 0);
             nameSlicesContainer.add( nameMesh );
             slices1.push(nameMesh)
 
             nameMesh2 = nameMesh.clone();
             nameMesh2.material = material.clone();
+            // nameMesh2.rotation.z = -0.1;
             nameMesh2.position.set(posX, posY, 0);
             nameMesh2.material.opacity = 0.1;
             nameSlicesContainer.add( nameMesh2 );
             slices2.push(nameMesh2)
 
             nameMesh3 = nameMesh.clone();
+            // nameMesh3.rotation.z = 0.1;
             nameMesh3.material = material.clone();
             nameMesh3.position.set(posX, posY, 0);
+            // nameMesh3.scale.set(3, 3, 3);
             nameMesh3.material.opacity = 0.1;
             nameSlicesContainer.add( nameMesh3 );
             slices3.push(nameMesh3)
 
             nameMesh4 = nameMesh.clone();
+            // nameMesh4.rotation.z = 0.14;
             nameMesh4.material = material.clone();
             nameMesh4.position.set(posX, posY, 0);
             nameMesh4.material.opacity = 0.2;
@@ -172,6 +184,26 @@ function initName(){
     }
     namesContainer.add( namesMesh[0].container );
 
+}
+function initCircle(){
+    var segmentCount = 256,
+    radius = 200,
+    geometry = new THREE.Geometry();
+
+    for (var i = 0; i <= segmentCount; i++) {
+        var theta = (i / segmentCount) * Math.PI * 2;
+        geometry.vertices.push(
+            new THREE.Vector3(
+                Math.cos(theta) * radius,
+                Math.sin(theta) * radius,
+                0));
+    }
+
+
+    circleLine = new THREE.Line( geometry, new THREE.LineBasicMaterial( {
+        color: 0xffffff, lineWidth: 1, opacity: 0.1, transparent: true
+    } ) );
+    scene.add( circleLine );
 }
 function initShape(){
     //Create shapes container
@@ -193,12 +225,8 @@ function initShape(){
     console.log(shapeStrokeGeometry);
     var spacedPoints = shape.createSpacedPointsGeometry( 20 );
 
-
     shapeGeometry = new THREE.ShapeGeometry( shape );
-    // shapeGeometry.vertices = shape.createSpacedPointsGeometry( 20 ).vertices;
     shapeGeometry.vertices.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
-    // shapeGeometry.verticesNeedUpdate = true;
-    // shapeGeometry.dirtyVertices = true;
     shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
     shapeMesh = new THREE.Mesh( shapeGeometry, shapeMaterial );
     shapesContainer.add( shapeMesh );
@@ -222,7 +250,13 @@ function initPostProcessing(){
     // glitchPass.renderToScreen = true;
     composer.addPass( glitchPass );
 
-    effectFilmPass = new THREE.FilmPass( 0.35, 0.1, 648, false );
+	var shaderVignette = THREE.VignetteShader;
+    var effectVignette = new THREE.ShaderPass( shaderVignette );
+    effectVignette.uniforms[ "offset" ].value = .5;
+    effectVignette.uniforms[ "darkness" ].value = 1.6;
+    composer.addPass( effectVignette );
+
+    effectFilmPass = new THREE.FilmPass( 0.35, 0.025, 648, false );
     effectFilmPass.renderToScreen = true;
     composer.addPass( effectFilmPass );
 }
@@ -238,6 +272,14 @@ function simulateBeat(){
 }
 
 function tweenVertices(duration){
+    //Scale circle randomly but still based on the volume
+    //Position it randomly on every single BOOOOOM
+    randomCircleScale = THREE.Math.randInt( Pumper.volume * 0.2, Pumper.volume ) * 0.01 - 1.4;
+    var windowWidth = window.innerWidth;
+    var windowHeight = window.innerHeight;
+    circleLine.position.x = THREE.Math.randInt( window.innerWidth * -0.5, window.innerWidth * 0.5);
+    circleLine.position.y = THREE.Math.randInt( windowHeight * -0.5, windowHeight * 0.5);
+
     //Change color of the shape
     currentColor ++;
     if(currentColor > colors.length - 1){
@@ -245,7 +287,10 @@ function tweenVertices(duration){
     }
     shapeMaterial.color.setHex( colors[currentColor] );
     shapeStrokeMaterial.color.setHex( colors[currentColor] );
-    renderer.setClearColor( colors[currentColor ], 1 );
+    renderer.setClearColor( colors[currentColor ], 0.5 );
+    // setTimeout(function(){
+        // renderer.setClearColor( colors[currentColor ], 0.5 );
+    // }, 100);
 
     //Change name
     namesContainer.remove( namesMesh[currentName].container );
@@ -349,8 +394,11 @@ function update() {
             }, volume)
         }
     }
+    // camera.rotation.x = Pumper.volume * -0.0005;
     scale = Pumper.volume * 0.002 + 1;
     shapeMesh.scale.set(scale, scale, scale);
+    circleScale = randomCircleScale + (scale * 1.3);
+    circleLine.scale.set(circleScale, circleScale, circleScale);
     setTimeout(function (){
         shapeStrokeLine.scale.set(scale + 0.1, scale + 0.1, scale + 0.1);
     }, 10)
@@ -362,6 +410,13 @@ function render() {
 }
 
 function frame() {
+    // var movement = 50
+    // var x = movement * Math.cos( cameraAngle ) + (movement * 2);
+    // var y = movement * Math.sin( cameraAngle ) + (movement * 2);
+    // cameraAngle += cameraMovementIncrease;
+    // camera.position.x = x - 25;
+    // camera.position.y = y - 25;
+
     requestAnimationFrame(frame);
     update();
     render();
