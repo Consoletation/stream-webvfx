@@ -6,12 +6,12 @@ var geom = require('pex-geom');
 var Tile = require('./tile');
 var TWEEN = require('tween.js');
 
-var Mosaic = function(image, data) {
-    this.data = data;
+var Mosaic = function(players, data) {
     this.tiles = [];
-    this.image = new Image();
-    this.image.src = image;
-    this.image.onload = this.ready.bind(this);
+    this.data = data;
+    this.players = players;
+
+    this.ready();
 };
 
 Mosaic.prototype.ready = function() {
@@ -19,10 +19,7 @@ Mosaic.prototype.ready = function() {
 
     this.generatePalette();
     this.createRenderer();
-
-    setTimeout(function() {
-        self.createMosaic(10);
-    }, 2000);
+    this.createMosaic();
 };
 
 Mosaic.prototype.loadAllImages = function(callback) {
@@ -92,12 +89,8 @@ Mosaic.prototype.createRenderer = function() {
     document.body.appendChild(stats.domElement);
 
     var self = this;
-    var step = 0;
 
-    var then;
-    var delta;
     var interval = 1000 / 30;
-    var stepDelta = 0.006;
 
     function anim(time) {
         window.requestAnimationFrame(anim);
@@ -105,25 +98,31 @@ Mosaic.prototype.createRenderer = function() {
 
         TWEEN.update(time);
 
-        if (then === undefined) {
-            then = time;
-        }
-        delta = time - then;
-        then = time;
+        var sinStep = Math.sin(time * 0.0002);
+        var size = (sinStep + 1) * 52 + 6;
+        var scale = size / 110;
 
-        step += stepDelta * (delta / interval);
-        var size = (Math.sin(step) + 1) * 47 + 6;
-        var scale = size / 100;
+        if (scale > 0.99 && self.recreate) {
+            self.recreate = false;
+
+            var outTween = new TWEEN.Tween(container).to({alpha: 0.0}, 1000);
+            outTween.onComplete(function() {
+                self.createMosaic();
+            });
+            var inTween = new TWEEN.Tween(container).delay(1000).to({alpha: 1.0}, 1000);
+            outTween.chain(inTween);
+            outTween.start();
+        }
 
         container.scale.x = container.scale.y = scale;
         self.tiles.map(function(tile) {
             tile.adjustTint(scale);
         });
 
-        container.position.x = (self.width - (size * 100)) / 2;
-        container.position.x += Math.sin(step) * (50 + size * 10);
-        container.position.y = (self.height - (size * 100)) / 2;
-        container.position.y += Math.cos(step) * (50 + size * 10);
+        var xDelta = (50 + 1000 * scale) * Math.sin(time * 0.0003);
+        var yDelta = (50 + 1000 * scale) * Math.cos(time * 0.0003);
+        container.position.x = (self.width - (size * 100)) * 0.5 + xDelta;
+        container.position.y = (self.height - (size * 100)) * 0.5 + yDelta;
 
         renderer.render(container);
 
@@ -138,14 +137,35 @@ Mosaic.prototype.createRenderer = function() {
 
 Mosaic.prototype.createMosaic = function() {
     var self = this;
-    console.log('Creating mosaic from ' + this.image.src);
+
+    var player = this.players[
+        Math.floor(Math.random() * this.players.length)
+    ];
+
+    var image = new Image();
+    image.src = '../../assets/faces/players/' + player;
+    image.onload = function() {
+        self.tileGeneration(image);
+        setTimeout(function() {
+            self.recreate = true;
+        }, 45000);
+    };
+
+};
+
+Mosaic.prototype.tileGeneration = function(image) {
+    var self = this;
+    console.log('Creating mosaic from ' + image.src);
 
     var canvas = document.createElement('canvas');
-    canvas.width = this.image.width;
-    canvas.height = this.image.height;
+    canvas.width = 100;
+    canvas.height = 100;
     var ctx = canvas.getContext('2d');
-    ctx.drawImage(this.image, 0, 0, 100, 100);
-    var pixels = ctx.getImageData(0, 0, this.image.width, this.image.height);
+    ctx.drawImage(image, 0, 0, 100, 100);
+    var pixels = ctx.getImageData(0, 0, 100, 100);
+
+    this.tiles = [];
+    this.container.removeChildren();
 
     for (var idx = 0; idx < pixels.data.length; idx += 4) {
         var pixel = new geom.Vec3(
@@ -162,8 +182,8 @@ Mosaic.prototype.createMosaic = function() {
         var tile = new Tile(
             pixel,
             chunk.data,
-            (coord % this.image.width),
-            Math.floor(coord / this.image.width)
+            (coord % 100),
+            Math.floor(coord / 100)
         );
 
         self.tiles.push(tile);
