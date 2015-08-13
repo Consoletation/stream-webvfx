@@ -60,7 +60,7 @@ function _drawCross() {
 }
 
 function _drawEQ() {
-    var d = Pumper.getData(),
+    var d = Pumper.freqData,
         ln = d.length,
         bl = Math.round((outer) / ln);
 
