@@ -157,7 +157,7 @@ TimeTraveller.prototype.makeFirework = function() {
     emitter.addSelfBehaviour(new Proton.Gravity(4));
     emitter.addSelfBehaviour(new Proton.RandomDrift(30, 30, .1));
     emitter.addSelfBehaviour(new Proton.CrossZone(
-        new Proton.RectZone(50, 0, 953, 610), 'bound'
+        new Proton.RectZone(50, 0, this.width - 50, this.height - 50), 'bound'
     ));
 };
 
