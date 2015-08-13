@@ -1,13 +1,24 @@
+/* global $ */
+
+'use strict';
+
 console.log('loaded');
 
 var CHANNELS = {
-    'algoviz' : {
+    'algoviz': {
         author: 'Neil'
     },
-    'beatprocessing' : {
+    'beatprocessing': {
         author: 'Mick'
+    },
+    'mosaic': {
+        author: 'Grieve'
+    },
+    'dirtygif': {
+        author: 'Neil'
     }
-}
+};
+
 var CHANNEL_IDS = Object.keys(CHANNELS);
 
 var OSD_HANG_TIME = 2000;
@@ -23,8 +34,15 @@ var els = {
     channelName: getEl('channel-name'),
     channelAuthor: getEl('channel-author'),
     mainframe: getEl('mainframe'),
-    instructions: getEl('instructions')
+    instructions: getEl('instructions'),
+    channelList: getEl('channel-list')
 };
+
+CHANNEL_IDS.forEach(function(name, idx) {
+    var item = document.createElement('p');
+    item.textContent = (idx + 1) + ' - ' + name;
+    els.channelList.appendChild(item);
+});
 
 var _ti;
 function changeChannel(id) {
@@ -33,9 +51,10 @@ function changeChannel(id) {
     els.mainframe.setAttribute('src', src);
     currentChannel = id;
 
-    var name, author;
+    var name;
+    var author;
 
-    if(currentChannel) {
+    if (currentChannel) {
         name = id;
         author = CHANNELS[currentChannel].author;
     } else {
@@ -53,9 +72,9 @@ function changeChannel(id) {
 }
 
 $(document).on('keypress', function(e) {
-    var k = e.which || e.keyCode,
-        nk = k - 48;
-        console.log('keypress', k, nk);
+    var k = e.which || e.keyCode;
+    var nk = k - 48;
+    console.log('keypress', k, nk);
 
     if (nk >= 0 && nk <= CHANNEL_IDS.length) {
         var cid = (nk) ? CHANNEL_IDS[nk - 1] : null;

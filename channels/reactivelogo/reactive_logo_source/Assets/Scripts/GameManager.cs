@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityStandardAssets.ImageEffects;
+using SimpleJSON;
+
 
 public class GameManager : MonoBehaviour , ISoundReact {
 
@@ -14,8 +17,7 @@ public class GameManager : MonoBehaviour , ISoundReact {
 	
 	private float[] m_radius; 
 	private int[] m_primes = new int[3]{3,7,11}; 
-
-
+	
 	private int m_samples = 64;
 	private float m_lastSpawn;
 
@@ -28,6 +30,8 @@ public class GameManager : MonoBehaviour , ISoundReact {
 	void Start () {
 		SoundReactive.RegisterListener (this);
 		Screen.fullScreen = true;
+
+		CheckPictures ();
 	}
 
 	private float m_cFrequency;
@@ -79,6 +83,53 @@ public class GameManager : MonoBehaviour , ISoundReact {
 			m_haveMessage = !m_haveMessage;
 
 		//UpdateCameraRotation ();
+	}
+
+
+	private void CheckPictures()
+	{
+		StartCoroutine (LoadJson ("http://localhost:8080/assets/faces.json"));
+	}
+
+	IEnumerator LoadJson(string url) {
+
+		Debug.Log ("load jason");
+
+		WWW www = new WWW(url);
+		
+		// Wait for download to complete
+		yield return www;
+
+		var json = JSON.Parse (www.text);
+
+		int len = json.Count;
+
+		string[] arr = new string[len];
+
+		for (int i = 0; i < len; i++) {
+			
+			arr[i] = "http://localhost:8080/assets/faces/" + json[i]["image"];
+		}
+
+		Debug.Log ("json loaded");
+
+		StartCoroutine( LoadImage(arr, 0));
+	}
+
+	IEnumerator LoadImage(string[] url , int count) {
+
+
+		WWW www = new WWW(url[count]);
+		
+		// Wait for download to complete
+		yield return www;
+
+		if (count < url.Length - 1) {
+
+			m_negativeEffect.AddPictures(www.texture);
+			count++;
+			StartCoroutine( LoadImage(url, count));
+		}
 	}
 
 

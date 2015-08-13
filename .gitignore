@@ -4,6 +4,8 @@ instagram_photos
 *bundle.js
 *.map
 
+assets/instagram_photos.json
+
 
 # Created by https://www.gitignore.io
 
@@ -76,7 +78,8 @@ sftp-config.json
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*

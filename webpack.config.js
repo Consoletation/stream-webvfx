@@ -1,6 +1,10 @@
+'use strict';
+
 var CHANNELS = [
     'algoviz',
     'beatprocessing',
+    'mosaic',
+    'dirtygif'
     //'reactivelogo',
     //'splashlogo',
     //'test'

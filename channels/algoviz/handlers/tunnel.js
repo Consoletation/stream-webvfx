@@ -14,6 +14,7 @@ var SPEED = 2,
     FOV = 200,
     DRAW_DIST = 300,
     STROKE_SIZE = 10,
+    STAR_SPEED = 5,
     TOTAL_LEN = NUM_SEGS * SEG_SIZE;
 
 var segments = [],
@@ -185,6 +186,13 @@ function _moveCamera(_t) {
 
 function _drawStars() {
     stars.forEach(function(star) {
+        star.y -= STAR_SPEED * (star.s / 6);
+        if(star.y < -10) {
+            var range = DRIFT_DIST * 1.5;
+            star.y = main.H + 10;
+            star.x = main.CX + Common.getRndInt(-range, range);
+            star.s = Common.getRndInt(2,6);
+        }
         var f = Pumper.data[star.f];
         if(f > Pumper.globalThreshold) {
             var brightness = 0.2 + ((f - Pumper.globalThreshold) / (255 - Pumper.globalThreshold) * 0.8);
