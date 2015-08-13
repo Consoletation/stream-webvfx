@@ -58,10 +58,8 @@ public class CameraMovement : MonoBehaviour  , ISoundReact{
 		r2 += r2P;
 		r3 += r3P;
 
-		if (audio.normalSpectrum > m_maxSpec)
-			m_maxSpec = audio.normalSpectrum;
 
-		if (audio.normalSpectrum > m_maxSpec * 0.5)
+		if (audio.volume > 0.75f)
 			m_rots += Random.Range(0,10) > 4 ? 1 : -1;
 
 	}

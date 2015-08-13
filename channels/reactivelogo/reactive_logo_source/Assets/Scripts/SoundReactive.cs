@@ -67,8 +67,8 @@ public class SoundReactive : MonoBehaviour {
 
 	void Start()
 	{
-		#if !UNITY_WEBGL
-			StartCoroutine (RequestMic ());
+		#if UNITY_EDITOR
+			LoadSound ();
 		#endif
 	}
 
@@ -78,11 +78,26 @@ public class SoundReactive : MonoBehaviour {
 		m_outValue = value;
 	}
 
-	/*void OnGUI()
+	public void GetAudioData(float vol)
 	{
-		//GUI.Label (new Rect(10,10,100,100) , "value: " + m_outValue);
-	}*/
+		AudioData data = new AudioData ();
+		data.volume = vol;
 
+		foreach (ISoundReact s in m_listeners)
+			s.AudioHandle (data);
+	}
+
+	private void LoadSound()
+	{
+		AudioClip c = Resources.LoadAll<AudioClip> ("Audio/")[0];
+		m_source.clip = c;
+		m_source.loop = true; 
+		m_source.Play(); 
+
+		
+		
+	}
+	
 	#if !UNITY_WEBGL
 
 	IEnumerator RequestMic () {
@@ -92,8 +107,6 @@ public class SoundReactive : MonoBehaviour {
 
 		if (Application.HasUserAuthorization (UserAuthorization.Microphone)) {
 		
-			Debug.Log("Microphone.devices: " + Microphone.devices.Length);
-
 			m_source.clip = Microphone.Start(null, true, 10, samplerate);
 			m_source.loop = true; // Set the AudioClip to loop
 			m_source.mute = true; // Mute the sound, we don't want the player to hear it
@@ -112,22 +125,15 @@ public class SoundReactive : MonoBehaviour {
 		if (!m_source.isPlaying)
 			return;
 
-		AudioData data = new AudioData ();
-
-		data.loudness = GetAveragedVolume() * sensitivity;
-		data.frequence = GetFundamentalFrequency();
-		data.spectrum = m_source.GetSpectrumData(1024, 0, FFTWindow.BlackmanHarris);
-		data.normalSpectrum = NormalizedSpectrum ();
-		data.maxNormalSpectrum = m_maxNormalSpectrum;
-		data.averageSpectrum = m_averageSpectrum;
-
-		foreach (ISoundReact s in m_listeners)
-			s.AudioHandle (data);
+		#if UNITY_EDITOR
+			GetAudioData(GetAveragedVolume());
+		#endif
 
 		if(DRAW_SPECTRUM)
 			DrawSpectrum ();
 	}
-	
+
+	private float m_maxVol = 1;
 	float GetAveragedVolume()
 	{
 		float[] data = new float[256];
@@ -138,7 +144,16 @@ public class SoundReactive : MonoBehaviour {
 			a += Mathf.Abs(s);
 		}
 
-		return a/256;
+		a *= 1000.0f;
+
+		a /= 256.0f;
+
+		if (a > m_maxVol)
+			m_maxVol = a;
+
+		a /= m_maxVol;
+		a *= 1.5f;
+		return a;
 	}
 
 
@@ -213,12 +228,7 @@ public class SoundReactive : MonoBehaviour {
 
 public class AudioData
 {
-	public float frequence;
-	public float loudness;
-	public float normalSpectrum;
-	public float maxNormalSpectrum;
-	public float averageSpectrum;
-	public float[] spectrum;
+	public float volume;
 }
 
 public interface ISoundReact
