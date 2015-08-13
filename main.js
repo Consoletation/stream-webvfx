@@ -24,6 +24,10 @@ var CHANNELS = {
     'reactivelogo': {
         author: 'Pedro',
         duration: 20
+    },
+    'timetraveller': {
+        author: 'Grieve',
+        duration: 20
     }
 };
 
@@ -157,6 +161,10 @@ $(document).on('keypress', function(e) {
 
 setTimeout(function() {
     els.instructions.classList.remove('visible');
+<<<<<<< HEAD
+}, 6000);
+=======
     enableAutoRandom();
 }, 6000);
 
+>>>>>>> develop
