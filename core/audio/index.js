@@ -31,7 +31,7 @@
 **/
 
 // Force the use of the mic, ignoring any start() params
-var FORCE_MIC = true;
+var FORCE_MIC = false;
 
 var DEFAULTS = {
     threshold: 127,
