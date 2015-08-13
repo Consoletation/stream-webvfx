@@ -26,8 +26,12 @@
  * - Pumper.globalThreshold - arbitrary threshold value for global volume level
  * - Pumper.isSpiking - true if there was a volume spike since the last time update() was called
  * - Pumper.isOverThreshold - true if the current global volume exceeds the set global threshold
- * - Pumper.data - raw frequency data array
+ * - Pumper.freqData - raw frequency data array
+ * - Pumper.timeData - raw time domain data array
 **/
+
+// Force the use of the mic, ignoring any start() params
+var FORCE_MIC = false;
 
 var DEFAULTS = {
     threshold: 127,
@@ -119,7 +123,7 @@ Pumper.start = function(srcValue, autoPlay) {
     freqData = new Uint8Array(freqDataLength);
     timeData = new Uint8Array(timeDataLength);
 
-    if (srcValue === 'mic') {
+    if (FORCE_MIC || srcValue === 'mic') {
         // Request mic access, create source node and connect to analyzer
         navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
         navigator.getMedia({
