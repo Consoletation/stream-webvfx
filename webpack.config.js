@@ -5,7 +5,8 @@ var CHANNELS = [
     'beatprocessing',
     'mosaic',
     'dirtygif',
-    'reactivelogo'
+    'reactivelogo',
+    'timetraveller'
     //'splashlogo',
     //'test'
 ];

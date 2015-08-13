@@ -19,6 +19,9 @@ var CHANNELS = {
     },
     'reactivelogo': {
         author: 'Pedro'
+    },
+    'timetraveller': {
+        author: 'Grieve'
     }
 };
 
