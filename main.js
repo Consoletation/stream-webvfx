@@ -161,10 +161,5 @@ $(document).on('keypress', function(e) {
 
 setTimeout(function() {
     els.instructions.classList.remove('visible');
-<<<<<<< HEAD
-}, 6000);
-=======
     enableAutoRandom();
 }, 6000);
-
->>>>>>> develop
