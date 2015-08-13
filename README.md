@@ -19,7 +19,9 @@ the project.
 
 Local server is on `localhost:8080`.
 
-Dockerfile is present for deployment to rehab-labs. _[TODO: documentation]_
+Dockerfile is present for deployment to rehab-labs. If you want to be weird
+and run it locally, do `make docker-build` and `make docker-run`. SSL port is
+running on 8443.
 
 ### Deploying
 
