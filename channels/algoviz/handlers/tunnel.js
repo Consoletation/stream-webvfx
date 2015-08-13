@@ -193,7 +193,7 @@ function _drawStars() {
             star.x = main.CX + Common.getRndInt(-range, range);
             star.s = Common.getRndInt(2,6);
         }
-        var f = Pumper.data[star.f];
+        var f = Pumper.freqData[star.f];
         if(f > Pumper.globalThreshold) {
             var brightness = 0.2 + ((f - Pumper.globalThreshold) / (255 - Pumper.globalThreshold) * 0.8);
             main.ctx.fillStyle = 'rgba(255,255,255,' + brightness + ')';

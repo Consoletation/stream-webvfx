@@ -26,8 +26,12 @@
  * - Pumper.globalThreshold - arbitrary threshold value for global volume level
  * - Pumper.isSpiking - true if there was a volume spike since the last time update() was called
  * - Pumper.isOverThreshold - true if the current global volume exceeds the set global threshold
- * - Pumper.data - raw frequency data array
+ * - Pumper.freqData - raw frequency data array
+ * - Pumper.timeData - raw time domain data array
 **/
+
+// Force the use of the mic, ignoring any start() params
+var FORCE_MIC = false;
 
 var DEFAULTS = {
     threshold: 127,
@@ -45,7 +49,10 @@ function __warn(msg) {
     throw 'Pumper: ' + msg;
 }
 
-var AUDIO, source, analyzer, bufferLength, dataArray, micStream;
+var AUDIO, source, analyzer, 
+    timeData, freqData,
+    timeDataLength, freqDataLength,
+    micStream;
 
 
 /**
@@ -85,7 +92,12 @@ Pumper.isOverThreshold = false;
 Pumper.globalThreshold = DEFAULTS.threshold;
 Pumper.globalSpikeTolerance = DEFAULTS.spikeTolerance;
 Pumper.sensitivity = 1;
-Pumper.data = 0;
+
+Pumper.timeData = null;
+Pumper.timeDataLength = 0;
+Pumper.freqData = null;
+Pumper.freqDataLength = 0;
+
 Pumper.bands = [];
 
 /**
@@ -101,14 +113,17 @@ Pumper.start = function(srcValue, autoPlay) {
     AUDIO = new(window.AudioContext || window.webkitAudioContext)();
     if (!AUDIO) __err('Web Audio API not supported :(');
 
-    // Set up analyzer
+    // Set up analyzer and buffers
     analyzer = AUDIO.createAnalyser();
     analyzer.fftSize = 256;
-    Pumper.bufferLength = bufferLength = analyzer.frequencyBinCount;
-    dataArray = new Uint8Array(bufferLength);
-    analyzer.getByteTimeDomainData(dataArray);
 
-    if (srcValue === 'mic') {
+    Pumper.freqDataLength = freqDataLength = analyzer.frequencyBinCount;
+    Pumper.timeDataLength = timeDataLength = analyzer.frequencyBinCount;
+
+    freqData = new Uint8Array(freqDataLength);
+    timeData = new Uint8Array(timeDataLength);
+
+    if (FORCE_MIC || srcValue === 'mic') {
         // Request mic access, create source node and connect to analyzer
         navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
         navigator.getMedia({
@@ -168,16 +183,19 @@ Pumper.createBand = function(start, end, threshold, spikeTolerance) {
  * Performs analysis on the current audio, updates any registered bands.
  **/
 Pumper.update = function() {
-    analyzer.getByteFrequencyData(dataArray);
 
-    Pumper.data = dataArray;
+    analyzer.getByteFrequencyData(freqData);
+    Pumper.freqData = freqData;
+
+    analyzer.getByteTimeDomainData(timeData);
+    Pumper.timeData = timeData;
 
     var rangeSize = RANGE_END - RANGE_START,
         globTotal = 0;
 
     // Calc global volume
     for (var i = RANGE_START; i < RANGE_END; i++) {
-        globTotal += dataArray[i];
+        globTotal += freqData[i];
     }
     // TODO: add sensitivity control
 
@@ -199,7 +217,7 @@ Pumper.update = function() {
     Pumper.bands.forEach(function(band) {
         var total = 0;
         for (var i = band.start; i < band.end; i++) {
-            total += dataArray[i];
+            total += freqData[i];
         }
         var vol = total / (band.end - band.start);
         if (vol - band.volume > band.spikeTolerance) {
@@ -217,12 +235,7 @@ Pumper.update = function() {
         }
     });
 
-    analyzer.getByteTimeDomainData(dataArray);
-    Pumper.timeDomainData = dataArray;
 };
 
-Pumper.getData = function() {
-    return dataArray;
-};
 
 module.exports = Pumper;
