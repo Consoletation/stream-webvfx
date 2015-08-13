@@ -31,6 +31,7 @@
 **/
 
 // Force the use of the mic, ignoring any start() params
+// TODO: make this an exposed config option (via URL?)
 var FORCE_MIC = true;
 
 var DEFAULTS = {
