@@ -77,7 +77,7 @@ function changeChannel(id) {
     console.log('URL PARAM', ipt);
     var inputAppend = (ipt !== null) ? '?input=' + ipt : '';
 
-    var src = (id === null) ? '' : './channels/' + id + inputAppend;
+    var src = (id === null) ? '' : '/channels/' + id + inputAppend;
     els.mainframe.setAttribute('src', src);
     currentChannel = id;
 
