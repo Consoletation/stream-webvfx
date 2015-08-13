@@ -17,11 +17,11 @@ tag_name = "rehabstudio"
 output_dir = "assets/instagram_photos"
 
 
-output_dir = os.path.abspath(output_dir)
-big_json = output_dir + ".json"
+output_path = os.path.abspath(output_dir)
+big_json = output_path + ".json"
 
 try:
-    os.makedirs(output_dir)
+    os.makedirs(output_path)
 except OSError as exception:
     if exception.errno != errno.EEXIST:
         raise
@@ -44,32 +44,36 @@ def get_images():
             pass  # fuck videos man
 
         # Name file after media id
-        output_file = os.path.join(output_dir, media.id + ".jpg")
-        output_json = os.path.join(output_dir, media.id + ".json")
-        if not (os.path.exists(output_file) and os.path.exists(output_json)):
+        file_name = media.id + ".jpg"
+        json_name = media.id + ".json"
+        file_path = os.path.join(output_path, file_name)
+        json_path = os.path.join(output_path, json_name)
+        if not (os.path.exists(file_path) and os.path.exists(json_path)):
             logging.info("Instagrabber: Downloading {}...".format(media.id))
             r = requests.get(media.images['standard_resolution'].url)
-            with open(output_file, 'wb') as f:
+            with open(file_path, 'wb') as f:
                 f.write(r.content)
 
             # JSON data
             file_info = json.dumps(
                 {
                     # "caption": media.caption,
-                    "filename": output_file,
+                    "filename": file_name,
+                    "path": file_path,
+                    "url": os.path.join("/", output_dir, file_name),
                     "tags": [tag.name for tag in media.tags]
                 }
             )
-            with open(output_json, 'wb') as j:
+            with open(json_path, 'wb') as j:
                 j.write(file_info)
 
 
 def refresh_json():
     with open(big_json, 'wb') as j:
         big_data = []
-        for json_file in os.listdir(output_dir):
+        for json_file in os.listdir(output_path):
             if json_file.endswith(".json"):
-                file_path = os.path.join(output_dir, json_file)
+                file_path = os.path.join(output_path, json_file)
                 try:
                     json_data = open(file_path).read()
                     data = json.loads(json_data)
