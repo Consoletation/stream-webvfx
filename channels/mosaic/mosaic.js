@@ -148,7 +148,7 @@ Mosaic.prototype.createMosaic = function() {
         self.tileGeneration(image);
         setTimeout(function() {
             self.recreate = true;
-        }, 45000);
+        }, 30000);
     };
 
 };
