@@ -8,4 +8,10 @@ Pumper.start(TRACK, true);
 //Pumper.start('mic');
 Pumper.globalSpikeTolerance = 12;
 
-BeatProcessing.init();
+
+
+var f = new FontFace('Apercu', 'url(../../assets/fonts/apercu-regular.ttf)', {});
+f.load().then(function (loadedFace) {
+    document.fonts.add(loadedFace);
+    BeatProcessing.init();
+});
