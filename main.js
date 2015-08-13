@@ -28,6 +28,15 @@ var OSD_HANG_TIME = 2000;
 
 var currentChannel = null;
 
+function getURLParam(name, url) {
+    if (!url) url = location.href
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(url);
+    return results == null ? null : results[1];
+}
+
 function getEl(id) {
     return document.getElementById(id);
 }
@@ -48,9 +57,14 @@ CHANNEL_IDS.forEach(function(name, idx) {
 });
 
 var _ti;
+
 function changeChannel(id) {
     console.log('change channel', id);
-    var src = (id === null) ? '' : './channels/' + id;
+    var ipt = getURLParam('input');
+    console.log('URL PARAM', ipt);
+    var inputAppend = (ipt !== null) ? '?input=' + ipt : '';
+
+    var src = (id === null) ? '' : './channels/' + id + inputAppend;
     els.mainframe.setAttribute('src', src);
     currentChannel = id;
 
