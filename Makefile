@@ -23,7 +23,7 @@ build: be-build fe-build
 docker-build: .docker-build
 
 .docker-build: Dockerfile package.json requirements.txt
-	docker build -t party-viz .
+	docker build -f Dockerfile.local -t party-viz .
 	touch $@;
 
 clean:
@@ -35,6 +35,7 @@ clean:
 	rm -rf instagram_photos/
 	rm -rf node_modules
 	rm -rf venv
+	rm -rf .docker-build
 
 docker-run: .docker-build
 	docker run -ti --rm -p 8080:8080 -p 8443:8443 -v $(CURDIR)/channels:/app/channels party-viz
