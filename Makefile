@@ -1,4 +1,4 @@
-.PHONY : venv be-deps be-build fe-deps fe-build deps build clean run
+.PHONY : venv be-deps be-build fe-deps fe-build deps build docker-build clean docker-run run
 
 venv: venv/bin/activate
 venv/bin/activate: requirements.txt
@@ -20,6 +20,9 @@ deps: be-deps fe-deps
 
 build: be-build fe-build
 
+docker-build:
+	docker build -t party-viz .
+
 clean:
 	rm -f *.bundle.js
 	rm -f *.bundle.js.map
@@ -29,6 +32,9 @@ clean:
 	rm -rf instagram_photos/
 	rm -rf node_modules
 	rm -rf venv
+
+docker-run:
+	docker run -p 8080:8080 -p 8443:8443 party-viz
 
 run:
 	venv/bin/supervisord -c supervisord.conf -n

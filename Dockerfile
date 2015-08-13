@@ -29,5 +29,5 @@ COPY . /app
 WORKDIR /app
 RUN make clean && make build
 
-EXPOSE 8080 8443
+EXPOSE 8080
 CMD ["venv/bin/supervisord", "-c", "supervisord-docker.conf", "-n"]
