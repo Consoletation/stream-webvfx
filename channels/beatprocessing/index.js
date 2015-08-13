@@ -49,6 +49,7 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
     renderer.domElement.addEventListener('click', simulateBeat);
+    renderer.setClearColor( 0x000000, 1 );
 
     //Create camera
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 3000 );
@@ -56,16 +57,16 @@ function init() {
 
     //Create scene
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog( 0x000000, 1, 2000 );
+    // scene.fog = new THREE.Fog( 0x000000, 1, 2000 );
 
     initShape();
     initName();
 
     //Bring the lights
-    scene.add( new THREE.AmbientLight( 0x222222 ) );
-    light = new THREE.DirectionalLight( 0xffffff );
-    light.position.set( 1, 1, 1 );
-    scene.add( light );
+    scene.add( new THREE.AmbientLight( 0xcacaca ) );
+    // light = new THREE.DirectionalLight( 0xffffff );
+    // light.position.set( 1, 1, 1 );
+    // scene.add( light );
 
 
     initPostProcessing();
@@ -105,6 +106,7 @@ function initName(){
         slices1 = [];
         slices2 = [];
         slices3 = [];
+        slices4 = [];
         for (j = 0 ; j < divisions ; j ++){
             //Dirty as fuck, but I've got to create a canvas per name's slice
             //Also, weirdly the width can't seem to be set after adding a text in
@@ -142,22 +144,30 @@ function initName(){
             nameMesh2 = nameMesh.clone();
             nameMesh2.material = material.clone();
             nameMesh2.position.set(posX, posY, 0);
-            nameMesh2.material.opacity = 0.2;
+            nameMesh2.material.opacity = 0.1;
             nameSlicesContainer.add( nameMesh2 );
             slices2.push(nameMesh2)
 
             nameMesh3 = nameMesh.clone();
             nameMesh3.material = material.clone();
             nameMesh3.position.set(posX, posY, 0);
-            nameMesh3.material.opacity = 0.2;
+            nameMesh3.material.opacity = 0.1;
             nameSlicesContainer.add( nameMesh3 );
             slices3.push(nameMesh3)
+
+            nameMesh4 = nameMesh.clone();
+            nameMesh4.material = material.clone();
+            nameMesh4.position.set(posX, posY, 0);
+            nameMesh4.material.opacity = 0.2;
+            nameSlicesContainer.add( nameMesh4 );
+            slices4.push(nameMesh4)
         }
         namesMesh.push({
             container: nameSlicesContainer,
             slices1: slices1,
             slices2: slices2,
-            slices3: slices3
+            slices3: slices3,
+            slices4: slices4
         });
     }
     namesContainer.add( namesMesh[0].container );
@@ -179,8 +189,9 @@ function initShape(){
     //Create current shape
     shape = new THREE.Shape( shapePoints );
     shapeStrokeGeometry = shape.createPointsGeometry();
+    console.log(shape.createPointsGeometry(50));
+    console.log(shapeStrokeGeometry);
     var spacedPoints = shape.createSpacedPointsGeometry( 20 );
-    console.log(spacedPoints.vertices);
 
 
     shapeGeometry = new THREE.ShapeGeometry( shape );
@@ -234,6 +245,7 @@ function tweenVertices(duration){
     }
     shapeMaterial.color.setHex( colors[currentColor] );
     shapeStrokeMaterial.color.setHex( colors[currentColor] );
+    renderer.setClearColor( colors[currentColor ], 1 );
 
     //Change name
     namesContainer.remove( namesMesh[currentName].container );
@@ -302,14 +314,16 @@ function update() {
     var currentNameSlices1 = namesMesh[currentName].slices1;
     var currentNameSlices2 = namesMesh[currentName].slices2;
     var currentNameSlices3 = namesMesh[currentName].slices3;
+    var currentNameSlices4 = namesMesh[currentName].slices4;
     // console.log(Pumper.bands[0].volume);
     var bandVolume;
     for (var i = 0 ; i < currentNameSlices1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        // currentNameSlices1[i].scale.y = 1 + bandVolume * 0.001;
+        // currentNameSlices1[i].scale.set(1 + bandVolume * 0.01, 1 + bandVolume * 0.01, 1);
         currentNameSlices1[i].position.y = bandVolume * 0.1;
-        currentNameSlices2[i].position.y = bandVolume * -0.1;
-        currentNameSlices3[i].position.y = bandVolume * 0.15;
+        currentNameSlices2[i].position.y = bandVolume * -0.2;
+        currentNameSlices3[i].position.y = bandVolume * 0.5;
+        currentNameSlices4[i].position.y = bandVolume * 0.3;
     }
     // if(bassCheck.isSpiking === true) {
     if(bassCheck.isSpiking === true) {
