@@ -49,6 +49,15 @@ function __warn(msg) {
     throw 'Pumper: ' + msg;
 }
 
+function getURLParam(name, url) {
+    if (!url) url = location.href
+    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+    var regexS = "[\\?&]" + name + "=([^&#]*)";
+    var regex = new RegExp(regexS);
+    var results = regex.exec(url);
+    return results == null ? null : results[1];
+}
+
 var AUDIO, source, analyzer, 
     timeData, freqData,
     timeDataLength, freqDataLength,
@@ -109,6 +118,11 @@ Pumper.start = function(srcValue, autoPlay) {
 
     if (autoPlay === undefined) autoPlay = false;
 
+    var ipt = getURLParam('input');
+    console.log('URL PARAM', ipt);
+    if(ipt === 'mic') FORCE_MIC = true;
+
+
     // Init Web Audio API context
     AUDIO = new(window.AudioContext || window.webkitAudioContext)();
     if (!AUDIO) __err('Web Audio API not supported :(');
@@ -120,8 +134,8 @@ Pumper.start = function(srcValue, autoPlay) {
     Pumper.freqDataLength = freqDataLength = analyzer.frequencyBinCount;
     Pumper.timeDataLength = timeDataLength = analyzer.frequencyBinCount;
 
-    freqData = new Uint8Array(freqDataLength);
-    timeData = new Uint8Array(timeDataLength);
+    Pumper.freqData = freqData = new Uint8Array(freqDataLength);
+    Pumper.timeData = timeData = new Uint8Array(timeDataLength);
 
     if (FORCE_MIC || srcValue === 'mic') {
         // Request mic access, create source node and connect to analyzer
