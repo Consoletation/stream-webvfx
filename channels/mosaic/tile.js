@@ -17,6 +17,7 @@ Tile.prototype = Object.create(PIXI.Sprite.prototype);
 Tile.prototype.constructor = Tile;
 
 Tile.prototype.adjustTint = function(value) {
+    this.alpha = 0.5 + 0.5 * value;
     this.tint = this.color.x + (255 - this.color.x) * value;
     this.tint = (this.tint << 8) + this.color.y + (255 - this.color.y) * value;
     this.tint = (this.tint << 8) + this.color.z + (255 - this.color.z) * value;
