@@ -1,5 +1,5 @@
 var MyPlugin = {
-    Hello: function()
+    GetAudio: function()
     {
         window.alert("Hello, world!");
     },

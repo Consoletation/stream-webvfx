@@ -23,7 +23,9 @@ namespace UnityStandardAssets.ImageEffects
 		void Awake()
 		{
 			m_pictures = new List<Texture> ();
-			m_lastShow = -15;
+			m_lastShow = -10;
+
+			m_cPict = PlayerPrefs.GetInt("cPict");
 		}
 
 		public void AddPictures(Texture2D pict)
@@ -46,7 +48,7 @@ namespace UnityStandardAssets.ImageEffects
 
 		void Update()
 		{
-			if (Time.time > m_lastShow + 20 && m_canShow)
+			if (m_pictures.Count > 0  && Time.time > m_lastShow + 15 && m_canShow)
 				StartCoroutine(ShowPictures());
 		}
 
@@ -64,20 +66,24 @@ namespace UnityStandardAssets.ImageEffects
 			}
 
 			if (!m_newImage) {
-			
-				material.SetTexture ("_PictTexture", m_pictures[m_cPict]);
-				m_cPict++;
-			
-				if(m_cPict == m_pictures.Count)
+
+				if(m_cPict >= m_pictures.Count)
 					m_cPict = 0;
+
+				material.SetTexture ("_PictTexture", m_pictures[m_cPict]);
+
+				m_cPict++;
 			}
-				
+
+			PlayerPrefs.SetInt("cPict" , m_cPict);
 
 			yield return new WaitForSeconds(5);
 
 			m_lastShow = Time.time;
 			m_canShow = true;
 			m_newImage = false;
+
+
 		}
 
     }

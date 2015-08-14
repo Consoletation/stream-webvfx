@@ -20,11 +20,19 @@ public class GameManager : MonoBehaviour , ISoundReact {
 	
 	private int m_samples = 64;
 	private float m_lastSpawn;
+	private float m_reloadTime = 120;
+	private float m_lastTimeLoaded;
+	private bool m_canLoad;
+	private List<string> m_urls;
+
 
 	void Awake()
 	{
+		m_urls = new List<string> ();
 		m_camPiv = m_camPiv.GetInstance ("m_camPiv");
 		m_negativeEffect = m_negativeEffect.GetInstance ("m_mainCam");
+		m_canLoad = true;
+		m_lastTimeLoaded = Time.time;
 	}
 
 	void Start () {
@@ -40,8 +48,7 @@ public class GameManager : MonoBehaviour , ISoundReact {
 	public void AudioHandle(AudioData data)
 	{
 		UpdateNegativeEffect (data);
-		CreateObjects ((int)data.normalSpectrum);
-
+		CreateObjects ((int)data.volume * 100);
 	}
 
 	private void CreateObjects(int value)
@@ -66,9 +73,7 @@ public class GameManager : MonoBehaviour , ISoundReact {
 	
 	private void UpdateNegativeEffect(AudioData data)
 	{	
-
-
-		float valueTo = data.normalSpectrum > data.maxNormalSpectrum * 0.2f  ? 100 : 0;
+		float valueTo = data.volume > 0.7f  ? 100 : 0;
 		
 		m_cFrequency += (valueTo - m_cFrequency) * 0.4f;
 		
@@ -83,52 +88,104 @@ public class GameManager : MonoBehaviour , ISoundReact {
 			m_haveMessage = !m_haveMessage;
 
 		//UpdateCameraRotation ();
+
+
+		if (m_canLoad && Time.time > m_lastTimeLoaded + m_reloadTime)
+			CheckPictures ();
 	}
 
 
 	private void CheckPictures()
 	{
-		StartCoroutine (LoadJson ("http://localhost:8080/assets/faces.json"));
+		Debug.Log ("--------- // check pictures // ---------");
+
+		m_canLoad = false;
+		StartCoroutine (LoadJson ());
 	}
 
-	IEnumerator LoadJson(string url) {
+	IEnumerator LoadJson() {
 
-		Debug.Log ("load jason");
+		var json = JSON.Parse ("{}");
+		int len = 0;
+		List<string> arr = new List<string> ();
+		string url = "";
 
-		WWW www = new WWW(url);
+		WWW www;
+
+		/// Faces
+
+		/*www = new WWW("http://localhost:8080/assets/faces.json");
 		
 		// Wait for download to complete
 		yield return www;
 
-		var json = JSON.Parse (www.text);
+		json = JSON.Parse (www.text);
 
-		int len = json.Count;
-
-		string[] arr = new string[len];
+		len = json.Count;
 
 		for (int i = 0; i < len; i++) {
+
+			url = "http://localhost:8080/assets/faces/" + json [i] ["image"];
+
+			if(!CheckUrl(url))
+				arr.Add (url);
+		}*/
+
+		////Instragram Pictures
+
+		www = new WWW("http://localhost:8080/assets/instagram_photos.json");
+
+		yield return www;
+		
+		json = JSON.Parse (www.text);
+		len = json.Count;
+
+		Debug.Log ("len2: " + len);
+
+		for (int i = 0; i < len; i++)
+		{
+			url = "http://localhost:8080/assets/instagram_photos/" + json[i]["filename"];
 			
-			arr[i] = "http://localhost:8080/assets/faces/" + json[i]["image"];
+			if(!CheckUrl(url))
+				arr.Add (url);
 		}
 
-		Debug.Log ("json loaded");
+		if(arr.Count > 0)
+			StartCoroutine( LoadImage(arr.ToArray(), 0));
+	}
 
-		StartCoroutine( LoadImage(arr, 0));
+	private bool CheckUrl(string url)
+	{
+		foreach (string u in m_urls) {
+		
+			if(u == url)
+				return true;
+		}
+
+		return false;
 	}
 
 	IEnumerator LoadImage(string[] url , int count) {
 
+		Debug.Log ("Load Image");
 
+		m_urls.Add (url[count]);
 		WWW www = new WWW(url[count]);
-		
-		// Wait for download to complete
+
 		yield return www;
 
 		if (count < url.Length - 1) {
 
-			m_negativeEffect.AddPictures(www.texture);
+			if (www.bytesDownloaded > 200)
+				m_negativeEffect.AddPictures (www.texture);
+
 			count++;
-			StartCoroutine( LoadImage(url, count));
+			StartCoroutine (LoadImage (url, count));
+		} 
+		else 
+		{
+			m_lastTimeLoaded = Time.time;
+			m_canLoad = true;
 		}
 	}
 

@@ -20,14 +20,13 @@ public class Logo : MonoBehaviour , ISoundReact{
 
 	public void AudioHandle(AudioData audio)
 	{
-		int particles = (int)(audio.normalSpectrum / 2.0f);
+
+		int particles = (int)((audio.volume * 20));
 
 		m_emmiter.Emit (particles);
 		m_emmiter.emit = false;
 
-		float s = audio.normalSpectrum / 5.0f;
-
-		s = Mathf.Clamp (s, 0.8f, 2.0f);
+		float s = audio.volume * 2.0f;
 
 		m_scale += (s - m_scale) * 0.1f;
 

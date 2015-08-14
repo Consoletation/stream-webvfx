@@ -20,9 +20,10 @@ var Datas = require('./datas')
 
 var _ift = Date.now();
 var glitchTimeout;
-var bassCheck = Pumper.createBand(20, 60, 127, 6 );
+var bassCheck = Pumper.createBand(20, 60, 127, 12 );
 
-var colors = [0xce1748, 0x14abbe, 0xfca412];
+var bgColors = [0x050505, 0xd4fa7a, 0x6befac, 0x42ACCC, 0xCC7E6A, 0x7868FF, 0xFDFF98, 0x5B9CB2];
+var colors = [0x427cde, 0xffffff, 0xa7a7a7, 0xB23A5E, 0xFFB86C, 0x32AEB2, 0xFF4E46, 0xD7FF56];
 var currentColor = 0;
 
 var main;
@@ -42,6 +43,10 @@ var cameraAngle = 0;
 var cameraMovementIncrease = Math.PI * 2 / 500;
 
 function init() {
+
+    Datas.names = shuffle(Datas.names);
+    Datas.names.unshift('+rehabstudio');
+
     //Create bands
     var bandMin = 10;
     var bandSize = 80 / divisions;
@@ -104,6 +109,7 @@ function initName(){
         i = 0, j = 0;
 
     //create text image
+    currentColor = THREE.Math.randInt(0, colors.length - 1);
     for (i = 0 ; i < Datas.names.length ; i ++){
 
         // canvas contents will be used for a texture
@@ -287,7 +293,7 @@ function tweenVertices(duration){
     }
     shapeMaterial.color.setHex( colors[currentColor] );
     shapeStrokeMaterial.color.setHex( colors[currentColor] );
-    renderer.setClearColor( colors[currentColor ], 0.5 );
+    renderer.setClearColor( bgColors[currentColor ], 0.5 );
     // setTimeout(function(){
         // renderer.setClearColor( colors[currentColor ], 0.5 );
     // }, 100);
@@ -428,6 +434,17 @@ function onWindowResize() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
+function shuffle(array) {
+    var counter = array.length, temp, index;
+    while (counter > 0) {
+        index = Math.floor(Math.random() * counter);
+        counter--;
+        temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+    return array;
+}
 
 
 
