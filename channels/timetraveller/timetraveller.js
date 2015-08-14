@@ -130,6 +130,37 @@ TimeTraveller.prototype.makeFlash = function() {
     tween.start();
 };
 
+TimeTraveller.prototype.makeBigFirework = function(color) {
+    var texture = COLORS[color];
+    var emitter = new Proton.BehaviourEmitter();
+    emitter.rate = new Proton.Rate(
+        new Proton.Span(15, 20),
+        new Proton.Span(0.2, 1)
+    );
+    emitter.addInitialize(new Proton.Mass(1));
+    emitter.addInitialize(new Proton.ImageTarget(texture));
+    emitter.addInitialize(new Proton.Life(0.5, 2));
+    emitter.addInitialize(new Proton.Velocity(
+        new Proton.Span(3, 7),
+        new Proton.Span(0, 20, true),
+        'polar'
+    ));
+
+    emitter.addBehaviour(new Proton.Gravity(6));
+    emitter.addBehaviour(new Proton.Scale(new Proton.Span(5, 10), 0.3));
+    emitter.addBehaviour(new Proton.Alpha(1, 0.5));
+    emitter.addBehaviour(new Proton.Rotate(0, Proton.getSpan(-8, 9), 'add'));
+    emitter.p.x = Math.random() * this.width;
+    emitter.p.y = Math.random() * this.height;
+    emitter.emit();
+    this.proton.addEmitter(emitter);
+    emitter.addSelfBehaviour(new Proton.Gravity(4));
+    emitter.addSelfBehaviour(new Proton.RandomDrift(30, 30, .1));
+    emitter.addSelfBehaviour(new Proton.CrossZone(
+        new Proton.RectZone(50, 0, this.width - 50, this.height - 50), 'bound'
+    ));
+};
+
 TimeTraveller.prototype.makeFirework = function() {
     var texture = COLORS[Math.floor(Math.random() * 3)];
     var emitter = new Proton.BehaviourEmitter();
@@ -187,11 +218,11 @@ TimeTraveller.prototype.render = function(time) {
     if (Pumper.isSpiking) {
         this.hypeLevel += 3;
         if (Math.random() > 0.9 && this.activeLogo === 3) {
-            this.makeFirework();
-            this.makeFirework();
-            this.makeFirework();
+            this.makeBigFirework(0);
+            this.makeBigFirework(1);
+            this.makeBigFirework(2);
         }
-        if (Math.random() > 0.90 && this.activeLogo === 3) {
+        if (Math.random() > 0.85 && this.activeLogo === 3) {
             this.makeFlash();
         }
     }
