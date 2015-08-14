@@ -4,35 +4,30 @@
 
 console.log('loaded');
 
+var DEFAULT_CHANNEL_DURATION = 60 * 2;
+
 var CHANNELS = {
     'algoviz': {
-        author: 'Neil',
-        duration: 10
+        author: 'Neil'
     },
     'beatprocessing': {
-        author: 'Mick',
-        duration: 10
+        author: 'Mick'
     },
     'mosaic': {
-        author: 'Grieve',
-        duration: 20
+        author: 'Grieve'
     },
     'dirtygif': {
-        author: 'Neil',
-        duration: 10
+        author: 'Neil'
     },
     'reactivelogo': {
-        author: 'Pedro',
-        duration: 20
+        author: 'Pedro'
     },
     'timetraveller': {
-        author: 'Grieve',
-        duration: 20
+        author: 'Grieve'
     }
 };
 
 var CHANNEL_IDS = Object.keys(CHANNELS),
-    DEFAULT_CHANNEL_DURATION = 10,
     OSD_HANG_TIME = 2000;
 
 var currentChannel = null,
@@ -81,7 +76,7 @@ function changeChannel(id) {
     console.log('URL PARAM', ipt);
     var inputAppend = (ipt !== null) ? '?input=' + ipt : '';
 
-    var src = (id === null) ? '' : './channels/' + id + inputAppend;
+    var src = (id === null) ? '' : '/channels/' + id + inputAppend;
     els.mainframe.setAttribute('src', src);
     currentChannel = id;
 
