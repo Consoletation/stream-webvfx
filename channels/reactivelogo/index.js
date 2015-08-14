@@ -1,6 +1,8 @@
 var Pumper = require('pumper');
 var bassCheck = Pumper.createBand(20, 60, 127, 6 );
 var maxVolume = 1;
+var lastUpdateToVolume = 0;
+
 
 
 var u = new UnityObject2();
@@ -21,12 +23,26 @@ function update()
 
 	Pumper.update();
 	requestAnimationFrame(update);
-	
-	if(Pumper.volume > maxVolume)
-		maxVolume = Pumper.volume;
-
 
 	var normalized = Pumper.volume / maxVolume;
+	
+	if(Pumper.volume > maxVolume)
+	{
+		maxVolume = Pumper.volume;
+		lastUpdateToVolume = 0;
+	}
+	else
+	{
+		lastUpdateToVolume++;
+		if(lastUpdateToVolume >= 1000 || normalized < 0.2)
+		{
+			lastUpdateToVolume = 0;
+			maxVolume = 1;
+		}
+	}
+
+
+	
 
 	SendVolume(normalized);
 }

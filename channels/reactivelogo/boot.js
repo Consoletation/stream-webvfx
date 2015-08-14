@@ -4,7 +4,8 @@ var Pumper = require('pumper'),
 //var TRACK = '../../audio/sexualizer.mp3';
 var TRACK = '../../audio/audio.mp3';
 
-Pumper.start(TRACK, true);
+Pumper.start('mic');
+//Pumper.start(TRACK, true);
 Pumper.globalSpikeTolerance = 12;
 
 
