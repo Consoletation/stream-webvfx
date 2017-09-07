@@ -1,11 +1,11 @@
 node_modules
 venv
-instagram_photos
 *bundle.js
 *.map
 .docker-build
 
-assets/instagram_photos.json
+frontend/assets/instagram_photos.json
+frontend/assets/instagram_photos
 
 
 # Created by https://www.gitignore.io
