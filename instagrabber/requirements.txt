@@ -1,4 +1,0 @@
-apscheduler
-python-instagram
-requests
-supervisor

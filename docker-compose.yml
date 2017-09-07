@@ -7,6 +7,17 @@ services:
         ports:
             - 0.0.0.0:8080:80
             - 0.0.0.0:8443:443
+    instagrabber:
+        image: stealthii/instagrabber
+        volumes:
+            - ./srv:/srv
+        environment:
+            CLIENT_ID: "e57454d58e8a43b5b1e523b0016e42d1"
+            CLIENT_SECRET: "2be7470623f54bb98d3f1ebe86299ed1"
+            TAG_NAME: "rehabstudio"
+            OUTPUT_DIR: "/assets/instagram_photos"
+            REFRESH_INTERVAL: 15
+
 volumes:
     cache-data:
         driver: local
