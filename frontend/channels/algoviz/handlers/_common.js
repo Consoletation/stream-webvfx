@@ -15,7 +15,7 @@ Common.TRICOLOR_RGB = [
     [252,164,18]
 ];
 Common.R_360 = 6.28318531;
-Common.HASHTAG = '#rehab10';
+Common.HASHTAG = 'jimb0';
 
 Common.getRndInt = function(min, max) {
     return ~~(Math.random() * (max - min + 1)) + min;

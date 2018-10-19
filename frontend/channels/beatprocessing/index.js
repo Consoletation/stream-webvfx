@@ -20,7 +20,7 @@ var Datas = require('./datas')
 
 var _ift = Date.now();
 var glitchTimeout;
-var bassCheck = Pumper.createBand(20, 60, 127, 12 );
+var bassCheck = Pumper.createBand(25, 80, 127, 15 );
 
 var bgColors = [0x050505, 0xd4fa7a, 0x6befac, 0x42ACCC, 0xCC7E6A, 0x7868FF, 0xFDFF98, 0x5B9CB2];
 var colors = [0x427cde, 0xffffff, 0xa7a7a7, 0xB23A5E, 0xFFB86C, 0x32AEB2, 0xFF4E46, 0xD7FF56];
@@ -45,7 +45,7 @@ var cameraMovementIncrease = Math.PI * 2 / 500;
 function init() {
 
     Datas.names = shuffle(Datas.names);
-    Datas.names.unshift('+rehabstudio');
+    Datas.names.unshift('jimb0');
 
     //Create bands
     var bandMin = 10;
