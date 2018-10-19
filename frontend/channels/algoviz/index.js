@@ -71,6 +71,7 @@ function init() {
     document.body.appendChild(dc);
 
     window.addEventListener('resize', _onResize, false);
+    window.addEventListener('click', Pumper.play);
     _onResize();
 
     for(var h in handlers) {
