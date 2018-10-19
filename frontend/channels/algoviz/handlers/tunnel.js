@@ -235,7 +235,7 @@ function _drawUI() {
     main.ctx.textAlign = 'left';
     main.ctx.textBaseline = 'top';
     main.ctx.fillStyle = 'white';
-    main.ctx.fillText('#REHAB10', main.CX - DRIFT_DIST, 10);
+    main.ctx.fillText(Common.HASHTAG.toUpperCase(), main.CX - DRIFT_DIST, 10);
 
     main.ctx.textAlign = 'right';
     main.ctx.fillText('DIST ' + travelDist * 1000, main.CX + DRIFT_DIST, 10);
