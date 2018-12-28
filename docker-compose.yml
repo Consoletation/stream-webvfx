@@ -7,6 +7,15 @@ services:
         ports:
             - 0.0.0.0:8080:80
             - 0.0.0.0:8443:443
+    frontend:
+        image: webpack
+        build:
+            context: ./frontend
+        ports:
+            - 8080:8080
+        volumes:
+            - ./frontend:/bindmount:rw
+            - node_modules:/src/node_modules
     instagrabber:
         image: stealthii/instagrabber
         volumes:
@@ -20,4 +29,6 @@ services:
 
 volumes:
     cache-data:
+        driver: local
+    node_modules:
         driver: local
