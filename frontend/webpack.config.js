@@ -3,6 +3,7 @@
 var CHANNELS = [
     'algoviz',
     'beatprocessing',
+    'bp-stealthct',
     'mosaic',
     'dirtygif',
     'reactivelogo',
