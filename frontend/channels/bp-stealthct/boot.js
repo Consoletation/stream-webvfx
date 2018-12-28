@@ -9,7 +9,7 @@ Pumper.globalSpikeTolerance = 14;
 
 
 
-var f = new FontFace('Apercu', 'url(../../assets/fonts/apercu-regular.ttf)', {});
+var f = new FontFace('Patua One', 'url(../../assets/fonts/PatuaOne-Regular.ttf)', {});
 f.load().then(function (loadedFace) {
     document.fonts.add(loadedFace);
     BeatProcessing.init();

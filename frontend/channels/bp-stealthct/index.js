@@ -45,7 +45,7 @@ var cameraMovementIncrease = Math.PI * 2 / 500;
 function init() {
 
     Datas.names = shuffle(Datas.names);
-    Datas.names.unshift('Algorave');
+    Datas.names.unshift('StealthCT');
 
     //Create bands
     var bandMin = 10;
@@ -128,13 +128,13 @@ function initName(){
             g = bitmap.getContext('2d');
             bitmap.width = namesSize;
             bitmap.height = 200;
-            g.font = 'bold 160px Apercu';
+            g.font = 'bold 160px Patua One';
             g.fillStyle = 'white';
             txtWidth = g.measureText(Datas.names[i]).width;
             divisionWidth = txtWidth / divisions
 
             bitmap.width = divisionWidth;
-            g.font = 'bold 160px Apercu';
+            g.font = 'bold 160px Patua One';
             g.fillStyle = 'white';
             txtWidth = g.measureText(Datas.names[i]).width;
             g.fillText(Datas.names[i], (divisionWidth * j) * -1, 160 );
