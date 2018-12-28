@@ -11,5 +11,9 @@
     "pex-geom": "^0.14.0",
     "three": "^0.71.0",
     "tween.js": "^15.0.0"
+  },
+  "scripts": {
+    "start:dev": "webpack-dev-server --host 0.0.0.0 --hot --inline",
+    "build": "webpack -d"
   }
 }
