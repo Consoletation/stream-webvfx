@@ -39,8 +39,6 @@ var currentShape = 0;
 var glitchPass;
 
 var randomCircleScale = 0;
-var cameraAngle = 0;
-var cameraMovementIncrease = Math.PI * 2 / 500;
 
 function init() {
 
@@ -141,6 +139,7 @@ function initName(){
 
             texture = new THREE.Texture(bitmap)
             texture.needsUpdate = true;
+            texture.minFilter = THREE.LinearFilter;
 
             material = new THREE.MeshBasicMaterial( {
                 map : texture, color: 0xffffff, transparent: true, opacity: 1
@@ -376,7 +375,6 @@ function update() {
         currentNameSlices3[i].position.y = bandVolume * 0.5;
         currentNameSlices4[i].position.y = bandVolume * 0.3;
     }
-    // if(bassCheck.isSpiking === true) {
     if(bassCheck.isSpiking === true) {
         var volume = Math.floor((bassCheck.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
@@ -384,7 +382,6 @@ function update() {
         tweenVertices(scale * 0.02);
 
         if(glitchPass.goWild === false){
-            // glitchPass.goWild = bassCheck.isSpiking;
             glitchPass.goWild = bassCheck.isSpiking;
             glitchTimeout = setTimeout(function (){
                 if(bassCheck.isSpiking === false){
@@ -416,13 +413,6 @@ function render() {
 }
 
 function frame() {
-    // var movement = 50
-    // var x = movement * Math.cos( cameraAngle ) + (movement * 2);
-    // var y = movement * Math.sin( cameraAngle ) + (movement * 2);
-    // cameraAngle += cameraMovementIncrease;
-    // camera.position.x = x - 25;
-    // camera.position.y = y - 25;
-
     requestAnimationFrame(frame);
     update();
     render();
