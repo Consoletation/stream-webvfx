@@ -387,14 +387,14 @@ function update() {
                 if(bassCheck.isSpiking === false){
                     glitchPass.goWild = false;
                 }
-            }, volume)
+            }, volume * 1.5)
         }else{
             clearTimeout( glitchTimeout )
             glitchTimeout = setTimeout(function (){
                 if(bassCheck.isSpiking === false){
                     glitchPass.goWild = false;
                 }
-            }, volume)
+            }, volume * 1.5)
         }
     }
     // camera.rotation.x = Pumper.volume * -0.0005;
