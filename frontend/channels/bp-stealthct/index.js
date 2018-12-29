@@ -37,13 +37,14 @@ var namesMesh = [];
 var currentName = 0;
 var currentShape = 0;
 var glitchPass;
+var ending = 0;
 
 var randomCircleScale = 0;
 
 function init() {
 
     Datas.names = shuffle(Datas.names);
-    Datas.names.unshift('StealthCT');
+    Datas.names.unshift('Thank you for 150 followers!');
 
     //Create bands
     var bandMin = 10;
@@ -58,7 +59,7 @@ function init() {
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
-    renderer.domElement.addEventListener('click', Pumper.play);
+    renderer.domElement.addEventListener('click', simulateBeat);
     renderer.setClearColor( 0x000000, 1 );
 
     //Create camera
@@ -273,10 +274,12 @@ function simulateBeat(){
         glitchPass.goWild = false;
     }, 300)
 
+    ending = 1;
     tweenVertices(0.5);
 }
 
 function tweenVertices(duration){
+    if(ending === 2){ return; }
     //Scale circle randomly but still based on the volume
     //Position it randomly on every single BOOOOOM
     randomCircleScale = THREE.Math.randInt( Pumper.volume * 0.2, Pumper.volume ) * 0.01 - 1.4;
@@ -298,12 +301,18 @@ function tweenVertices(duration){
     // }, 100);
 
     //Change name
-    namesContainer.remove( namesMesh[currentName].container );
-    currentName ++;
-    if(currentName > namesMesh.length - 1){
-        currentName = 0;
+    if(ending === 0){
+        namesContainer.remove( namesMesh[currentName].container );
+        currentName ++;
+        if(currentName > namesMesh.length - 1){
+            currentName = 0;
+        }
+        namesContainer.add( namesMesh[currentName].container );
+    }else{
+        ending = 2;
+        namesContainer.remove( namesMesh[currentName].container );
+        namesContainer.add( namesMesh[0].container );
     }
-    namesContainer.add( namesMesh[currentName].container );
 
     //Rotate shape
     var shapeRotation = THREE.Math.randInt(-45, 45) * Math.PI / 180;
