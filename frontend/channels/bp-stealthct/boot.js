@@ -1,10 +1,10 @@
 var Pumper = require('pumper'),
     BeatProcessing = require('./index');
 
-var TRACK = '../../audio/home.mp3';
+var TRACK = '../../audio/pacemaker.mp3';
 
-Pumper.start(TRACK, true);
-//Pumper.start('mic');
+//Pumper.start(TRACK, true);
+Pumper.start('mic');
 Pumper.globalSpikeTolerance = 14;
 
 
