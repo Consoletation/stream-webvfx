@@ -16,7 +16,7 @@ require('gsap');
 
 
 var Pumper = require('pumper');
-var Datas = require('./datas')
+var Datas = require('./datas');
 
 var _ift = Date.now();
 var glitchTimeout;
@@ -34,17 +34,22 @@ var shapesContainer, light;
 var shapeMesh, shapeMaterial, shapeGeometry;
 var shapeStrokeLine, shapeStrokeLine, shapeStrokeGeometry;
 var namesMesh = [];
-var currentName = 0;
+var currentName = 6;
 var currentShape = 0;
 var glitchPass;
-var ending = 0;
+var stage = 0;
 
 var randomCircleScale = 0;
 
 function init() {
 
     Datas.names = shuffle(Datas.names);
-    Datas.names.unshift('Thank you for 150 followers!');
+    Datas.names.unshift('Thanks for watching');
+    Datas.names.unshift('Back soon');
+    Datas.names.unshift('Welcome to Consoletation');
+    Datas.names.unshift('Thank you for the support');
+    Datas.names.unshift('DUMMY');
+    Datas.names.unshift('Starting soon');
 
     //Create bands
     var bandMin = 10;
@@ -274,76 +279,82 @@ function simulateBeat(){
         glitchPass.goWild = false;
     }, 300)
 
-    ending = 1;
+    stage++;
     tweenVertices(0.5);
 }
 
 function tweenVertices(duration){
-    if(ending === 2){ return; }
-    //Scale circle randomly but still based on the volume
-    //Position it randomly on every single BOOOOOM
-    randomCircleScale = THREE.Math.randInt( Pumper.volume * 0.2, Pumper.volume ) * 0.01 - 1.4;
-    var windowWidth = window.innerWidth;
-    var windowHeight = window.innerHeight;
-    circleLine.position.x = THREE.Math.randInt( window.innerWidth * -0.5, window.innerWidth * 0.5);
-    circleLine.position.y = THREE.Math.randInt( windowHeight * -0.5, windowHeight * 0.5);
 
-    //Change color of the shape
-    currentColor ++;
-    if(currentColor > colors.length - 1){
-        currentColor = 0;
+    if(stage === 1){
+        //Scale circle randomly but still based on the volume
+        //Position it randomly on every single BOOOOOM
+        randomCircleScale = THREE.Math.randInt( Pumper.volume * 0.2, Pumper.volume ) * 0.01 - 1.4;
+        var windowWidth = window.innerWidth;
+        var windowHeight = window.innerHeight;
+        circleLine.position.x = THREE.Math.randInt( window.innerWidth * -0.5, window.innerWidth * 0.5);
+        circleLine.position.y = THREE.Math.randInt( windowHeight * -0.5, windowHeight * 0.5);
+    
+        //Change color of the shape
+        currentColor ++;
+        if(currentColor > colors.length - 1){
+            currentColor = 0;
+        }
+        shapeMaterial.color.setHex( colors[currentColor] );
+        shapeStrokeMaterial.color.setHex( colors[currentColor] );
+        renderer.setClearColor( bgColors[currentColor ], 0.5 );
+        // setTimeout(function(){
+            // renderer.setClearColor( colors[currentColor ], 0.5 );
+        // }, 100);
     }
-    shapeMaterial.color.setHex( colors[currentColor] );
-    shapeStrokeMaterial.color.setHex( colors[currentColor] );
-    renderer.setClearColor( bgColors[currentColor ], 0.5 );
-    // setTimeout(function(){
-        // renderer.setClearColor( colors[currentColor ], 0.5 );
-    // }, 100);
 
     //Change name
-    if(ending === 0){
+    if(stage === 1){
         namesContainer.remove( namesMesh[currentName].container );
         currentName ++;
         if(currentName > namesMesh.length - 1){
-            currentName = 0;
+            currentName = 6;
+        } else if(currentName < 6){
+            currentName = 6;
         }
         namesContainer.add( namesMesh[currentName].container );
     }else{
-        ending = 2;
         namesContainer.remove( namesMesh[currentName].container );
-        namesContainer.add( namesMesh[0].container );
+        currentName = stage;
+        namesContainer.add( namesMesh[currentName].container );
     }
 
-    //Rotate shape
-    var shapeRotation = THREE.Math.randInt(-45, 45) * Math.PI / 180;
-    TweenMax.to(shapeMesh.rotation, duration, {
-        z:  shapeRotation,
-        ease: Cubic.easeInOut
-    })
-    TweenMax.to(shapeStrokeLine.rotation, duration + 0.05, {
-        z:  shapeRotation,
-        ease: Cubic.easeInOut
-    })
+    if(stage === 1){
+        //Rotate shape
+        var shapeRotation = THREE.Math.randInt(-45, 45) * Math.PI / 180;
+        TweenMax.to(shapeMesh.rotation, duration, {
+            z:  shapeRotation,
+            ease: Cubic.easeInOut
+        })
+        TweenMax.to(shapeStrokeLine.rotation, duration + 0.05, {
+            z:  shapeRotation,
+            ease: Cubic.easeInOut
+        })
 
-    //Change shape
-    currentShape ++ ;
-    if( currentShape >= Datas.shapes.length ){
-        currentShape = 0;
+        //Change shape
+        currentShape ++ ;
+        if( currentShape >= Datas.shapes.length ){
+            currentShape = 0;
+        }
+        var shapeStaticPoints = Datas.shapes[currentShape].points;
+        shapePoints = [];
+        //Get shape's points from the shapes file
+        for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
+            shapePoints.push( new THREE.Vector3( shapeStaticPoints[i].x, shapeStaticPoints[i].y, 0) );
+        }
+        shapePoints.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
+    
+        TweenMax.to(shapeGeometry.vertices[i], duration, {
+            x: shapePoints[i].x,
+            y: shapePoints[i].y,
+            delay: 0,
+            ease: Cubic.easeInOut
+        })
     }
-    var shapeStaticPoints = Datas.shapes[currentShape].points;
-    shapePoints = [];
-    //Get shape's points from the shapes file
-    for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
-        shapePoints.push( new THREE.Vector3( shapeStaticPoints[i].x, shapeStaticPoints[i].y, 0) );
-    }
-    shapePoints.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
-
-    TweenMax.to(shapeGeometry.vertices[i], duration, {
-        x: shapePoints[i].x,
-        y: shapePoints[i].y,
-        delay: 0,
-        ease: Cubic.easeInOut
-    })
 
     //Tween vertices
     for (var i = 0 ; i < shapePoints.length ; i ++){
@@ -390,20 +401,22 @@ function update() {
 
         tweenVertices(scale * 0.02);
 
-        if(glitchPass.goWild === false){
-            glitchPass.goWild = bassCheck.isSpiking;
-            glitchTimeout = setTimeout(function (){
-                if(bassCheck.isSpiking === false){
-                    glitchPass.goWild = false;
-                }
-            }, volume * 1.5)
-        }else{
-            clearTimeout( glitchTimeout )
-            glitchTimeout = setTimeout(function (){
-                if(bassCheck.isSpiking === false){
-                    glitchPass.goWild = false;
-                }
-            }, volume * 1.5)
+        if(stage === 1){
+            if(glitchPass.goWild === false){
+                glitchPass.goWild = bassCheck.isSpiking;
+                glitchTimeout = setTimeout(function (){
+                    if(bassCheck.isSpiking === false){
+                        glitchPass.goWild = false;
+                    }
+                }, volume * 1.5)
+            }else{
+                clearTimeout( glitchTimeout )
+                glitchTimeout = setTimeout(function (){
+                    if(bassCheck.isSpiking === false){
+                        glitchPass.goWild = false;
+                    }
+                }, volume * 1.5)
+            }
         }
     }
     // camera.rotation.x = Pumper.volume * -0.0005;
