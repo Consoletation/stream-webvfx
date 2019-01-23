@@ -46,6 +46,12 @@ var Datas = {
         }
     ],
     names: [
+        'Ky_Whatever',
+        'sooden',
+        'aDaywalker',
+        'MattPula',
+        'TheCoalWar',
+        'whisqey',
         'iAmDavis',
         'DEVEXER',
         'beth2daniel',
