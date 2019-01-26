@@ -46,6 +46,14 @@ var Datas = {
         }
     ],
     names: [
+        'NanoPierogi',
+        'SlamBolts',
+        'PauloSquesh',
+        'SurfaceJ',
+        'TheseWords',
+        'Reynolds95',
+        'ACTheRockDevil',
+        'ProfessorCatfish',
         'Ky_Whatever',
         'sooden',
         'aDaywalker',
@@ -171,7 +179,7 @@ var Datas = {
         'yalbet',
         'CubeyyGaming',
         'timidtheresa',
-        'Zelki13',
+        'maniacal_panda',
         'mateossh',
         'RenderTechUK',
         'Peppah',
