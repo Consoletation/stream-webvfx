@@ -46,6 +46,13 @@ var Datas = {
         }
     ],
     names: [
+        'SuviSeesMonsters',
+        'mr_sklounst',
+        'antonskach',
+        'mmendez975',
+        'DarthVegetarian',
+        'MDosik',
+        'SoggiCrouton',
         'SupaFlyNinjaGuy',
         'LilyLaina',
         'Joshua85',
