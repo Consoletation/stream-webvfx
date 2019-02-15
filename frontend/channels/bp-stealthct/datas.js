@@ -46,6 +46,9 @@ var Datas = {
         }
     ],
     names: [
+        'TheMischievousMoose',
+        'TheDragonSight',
+        'Shockolade3',
         'SuviSeesMonsters',
         'mr_sklounst',
         'antonskach',
@@ -68,7 +71,6 @@ var Datas = {
         'azure_tundra',
         'Roadypie',
         'dustspark_',
-        'huntermrhunter',
         'NanoPierogi',
         'SlamBolts',
         'PauloSquesh',
