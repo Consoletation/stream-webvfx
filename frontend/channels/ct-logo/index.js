@@ -15,7 +15,10 @@ require('gsap');
 
 
 var Pumper = require('pumper');
-var Datas = require('./datas');
+
+var words = [
+    'CONSOLETATION'
+];
 
 var divisions = 16;
 
@@ -74,7 +77,7 @@ function initName(){
         i = 0, j = 0;
 
     //create text image
-    for (i = 0 ; i < Datas.names.length ; i ++){
+    for (i = 0 ; i < words.length ; i ++){
 
         // canvas contents will be used for a texture
         nameSlicesContainer = new THREE.Object3D();
@@ -94,14 +97,14 @@ function initName(){
             bitmap.height = 200;
             g.font = 'bold 160px rigid-square';
             g.fillStyle = 'white';
-            txtWidth = g.measureText(Datas.names[i]).width;
+            txtWidth = g.measureText(words[i]).width;
             divisionWidth = txtWidth / divisions;
 
             bitmap.width = divisionWidth;
             g.font = 'bold 160px rigid-square';
             g.fillStyle = 'white';
-            txtWidth = g.measureText(Datas.names[i]).width;
-            g.fillText(Datas.names[i], (divisionWidth * j) * -1, 160 );
+            txtWidth = g.measureText(words[i]).width;
+            g.fillText(words[i], (divisionWidth * j) * -1, 160 );
 
             texture = new THREE.Texture(bitmap);
             texture.needsUpdate = true;
