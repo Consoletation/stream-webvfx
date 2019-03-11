@@ -8,7 +8,6 @@ require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
 require('imports?THREE=three!../../libs/postprocessing/RenderPass');
 require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
-require('imports?THREE=three!../../libs/postprocessing/GlitchPassCustom');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
 require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 
@@ -30,26 +29,10 @@ var main;
 var divisions = 16, bands = [];
 
 var camera, scene, renderer, composer;
-var shapesContainer, light;
-var shapeMesh, shapeMaterial, shapeGeometry;
-var shapeStrokeLine, shapeStrokeLine, shapeStrokeGeometry;
+var light;
 var namesMesh = [];
-var currentName = 6;
-var currentShape = 0;
-var glitchPass;
-var stage = 0;
-
-var randomCircleScale = 0;
 
 function init() {
-
-    Datas.names = shuffle(Datas.names);
-    Datas.names.unshift('Thanks for watching');
-    Datas.names.unshift('Back soon');
-    Datas.names.unshift('Welcome to Consoletation');
-    Datas.names.unshift('Thank you for the support');
-    Datas.names.unshift('DUMMY');
-    Datas.names.unshift('Starting soon');
 
     //Create bands
     var bandMin = 10;
@@ -65,7 +48,7 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
     renderer.domElement.addEventListener('click', simulateBeat);
-    renderer.setClearColor( 0x000000, 1 );
+    renderer.setClearColor( 0xffffff, 1 );
 
     //Create camera
     camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 3000 );
@@ -73,10 +56,7 @@ function init() {
 
     //Create scene
     scene = new THREE.Scene();
-    // scene.fog = new THREE.Fog( 0x000000, 1, 2000 );
 
-    initShape();
-    initCircle();
     initName();
 
     //Bring the lights
@@ -89,8 +69,6 @@ function init() {
     initPostProcessing();
 
     window.addEventListener( 'resize', onWindowResize, false );
-    glitchPass.goWild = false;
-
 
     _t = _ft = _rft = Date.now();
     frame();
@@ -148,7 +126,7 @@ function initName(){
             texture.minFilter = THREE.LinearFilter;
 
             material = new THREE.MeshBasicMaterial( {
-                map : texture, color: 0xffffff, transparent: true, opacity: 1
+                map : texture, color: 0x000000, transparent: true, opacity: 1
             });
 
             posX = j * (divisionWidth) - txtWidth * 0.5;
@@ -196,72 +174,13 @@ function initName(){
     namesContainer.add( namesMesh[0].container );
 
 }
-function initCircle(){
-    var segmentCount = 256,
-    radius = 200,
-    geometry = new THREE.Geometry();
-
-    for (var i = 0; i <= segmentCount; i++) {
-        var theta = (i / segmentCount) * Math.PI * 2;
-        geometry.vertices.push(
-            new THREE.Vector3(
-                Math.cos(theta) * radius,
-                Math.sin(theta) * radius,
-                0));
-    }
-
-
-    circleLine = new THREE.Line( geometry, new THREE.LineBasicMaterial( {
-        color: 0xffffff, lineWidth: 1, opacity: 0.1, transparent: true
-    } ) );
-    scene.add( circleLine );
-}
-function initShape(){
-    //Create shapes container
-    shapesContainer = new THREE.Object3D();
-    scene.add( shapesContainer );
-
-    //Create current shape and its stroke
-    var shapeStaticPoints = Datas.shapes[currentShape].points;
-    shapePoints = [];
-    //Get shape's points from the shapes file
-    for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
-        shapePoints.push( new THREE.Vector3( shapeStaticPoints[i].x, shapeStaticPoints[i].y, 0) );
-    }
-
-    //Create current shape
-    shape = new THREE.Shape( shapePoints );
-    shapeStrokeGeometry = shape.createPointsGeometry();
-    console.log(shape.createPointsGeometry(50));
-    console.log(shapeStrokeGeometry);
-    var spacedPoints = shape.createSpacedPointsGeometry( 20 );
-
-    shapeGeometry = new THREE.ShapeGeometry( shape );
-    shapeGeometry.vertices.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
-    shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
-    shapeMesh = new THREE.Mesh( shapeGeometry, shapeMaterial );
-    shapesContainer.add( shapeMesh );
-
-    //Create stroke
-    shapeStrokeMaterial = new THREE.LineBasicMaterial( {
-        color: colors[currentColor], shading: THREE.FlatShading,
-        opacity: 0.5, transparent: true} );
-    shapeStrokeLine = new THREE.Line(shapeStrokeGeometry, shapeStrokeMaterial);
-    shapeStrokeLine.scale.set(1.2, 1.2, 1.2)
-    shapesContainer.add( shapeStrokeLine );
-    // shapeStrokeLine.rotation.x = 10;
-}
 
 function initPostProcessing(){
     // postprocessing
     composer = new THREE.EffectComposer( renderer );
     composer.addPass( new THREE.RenderPass( scene, camera ) );
 
-    glitchPass = new THREE.GlitchPass();
-    // glitchPass.renderToScreen = true;
-    composer.addPass( glitchPass );
-
-	var shaderVignette = THREE.VignetteShader;
+    var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass( shaderVignette );
     effectVignette.uniforms[ "offset" ].value = .5;
     effectVignette.uniforms[ "darkness" ].value = 1.6;
@@ -274,105 +193,6 @@ function initPostProcessing(){
 
 
 function simulateBeat(){
-    glitchPass.goWild = true;
-    setTimeout(function (){
-        glitchPass.goWild = false;
-    }, 300)
-
-    stage++;
-    tweenVertices(0.5);
-}
-
-function tweenVertices(duration){
-
-    if(stage === 1){
-        //Scale circle randomly but still based on the volume
-        //Position it randomly on every single BOOOOOM
-        randomCircleScale = THREE.Math.randInt( Pumper.volume * 0.2, Pumper.volume ) * 0.01 - 1.4;
-        var windowWidth = window.innerWidth;
-        var windowHeight = window.innerHeight;
-        circleLine.position.x = THREE.Math.randInt( window.innerWidth * -0.5, window.innerWidth * 0.5);
-        circleLine.position.y = THREE.Math.randInt( windowHeight * -0.5, windowHeight * 0.5);
-    
-        //Change color of the shape
-        currentColor ++;
-        if(currentColor > colors.length - 1){
-            currentColor = 0;
-        }
-        shapeMaterial.color.setHex( colors[currentColor] );
-        shapeStrokeMaterial.color.setHex( colors[currentColor] );
-        renderer.setClearColor( bgColors[currentColor ], 0.5 );
-        // setTimeout(function(){
-            // renderer.setClearColor( colors[currentColor ], 0.5 );
-        // }, 100);
-    }
-
-    //Change name
-    if(stage === 1){
-        namesContainer.remove( namesMesh[currentName].container );
-        currentName ++;
-        if(currentName > namesMesh.length - 1){
-            currentName = 6;
-        } else if(currentName < 6){
-            currentName = 6;
-        }
-        namesContainer.add( namesMesh[currentName].container );
-    }else{
-        namesContainer.remove( namesMesh[currentName].container );
-        currentName = stage;
-        namesContainer.add( namesMesh[currentName].container );
-    }
-
-    if(stage === 1){
-        //Rotate shape
-        var shapeRotation = THREE.Math.randInt(-45, 45) * Math.PI / 180;
-        TweenMax.to(shapeMesh.rotation, duration, {
-            z:  shapeRotation,
-            ease: Cubic.easeInOut
-        })
-        TweenMax.to(shapeStrokeLine.rotation, duration + 0.05, {
-            z:  shapeRotation,
-            ease: Cubic.easeInOut
-        })
-
-        //Change shape
-        currentShape ++ ;
-        if( currentShape >= Datas.shapes.length ){
-            currentShape = 0;
-        }
-        var shapeStaticPoints = Datas.shapes[currentShape].points;
-        shapePoints = [];
-        //Get shape's points from the shapes file
-        for (var i = 0 ; i < shapeStaticPoints.length ; i ++){
-            shapePoints.push( new THREE.Vector3( shapeStaticPoints[i].x, shapeStaticPoints[i].y, 0) );
-        }
-        shapePoints.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
-    
-        TweenMax.to(shapeGeometry.vertices[i], duration, {
-            x: shapePoints[i].x,
-            y: shapePoints[i].y,
-            delay: 0,
-            ease: Cubic.easeInOut
-        })
-    }
-
-    //Tween vertices
-    for (var i = 0 ; i < shapePoints.length ; i ++){
-        TweenMax.to(shapeGeometry.vertices[i], duration, {
-            x: shapePoints[i].x,
-            y: shapePoints[i].y,
-            ease: Cubic.easeInOut
-        })
-        TweenMax.to(shapeStrokeGeometry.vertices[i], duration + 0.05, {
-            x: shapePoints[i].x,
-            y: shapePoints[i].y,
-            ease: Cubic.easeInOut,
-            onUpdate: function(){
-                shapeGeometry.verticesNeedUpdate = true;
-                shapeStrokeGeometry.verticesNeedUpdate = true;
-            }
-        })
-    }
 }
 
 function update() {
@@ -381,10 +201,10 @@ function update() {
     Pumper.update();
 
     //Animate names based on bands
-    var currentNameSlices1 = namesMesh[currentName].slices1;
-    var currentNameSlices2 = namesMesh[currentName].slices2;
-    var currentNameSlices3 = namesMesh[currentName].slices3;
-    var currentNameSlices4 = namesMesh[currentName].slices4;
+    var currentNameSlices1 = namesMesh[0].slices1;
+    var currentNameSlices2 = namesMesh[0].slices2;
+    var currentNameSlices3 = namesMesh[0].slices3;
+    var currentNameSlices4 = namesMesh[0].slices4;
     // console.log(Pumper.bands[0].volume);
     var bandVolume;
     for (var i = 0 ; i < currentNameSlices1.length ; i ++){
@@ -398,35 +218,9 @@ function update() {
     if(bassCheck.isSpiking === true) {
         var volume = Math.floor((bassCheck.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
-
-        tweenVertices(scale * 0.02);
-
-        if(stage === 1){
-            if(glitchPass.goWild === false){
-                glitchPass.goWild = bassCheck.isSpiking;
-                glitchTimeout = setTimeout(function (){
-                    if(bassCheck.isSpiking === false){
-                        glitchPass.goWild = false;
-                    }
-                }, volume * 1.5)
-            }else{
-                clearTimeout( glitchTimeout )
-                glitchTimeout = setTimeout(function (){
-                    if(bassCheck.isSpiking === false){
-                        glitchPass.goWild = false;
-                    }
-                }, volume * 1.5)
-            }
-        }
     }
     // camera.rotation.x = Pumper.volume * -0.0005;
     scale = Pumper.volume * 0.002 + 1;
-    shapeMesh.scale.set(scale, scale, scale);
-    circleScale = randomCircleScale + (scale * 1.3);
-    circleLine.scale.set(circleScale, circleScale, circleScale);
-    setTimeout(function (){
-        shapeStrokeLine.scale.set(scale + 0.1, scale + 0.1, scale + 0.1);
-    }, 10)
 }
 
 function render() {

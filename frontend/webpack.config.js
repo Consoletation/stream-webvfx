@@ -4,6 +4,7 @@ var CHANNELS = [
     'algoviz',
     'beatprocessing',
     'bp-stealthct',
+    'ct-logo',
     'mosaic',
     'dirtygif',
     'reactivelogo',
