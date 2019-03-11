@@ -110,13 +110,13 @@ function initName(){
             g = bitmap.getContext('2d');
             bitmap.width = namesSize;
             bitmap.height = 200;
-            g.font = 'bold 160px Patua One';
+            g.font = 'bold 160px rigid-square';
             g.fillStyle = 'white';
             txtWidth = g.measureText(Datas.names[i]).width;
             divisionWidth = txtWidth / divisions
 
             bitmap.width = divisionWidth;
-            g.font = 'bold 160px Patua One';
+            g.font = 'bold 160px rigid-square';
             g.fillStyle = 'white';
             txtWidth = g.measureText(Datas.names[i]).width;
             g.fillText(Datas.names[i], (divisionWidth * j) * -1, 160 );

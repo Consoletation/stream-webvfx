@@ -1,6 +1,6 @@
 var Datas = {
     names: [
-        'Consoletation'
+        'CONSOLETATION'
     ]
 }
 

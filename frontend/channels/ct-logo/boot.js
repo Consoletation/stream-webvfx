@@ -7,10 +7,7 @@ var TRACK = '../../audio/pacemaker.mp3';
 Pumper.start('mic');
 Pumper.globalSpikeTolerance = 14;
 
-
-
-var f = new FontFace('Patua One', 'url(../../assets/fonts/PatuaOne-Regular.ttf)', {});
-f.load().then(function (loadedFace) {
-    document.fonts.add(loadedFace);
-    BeatProcessing.init();
+WebFont.load({
+    typekit: {id: 'oiz4knz'},
+    active: BeatProcessing.init
 });
