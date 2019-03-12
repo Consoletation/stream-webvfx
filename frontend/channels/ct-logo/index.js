@@ -96,20 +96,25 @@ function initLogoText(){
         g = bitmap.getContext('2d');
         bitmap.width = 1024;
         bitmap.height = 200;
-        if (j < 7){
-            g.font = 'bold 160px rigid-square';
+        if (j < 6){
+            g.font = '600 160px rigid-square';
         }else{
-            g.font = 'normal 160px rigid-square';
+            g.font = '300 160px rigid-square';
         }
         g.fillStyle = 'white';
         divisionWidth = g.measureText(logoText.charAt(j)).width;
-        if (divisionWidth < 90){ divisionWidth = 90; }
+        if (logoText.charAt(j) === 'A'){ divisionWidth = 110;}
+        if (logoText.charAt(j) === 'E'){ divisionWidth = 100;}
+        if (logoText.charAt(j) === 'I'){ divisionWidth = 90;}
+        if (logoText.charAt(j) === 'N'){ divisionWidth = 116;}
+        if (logoText.charAt(j) === 'O'){ divisionWidth = 116;}
+        if (logoText.charAt(j) === 'S'){ divisionWidth = 112;}
 
         bitmap.width = divisionWidth;
         if (j < 7){
-            g.font = 'bold 160px rigid-square';
+            g.font = '600 160px rigid-square';
         }else{
-            g.font = 'normal 160px rigid-square';
+            g.font = '300 160px rigid-square';
         }
         g.fillStyle = 'white';
         txtWidth = g.measureText(logoText).width;
@@ -170,7 +175,7 @@ function initLogoImage(){
 
     logoImageMesh = new THREE.Mesh( geometry, material );
     logoImageMesh.material.side = THREE.DoubleSide;
-    logoImageMesh.position.x = 580;  // y is determined in update()
+    logoImageMesh.position.x = 557;  // y is determined in update()
 
     scene.add(logoImageMesh);
 }
