@@ -169,7 +169,7 @@ function initLogoText(){
 }
 
 function initLogoImage(){
-    var texture = new THREE.ImageUtils.loadTexture('../../assets/controller.png');
+    var texture = new THREE.TextureLoader().load('../../assets/controller.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     var geometry = new THREE.PlaneGeometry(256, 256);
 
