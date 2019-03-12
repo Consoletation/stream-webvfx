@@ -41,6 +41,7 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
+    renderer.domElement.addEventListener('click', Pumper.play);
     renderer.setClearColor(0xffffff, 1);
 
     //Create camera
