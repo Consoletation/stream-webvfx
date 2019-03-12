@@ -4,6 +4,8 @@
 
 THREE.FilmPass = function ( noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale ) {
 
+	THREE.Pass.call( this );
+
 	if ( THREE.FilmShader === undefined )
 		console.error( "THREE.FilmPass relies on THREE.FilmShader" );
 
@@ -24,38 +26,39 @@ THREE.FilmPass = function ( noiseIntensity, scanlinesIntensity, scanlinesCount, 
 	if ( scanlinesIntensity !== undefined ) this.uniforms.sIntensity.value = scanlinesIntensity;
 	if ( scanlinesCount !== undefined ) this.uniforms.sCount.value = scanlinesCount;
 
-	this.enabled = true;
-	this.renderToScreen = false;
-	this.needsSwap = true;
-
-
-	this.camera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
-	this.scene  = new THREE.Scene();
+	this.camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+	this.scene = new THREE.Scene();
 
 	this.quad = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ), null );
+	this.quad.frustumCulled = false; // Avoid getting clipped
 	this.scene.add( this.quad );
 
 };
 
-THREE.FilmPass.prototype = {
+THREE.FilmPass.prototype = Object.assign( Object.create( THREE.Pass.prototype ), {
 
-	render: function ( renderer, writeBuffer, readBuffer, delta ) {
+	constructor: THREE.FilmPass,
 
-		this.uniforms[ "tDiffuse" ].value = readBuffer;
-		this.uniforms[ "time" ].value += delta;
+	render: function ( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+
+		this.uniforms[ "tDiffuse" ].value = readBuffer.texture;
+		this.uniforms[ "time" ].value += deltaTime;
 
 		this.quad.material = this.material;
 
 		if ( this.renderToScreen ) {
 
+			renderer.setRenderTarget( null );
 			renderer.render( this.scene, this.camera );
 
 		} else {
 
-			renderer.render( this.scene, this.camera, writeBuffer, false );
+			renderer.setRenderTarget( writeBuffer );
+			if ( this.clear ) renderer.clear();
+			renderer.render( this.scene, this.camera );
 
 		}
 
 	}
 
-};
+} );

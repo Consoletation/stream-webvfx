@@ -211,9 +211,15 @@ function initCircle(){
     }
 
 
-    circleLine = new THREE.Line( geometry, new THREE.LineBasicMaterial( {
-        color: 0xffffff, lineWidth: 1, opacity: 0.1, transparent: true
-    } ) );
+    circleLine = new THREE.LineSegments(
+        geometry,
+        new THREE.LineBasicMaterial({
+            color: 0xffffff,
+            linewidth: 1,
+            opacity: 0.1,
+            transparent: true
+        })
+    );
     scene.add( circleLine );
 }
 function initShape(){
@@ -232,21 +238,18 @@ function initShape(){
     //Create current shape
     shape = new THREE.Shape( shapePoints );
     shapeStrokeGeometry = shape.createPointsGeometry();
-    console.log(shape.createPointsGeometry(50));
-    console.log(shapeStrokeGeometry);
     var spacedPoints = shape.createSpacedPointsGeometry( 20 );
 
     shapeGeometry = new THREE.ShapeGeometry( shape );
     shapeGeometry.vertices.push( new THREE.Vector3( shapeStaticPoints[0].x, shapeStaticPoints[0].y, 0) );
-    shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], shading: THREE.FlatShading } );
+    shapeMaterial = new THREE.MeshPhongMaterial( { color: colors[currentColor], flatShading: true } );
     shapeMesh = new THREE.Mesh( shapeGeometry, shapeMaterial );
     shapesContainer.add( shapeMesh );
 
     //Create stroke
     shapeStrokeMaterial = new THREE.LineBasicMaterial( {
-        color: colors[currentColor], shading: THREE.FlatShading,
-        opacity: 0.5, transparent: true} );
-    shapeStrokeLine = new THREE.Line(shapeStrokeGeometry, shapeStrokeMaterial);
+        color: colors[currentColor], opacity: 0.5, transparent: true} );
+    shapeStrokeLine = new THREE.LineSegments(shapeStrokeGeometry, shapeStrokeMaterial);
     shapeStrokeLine.scale.set(1.2, 1.2, 1.2)
     shapesContainer.add( shapeStrokeLine );
     // shapeStrokeLine.rotation.x = 10;
@@ -261,13 +264,13 @@ function initPostProcessing(){
     // glitchPass.renderToScreen = true;
     composer.addPass( glitchPass );
 
-	var shaderVignette = THREE.VignetteShader;
+    var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass( shaderVignette );
-    effectVignette.uniforms[ "offset" ].value = .5;
+    effectVignette.uniforms[ "offset" ].value = 0.5;
     effectVignette.uniforms[ "darkness" ].value = 1.6;
     composer.addPass( effectVignette );
 
-    effectFilmPass = new THREE.FilmPass( 0.35, 0.025, 648, false );
+    effectFilmPass = new THREE.FilmPass( 0.12, 0.125, 648, false );
     effectFilmPass.renderToScreen = true;
     composer.addPass( effectFilmPass );
 }
@@ -357,7 +360,7 @@ function tweenVertices(duration){
     }
 
     //Tween vertices
-    for (var i = 0 ; i < shapePoints.length ; i ++){
+    for (var i = 0 ; i < shapeGeometry.vertices.length - 1 ; i ++){
         TweenMax.to(shapeGeometry.vertices[i], duration, {
             x: shapePoints[i].x,
             y: shapePoints[i].y,
@@ -429,15 +432,10 @@ function update() {
     }, 10)
 }
 
-function render() {
-    var time = Date.now();
-    composer.render();
-}
-
 function frame() {
     requestAnimationFrame(frame);
     update();
-    render();
+    composer.render();
 }
 
 function onWindowResize() {

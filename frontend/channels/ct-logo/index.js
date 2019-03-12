@@ -11,9 +11,6 @@ require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
 require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 
-require('gsap');
-
-
 var Pumper = require('pumper');
 
 var logoText = 'CONSOLETATION';
@@ -224,7 +221,7 @@ function initPostProcessing(){
     effectVignette.uniforms.darkness.value = 1.6;
     composer.addPass(effectVignette);
 
-    var effectFilmPass = new THREE.FilmPass(0.35, 0.025, 648, false);
+    var effectFilmPass = new THREE.FilmPass(0.12, 0.125, 648, false);
     effectFilmPass.renderToScreen = true;
     composer.addPass(effectFilmPass);
 }
@@ -258,32 +255,16 @@ function update() {
     camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
 }
 
-function render() {
-    composer.render();
-}
-
 function frame() {
     requestAnimationFrame(frame);
     update();
-    render();
+    composer.render();
 }
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-function shuffle(array) {
-    var counter = array.length, temp, index;
-    while (counter > 0) {
-        index = Math.floor(Math.random() * counter);
-        counter--;
-        temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
-    return array;
 }
 
 function click() {

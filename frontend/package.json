@@ -1,15 +1,13 @@
 {
   "devDependencies": {
-    "webpack": "~1.11.0",
-    "webpack-dev-server": "~1.10.1",
-    "webpack-glsl-loader": "^1.0.1"
+    "webpack": "~1.15.0",
+    "webpack-dev-server": "~1.16.5"
   },
   "dependencies": {
-    "gsap": "^1.17.0",
+    "gsap": "^2.1.2",
     "imports-loader": "^0.6.4",
-    "pex-geom": "^0.14.0",
-    "three": "^0.101.0",
-    "tween.js": "^15.0.0"
+    "pex-geom": "^2.0.2",
+    "three": "^0.102.0"
   },
   "scripts": {
     "start:dev": "webpack-dev-server --host 0.0.0.0 --hot --inline",

@@ -7,12 +7,12 @@
  * aspect: vec2 of (1/width, 1/height)
  */
 
-THREE.EdgeShader = {
+THREE.FreiChenShader = {
 
 	uniforms: {
 
-		"tDiffuse": { type: "t", value: null },
-		"aspect":    { type: "v2", value: new THREE.Vector2( 512, 512 ) },
+		"tDiffuse": { value: null },
+		"aspect":    { value: new THREE.Vector2( 512, 512 ) }
 	},
 
 	vertexShader: [
@@ -26,7 +26,7 @@ THREE.EdgeShader = {
 
 		"}"
 
-	].join("\n"),
+	].join( "\n" ),
 
 	fragmentShader: [
 
@@ -87,7 +87,7 @@ THREE.EdgeShader = {
 			"float S = (cnv[4] + cnv[5]) + (cnv[6] + cnv[7]) + (cnv[8] + M);",
 
 			"gl_FragColor = vec4(vec3(sqrt(M/S)), 1.0);",
-		"}",
+		"}"
 
-	].join("\n")
+	].join( "\n" )
 };
