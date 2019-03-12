@@ -16,9 +16,7 @@ require('gsap');
 
 var Pumper = require('pumper');
 
-var words = [
-    'CONSOLETATION'
-];
+var logoText = 'CONSOLETATION';
 
 var divisions = 16;
 
@@ -66,11 +64,6 @@ function init() {
 
 function initLogoText(){
     //Create shapes container
-    var namesContainer = new THREE.Object3D();
-    namesContainer.position.x =  window.innerWidth * 0.5;
-    namesContainer.position.y =  window.innerHeight * -0.5;
-    scene.add(namesContainer);
-
     var txtWidth, bitmap,
         g,
         texture, material, logoTextLayerContainer,
@@ -80,83 +73,77 @@ function initLogoText(){
         i = 0, j = 0;
 
     //create text image
-    for (i = 0 ; i < words.length ; i ++){
+    // canvas contents will be used for a texture
+    logoTextLayerContainer = new THREE.Object3D();
+    scene.add(logoTextLayerContainer);
 
-        // canvas contents will be used for a texture
-        logoTextLayerContainer = new THREE.Object3D();
-        logoTextLayerContainer.position.x = window.innerWidth * -0.5;
-        logoTextLayerContainer.position.y = window.innerHeight * 0.5;
+    slices1 = [];
+    slices2 = [];
+    slices3 = [];
+    slices4 = [];
+    for (j = 0 ; j < divisions ; j ++){
+        //Dirty as fuck, but I've got to create a canvas per logo slice
+        //Also, weirdly the width can't seem to be set after adding a text in
+        bitmap = document.createElement('canvas');
+        g = bitmap.getContext('2d');
+        bitmap.width = 1024;
+        bitmap.height = 200;
+        g.font = 'bold 160px rigid-square';
+        g.fillStyle = 'white';
+        txtWidth = g.measureText(logoText).width;
+        divisionWidth = txtWidth / divisions;
 
-        slices1 = [];
-        slices2 = [];
-        slices3 = [];
-        slices4 = [];
-        for (j = 0 ; j < divisions ; j ++){
-            //Dirty as fuck, but I've got to create a canvas per name's slice
-            //Also, weirdly the width can't seem to be set after adding a text in
-            bitmap = document.createElement('canvas');
-            g = bitmap.getContext('2d');
-            bitmap.width = 1024;
-            bitmap.height = 200;
-            g.font = 'bold 160px rigid-square';
-            g.fillStyle = 'white';
-            txtWidth = g.measureText(words[i]).width;
-            divisionWidth = txtWidth / divisions;
+        bitmap.width = divisionWidth;
+        g.font = 'bold 160px rigid-square';
+        g.fillStyle = 'white';
+        txtWidth = g.measureText(logoText).width;
+        g.fillText(logoText, (divisionWidth * j) * -1, 160 );
 
-            bitmap.width = divisionWidth;
-            g.font = 'bold 160px rigid-square';
-            g.fillStyle = 'white';
-            txtWidth = g.measureText(words[i]).width;
-            g.fillText(words[i], (divisionWidth * j) * -1, 160 );
+        texture = new THREE.Texture(bitmap);
+        texture.needsUpdate = true;
+        texture.minFilter = THREE.LinearFilter;
 
-            texture = new THREE.Texture(bitmap);
-            texture.needsUpdate = true;
-            texture.minFilter = THREE.LinearFilter;
-
-            material = new THREE.MeshBasicMaterial({
-                map : texture, color: 0x000000, transparent: true, opacity: 1
-            });
-
-            posX = j * (divisionWidth) - txtWidth * 0.5;
-            posY = 0;
-
-            logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-            logoTextLayerMesh.material.opacity = 0.6;
-            logoTextLayerMesh.position.set(posX, posY, 0);
-            logoTextLayerContainer.add(logoTextLayerMesh);
-            slices1.push(logoTextLayerMesh);
-
-            logoTextLayerMesh2 = logoTextLayerMesh.clone();
-            logoTextLayerMesh2.material = material.clone();
-            logoTextLayerMesh2.position.set(posX, posY, 0);
-            logoTextLayerMesh2.material.opacity = 0.1;
-            logoTextLayerContainer.add(logoTextLayerMesh2);
-            slices2.push(logoTextLayerMesh2);
-
-            logoTextLayerMesh3 = logoTextLayerMesh.clone();
-            logoTextLayerMesh3.material = material.clone();
-            logoTextLayerMesh3.position.set(posX, posY, 0);
-            logoTextLayerMesh3.material.opacity = 0.1;
-            logoTextLayerContainer.add(logoTextLayerMesh3);
-            slices3.push(logoTextLayerMesh3);
-
-            logoTextLayerMesh4 = logoTextLayerMesh.clone();
-            logoTextLayerMesh4.material = material.clone();
-            logoTextLayerMesh4.position.set(posX, posY, 0);
-            logoTextLayerMesh4.material.opacity = 0.2;
-            logoTextLayerContainer.add(logoTextLayerMesh4);
-            slices4.push(logoTextLayerMesh4);
-        }
-        logoTextMesh.push({
-            container: logoTextLayerContainer,
-            slices1: slices1,
-            slices2: slices2,
-            slices3: slices3,
-            slices4: slices4
+        material = new THREE.MeshBasicMaterial({
+            map : texture, color: 0x000000, transparent: true, opacity: 1
         });
-    }
-    namesContainer.add(logoTextMesh[0].container);
 
+        posX = j * (divisionWidth) - txtWidth * 0.5;
+        posY = 0;
+
+        logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
+        logoTextLayerMesh.material.opacity = 0.6;
+        logoTextLayerMesh.position.set(posX, posY, 0);
+        logoTextLayerContainer.add(logoTextLayerMesh);
+        slices1.push(logoTextLayerMesh);
+
+        logoTextLayerMesh2 = logoTextLayerMesh.clone();
+        logoTextLayerMesh2.material = material.clone();
+        logoTextLayerMesh2.position.set(posX, posY, 0);
+        logoTextLayerMesh2.material.opacity = 0.1;
+        logoTextLayerContainer.add(logoTextLayerMesh2);
+        slices2.push(logoTextLayerMesh2);
+
+        logoTextLayerMesh3 = logoTextLayerMesh.clone();
+        logoTextLayerMesh3.material = material.clone();
+        logoTextLayerMesh3.position.set(posX, posY, 0);
+        logoTextLayerMesh3.material.opacity = 0.1;
+        logoTextLayerContainer.add(logoTextLayerMesh3);
+        slices3.push(logoTextLayerMesh3);
+
+        logoTextLayerMesh4 = logoTextLayerMesh.clone();
+        logoTextLayerMesh4.material = material.clone();
+        logoTextLayerMesh4.position.set(posX, posY, 0);
+        logoTextLayerMesh4.material.opacity = 0.2;
+        logoTextLayerContainer.add(logoTextLayerMesh4);
+        slices4.push(logoTextLayerMesh4);
+    }
+    logoTextMesh.push({
+        container: logoTextLayerContainer,
+        slices1: slices1,
+        slices2: slices2,
+        slices3: slices3,
+        slices4: slices4
+    });
 }
 
 function initLogoImage(){
