@@ -149,7 +149,7 @@ function initLogoText(){
 function initLogoImage(){
     var texture = new THREE.ImageUtils.loadTexture('../../assets/controller.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
-    var geometry = new THREE.PlaneGeometry(235, 235);
+    var geometry = new THREE.PlaneGeometry(256, 256);
 
     logoImageMesh = new THREE.Mesh( geometry, material );
     logoImageMesh.material.side = THREE.DoubleSide;
@@ -191,12 +191,13 @@ function update() {
         logoTextLayers4[i].position.y = bandVolume * 0.3;
     }
 
-    // Animate image with normal mesh
+    // Animate image mesh with volume of last band
+    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
     logoImageMesh.position.y = bandVolume * 0.1 - 175;
 
     // Give the camera a shove
+    camera.position.y = window.innerWidth / window.innerHeight - Pumper.bands[4].volume * 0.1;
     camera.position.z = 1100 - Pumper.bands[0].volume * 0.2;
-    camera.position.y = window.innerWidth / window.innerHeight - Pumper.bands[0].volume * 0.1;
 }
 
 function render() {
