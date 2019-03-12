@@ -23,8 +23,8 @@ var words = [
 var divisions = 16;
 
 var camera, scene, renderer, composer;
-var namesMesh = [];
-var contImage;
+var logoTextMesh = [];
+var logoImageMesh;
 
 function init() {
 
@@ -51,8 +51,8 @@ function init() {
     //Create scene
     scene = new THREE.Scene();
 
-    initName();
-    initImage();
+    initLogoText();
+    initLogoImage();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -64,7 +64,7 @@ function init() {
     frame();
 }
 
-function initName(){
+function initLogoText(){
     //Create shapes container
     var namesContainer = new THREE.Object3D();
     namesContainer.position.x =  window.innerWidth * 0.5;
@@ -73,8 +73,8 @@ function initName(){
 
     var txtWidth, bitmap,
         g,
-        texture, material, nameSlicesContainer,
-        nameMesh, nameMesh2, nameMesh3, nameMesh4,
+        texture, material, logoTextLayerContainer,
+        logoTextLayerMesh, logoTextLayerMesh2, logoTextLayerMesh3, logoTextLayerMesh4,
         divisionWidth, slices1, slices2, slices3, slices4,
         posX, posY,
         i = 0, j = 0;
@@ -83,9 +83,9 @@ function initName(){
     for (i = 0 ; i < words.length ; i ++){
 
         // canvas contents will be used for a texture
-        nameSlicesContainer = new THREE.Object3D();
-        nameSlicesContainer.position.x = window.innerWidth * -0.5;
-        nameSlicesContainer.position.y = window.innerHeight * 0.5;
+        logoTextLayerContainer = new THREE.Object3D();
+        logoTextLayerContainer.position.x = window.innerWidth * -0.5;
+        logoTextLayerContainer.position.y = window.innerHeight * 0.5;
 
         slices1 = [];
         slices2 = [];
@@ -120,55 +120,55 @@ function initName(){
             posX = j * (divisionWidth) - txtWidth * 0.5;
             posY = 0;
 
-            nameMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-            nameMesh.material.opacity = 0.6;
-            nameMesh.position.set(posX, posY, 0);
-            nameSlicesContainer.add(nameMesh);
-            slices1.push(nameMesh);
+            logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
+            logoTextLayerMesh.material.opacity = 0.6;
+            logoTextLayerMesh.position.set(posX, posY, 0);
+            logoTextLayerContainer.add(logoTextLayerMesh);
+            slices1.push(logoTextLayerMesh);
 
-            nameMesh2 = nameMesh.clone();
-            nameMesh2.material = material.clone();
-            nameMesh2.position.set(posX, posY, 0);
-            nameMesh2.material.opacity = 0.1;
-            nameSlicesContainer.add(nameMesh2);
-            slices2.push(nameMesh2);
+            logoTextLayerMesh2 = logoTextLayerMesh.clone();
+            logoTextLayerMesh2.material = material.clone();
+            logoTextLayerMesh2.position.set(posX, posY, 0);
+            logoTextLayerMesh2.material.opacity = 0.1;
+            logoTextLayerContainer.add(logoTextLayerMesh2);
+            slices2.push(logoTextLayerMesh2);
 
-            nameMesh3 = nameMesh.clone();
-            nameMesh3.material = material.clone();
-            nameMesh3.position.set(posX, posY, 0);
-            nameMesh3.material.opacity = 0.1;
-            nameSlicesContainer.add(nameMesh3);
-            slices3.push(nameMesh3);
+            logoTextLayerMesh3 = logoTextLayerMesh.clone();
+            logoTextLayerMesh3.material = material.clone();
+            logoTextLayerMesh3.position.set(posX, posY, 0);
+            logoTextLayerMesh3.material.opacity = 0.1;
+            logoTextLayerContainer.add(logoTextLayerMesh3);
+            slices3.push(logoTextLayerMesh3);
 
-            nameMesh4 = nameMesh.clone();
-            nameMesh4.material = material.clone();
-            nameMesh4.position.set(posX, posY, 0);
-            nameMesh4.material.opacity = 0.2;
-            nameSlicesContainer.add(nameMesh4);
-            slices4.push(nameMesh4);
+            logoTextLayerMesh4 = logoTextLayerMesh.clone();
+            logoTextLayerMesh4.material = material.clone();
+            logoTextLayerMesh4.position.set(posX, posY, 0);
+            logoTextLayerMesh4.material.opacity = 0.2;
+            logoTextLayerContainer.add(logoTextLayerMesh4);
+            slices4.push(logoTextLayerMesh4);
         }
-        namesMesh.push({
-            container: nameSlicesContainer,
+        logoTextMesh.push({
+            container: logoTextLayerContainer,
             slices1: slices1,
             slices2: slices2,
             slices3: slices3,
             slices4: slices4
         });
     }
-    namesContainer.add(namesMesh[0].container);
+    namesContainer.add(logoTextMesh[0].container);
 
 }
 
-function initImage(){
+function initLogoImage(){
     var texture = new THREE.ImageUtils.loadTexture('../../assets/controller.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     var geometry = new THREE.PlaneGeometry(235, 235);
 
-    contImage = new THREE.Mesh( geometry, material );
-    contImage.material.side = THREE.DoubleSide;
-    contImage.position.x = window.innerWidth * 0.335;
+    logoImageMesh = new THREE.Mesh( geometry, material );
+    logoImageMesh.material.side = THREE.DoubleSide;
+    logoImageMesh.position.x = window.innerWidth * 0.335;
 
-    scene.add(contImage);
+    scene.add(logoImageMesh);
 }
 
 function initPostProcessing(){
@@ -190,22 +190,22 @@ function initPostProcessing(){
 function update() {
     Pumper.update();
 
-    //Animate names based on bands
-    var currentNameSlices1 = namesMesh[0].slices1;
-    var currentNameSlices2 = namesMesh[0].slices2;
-    var currentNameSlices3 = namesMesh[0].slices3;
-    var currentNameSlices4 = namesMesh[0].slices4;
+    //Animate logo text layers based on bands
+    var logoTextLayers1 = logoTextMesh[0].slices1;
+    var logoTextLayers2 = logoTextMesh[0].slices2;
+    var logoTextLayers3 = logoTextMesh[0].slices3;
+    var logoTextLayers4 = logoTextMesh[0].slices4;
     var bandVolume;
-    for (var i = 0 ; i < currentNameSlices1.length ; i ++){
+    for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        currentNameSlices1[i].position.y = bandVolume * 0.1;
-        currentNameSlices2[i].position.y = bandVolume * -0.2;
-        currentNameSlices3[i].position.y = bandVolume * 0.5;
-        currentNameSlices4[i].position.y = bandVolume * 0.3;
+        logoTextLayers1[i].position.y = bandVolume * 0.1;
+        logoTextLayers2[i].position.y = bandVolume * -0.2;
+        logoTextLayers3[i].position.y = bandVolume * 0.5;
+        logoTextLayers4[i].position.y = bandVolume * 0.3;
     }
 
     // Animate image with normal mesh
-    contImage.position.y = bandVolume * 0.1 - 175;
+    logoImageMesh.position.y = bandVolume * 0.1 - 175;
 
     // Give the camera a shove
     camera.position.z = 1100 - Pumper.bands[0].volume * 0.2;
