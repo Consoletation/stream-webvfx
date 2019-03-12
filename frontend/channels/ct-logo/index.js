@@ -50,7 +50,7 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.z = 900;
+    camera.position.z = 1100;
 
     //Create scene
     scene = new THREE.Scene();
@@ -168,7 +168,7 @@ function initLogoImage(){
 
     logoImageMesh = new THREE.Mesh( geometry, material );
     logoImageMesh.material.side = THREE.DoubleSide;
-    logoImageMesh.position.x = window.innerWidth * 0.355;
+    logoImageMesh.position.x = 580;  // y is determined in update()
 
     scene.add(logoImageMesh);
 }
@@ -242,8 +242,11 @@ function update() {
     logoImageMesh.position.y = bandVolume * 0.1 - 175;
 
     // Give the camera a shove
-    camera.position.y = window.innerWidth / window.innerHeight - Pumper.bands[4].volume * 0.1;
-    camera.position.z = 1100 - Pumper.bands[0].volume * 0.2;
+    camera.position.y = Pumper.bands[5].volume * -0.1 - 90;
+    camera.position.x = 0;
+    camera.position.x += Pumper.bands[4].volume * 0.005;
+    camera.position.x -= Pumper.bands[5].volume * 0.005;
+    camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
 }
 
 function render() {
