@@ -23,6 +23,12 @@ var textDivisions = logoText.length;
 var camera, scene, renderer, composer;
 var logoTextMesh = [];
 var logoImageMesh;
+var headingContainer;
+var headings = [
+    'Thanks for watching!',
+    'Back soon!',
+    'Starting soon...'
+];
 
 function init() {
 
@@ -51,6 +57,7 @@ function init() {
 
     initLogoText();
     initLogoImage();
+    initHeading();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -164,6 +171,37 @@ function initLogoImage(){
     logoImageMesh.position.x = window.innerWidth * 0.355;
 
     scene.add(logoImageMesh);
+}
+
+function initHeading(){
+    headingContainer = new THREE.Object3D();
+    headingContainer.position.x = window.innerWidth * 0.5;
+    headingContainer.position.y = window.innerHeight * -1;
+    scene.add(headingContainer);
+
+    var headingMesh, bitmap, g, texture, material, geometry;
+    for (var heading = 0; heading < headings.length; heading++){
+        bitmap = document.createElement('canvas');
+        g = bitmap.getContext('2d');
+        g.font = 'normal 48px rigid-square';
+        bitmap.width = g.measureText(headings[heading]).width;
+        bitmap.height = 200;
+        g.font = 'normal 48px rigid-square';
+        g.fillText(headings[heading], 0, 160);
+
+        texture = new THREE.Texture(bitmap);
+        texture.needsUpdate = true;
+        texture.minFilter = THREE.LinearFilter;
+
+        material = new THREE.MeshBasicMaterial({
+            map: texture, color: 0x000000, transparent: true, opacity: 1
+        });
+        geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
+        headingMesh = new THREE.Mesh(geometry, material);
+        headingMesh.position.x = window.innerWidth * -0.5;
+        headingMesh.position.y = window.innerHeight * 0.5;
+    }
+    headingContainer.add(headingMesh);
 }
 
 function initPostProcessing(){
