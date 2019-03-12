@@ -160,14 +160,13 @@ function initName(){
 }
 
 function initImage(){
-    var texture = new THREE.ImageUtils.loadTexture('/assets/controller.png');
+    var texture = new THREE.ImageUtils.loadTexture('../../assets/controller.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     var geometry = new THREE.PlaneGeometry(235, 235);
 
     contImage = new THREE.Mesh( geometry, material );
     contImage.material.side = THREE.DoubleSide;
     contImage.position.x = window.innerWidth * 0.335;
-    contImage.position.y = window.innerHeight * -0.27;
 
     scene.add(contImage);
 }
@@ -206,7 +205,11 @@ function update() {
     }
 
     // Animate image with normal mesh
-    contImage.position.y = window.innerHeight * -0.27 + bandVolume * 0.1;
+    contImage.position.y = bandVolume * 0.1 - 175;
+
+    // Give the camera a shove
+    camera.position.z = 1100 - Pumper.bands[0].volume * 0.2;
+    camera.position.y = window.innerWidth / window.innerHeight - Pumper.bands[0].volume * 0.1;
 }
 
 function render() {
