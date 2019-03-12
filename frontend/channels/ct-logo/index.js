@@ -23,12 +23,14 @@ var textDivisions = logoText.length;
 var camera, scene, renderer, composer;
 var logoTextMesh = [];
 var logoImageMesh;
-var headingContainer;
+var headingsContainer;
+var headingsMesh = [];
 var headings = [
-    'Thanks for watching!',
+    'Starting soon...',
     'Back soon!',
-    'Starting soon...'
+    'Thanks for watching!'
 ];
+var currentHeading = 0;
 
 function init() {
 
@@ -45,7 +47,7 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    renderer.domElement.addEventListener('click', Pumper.play);
+    renderer.domElement.addEventListener('click', click);
     renderer.setClearColor(0xffffff, 1);
 
     //Create camera
@@ -174,10 +176,10 @@ function initLogoImage(){
 }
 
 function initHeading(){
-    headingContainer = new THREE.Object3D();
-    headingContainer.position.x = window.innerWidth * 0.5;
-    headingContainer.position.y = window.innerHeight * -1;
-    scene.add(headingContainer);
+    headingsContainer = new THREE.Object3D();
+    headingsContainer.position.x = window.innerWidth * 0.5;
+    headingsContainer.position.y = -900;
+    scene.add(headingsContainer);
 
     var headingMesh, bitmap, g, texture, material, geometry;
     for (var heading = 0; heading < headings.length; heading++){
@@ -200,8 +202,10 @@ function initHeading(){
         headingMesh = new THREE.Mesh(geometry, material);
         headingMesh.position.x = window.innerWidth * -0.5;
         headingMesh.position.y = window.innerHeight * 0.5;
+
+        headingsMesh.push(headingMesh);
     }
-    headingContainer.add(headingMesh);
+    headingsContainer.add(headingsMesh[currentHeading]);
 }
 
 function initPostProcessing(){
@@ -275,6 +279,14 @@ function shuffle(array) {
         array[index] = temp;
     }
     return array;
+}
+
+function click() {
+    Pumper.play();  // if needed
+    headingsContainer.remove(headingsMesh[currentHeading]);
+    currentHeading++;
+    if (currentHeading > headings.length - 1) {currentHeading = 0;}
+    headingsContainer.add(headingsMesh[currentHeading]);
 }
 
 var BeatProcessing = {
