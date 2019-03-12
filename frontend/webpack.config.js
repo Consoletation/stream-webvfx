@@ -1,16 +1,8 @@
 'use strict';
 
 var CHANNELS = [
-    'algoviz',
-    'beatprocessing',
     'bp-stealthct',
-    'ct-logo',
-    'mosaic',
-    'dirtygif',
-    'reactivelogo',
-    'timetraveller'
-    //'splashlogo',
-    //'test'
+    'ct-logo'
 ];
 
 var _entries = {};
