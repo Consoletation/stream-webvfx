@@ -24,6 +24,7 @@ var divisions = 16;
 
 var camera, scene, renderer, composer;
 var namesMesh = [];
+var contImage;
 
 function init() {
 
@@ -50,6 +51,7 @@ function init() {
     scene = new THREE.Scene();
 
     initName();
+    initImage();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -156,6 +158,19 @@ function initName(){
 
 }
 
+function initImage(){
+    var texture = new THREE.ImageUtils.loadTexture('/assets/controller.png');
+    var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
+    var geometry = new THREE.PlaneGeometry(235, 235);
+
+    contImage = new THREE.Mesh( geometry, material );
+    contImage.material.side = THREE.DoubleSide;
+    contImage.position.x = window.innerWidth * 0.335;
+    contImage.position.y = window.innerHeight * -0.27;
+
+    scene.add(contImage);
+}
+
 function initPostProcessing(){
     // postprocessing
     composer = new THREE.EffectComposer(renderer);
@@ -188,6 +203,9 @@ function update() {
         currentNameSlices3[i].position.y = bandVolume * 0.5;
         currentNameSlices4[i].position.y = bandVolume * 0.3;
     }
+
+    // Animate image with normal mesh
+    contImage.position.y = window.innerHeight * -0.27 + bandVolume * 0.1;
 }
 
 function render() {
