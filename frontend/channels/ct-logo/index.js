@@ -18,7 +18,7 @@ var Pumper = require('pumper');
 
 var logoText = 'CONSOLETATION';
 
-var divisions = 16;
+var textDivisions = logoText.length;
 
 var camera, scene, renderer, composer;
 var logoTextMesh = [];
@@ -28,8 +28,8 @@ function init() {
 
     //Create bands
     var bandMin = 10;
-    var bandSize = 80 / divisions;
-    for (var i = 0 ; i < divisions ; i++){
+    var bandSize = Math.floor(80 / textDivisions);
+    for (var i = 0 ; i < textDivisions ; i++){
         Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
         bandMin += bandSize;
     }
@@ -69,8 +69,7 @@ function initLogoText(){
         texture, material, logoTextLayerContainer,
         logoTextLayerMesh, logoTextLayerMesh2, logoTextLayerMesh3, logoTextLayerMesh4,
         divisionWidth, slices1, slices2, slices3, slices4,
-        posX, posY,
-        i = 0, j = 0;
+        posX, posY, charOffset = 0;
 
     //create text image
     // canvas contents will be used for a texture
@@ -81,23 +80,31 @@ function initLogoText(){
     slices2 = [];
     slices3 = [];
     slices4 = [];
-    for (j = 0 ; j < divisions ; j ++){
+    for (var j = 0 ; j < textDivisions ; j ++){
         //Dirty as fuck, but I've got to create a canvas per logo slice
         //Also, weirdly the width can't seem to be set after adding a text in
         bitmap = document.createElement('canvas');
         g = bitmap.getContext('2d');
         bitmap.width = 1024;
         bitmap.height = 200;
-        g.font = 'bold 160px rigid-square';
+        if (j < 7){
+            g.font = 'bold 160px rigid-square';
+        }else{
+            g.font = 'normal 160px rigid-square';
+        }
         g.fillStyle = 'white';
-        txtWidth = g.measureText(logoText).width;
-        divisionWidth = txtWidth / divisions;
+        divisionWidth = g.measureText(logoText.charAt(j)).width;
+        if (divisionWidth < 90){ divisionWidth = 90; }
 
         bitmap.width = divisionWidth;
-        g.font = 'bold 160px rigid-square';
+        if (j < 7){
+            g.font = 'bold 160px rigid-square';
+        }else{
+            g.font = 'normal 160px rigid-square';
+        }
         g.fillStyle = 'white';
         txtWidth = g.measureText(logoText).width;
-        g.fillText(logoText, (divisionWidth * j) * -1, 160 );
+        g.fillText(logoText.charAt(j), 0, 160 );
 
         texture = new THREE.Texture(bitmap);
         texture.needsUpdate = true;
@@ -107,8 +114,9 @@ function initLogoText(){
             map : texture, color: 0x000000, transparent: true, opacity: 1
         });
 
-        posX = j * (divisionWidth) - txtWidth * 0.5;
+        posX = charOffset - txtWidth * 0.5;
         posY = 0;
+        charOffset += divisionWidth;
 
         logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
         logoTextLayerMesh.material.opacity = 0.6;
@@ -153,7 +161,7 @@ function initLogoImage(){
 
     logoImageMesh = new THREE.Mesh( geometry, material );
     logoImageMesh.material.side = THREE.DoubleSide;
-    logoImageMesh.position.x = window.innerWidth * 0.335;
+    logoImageMesh.position.x = window.innerWidth * 0.355;
 
     scene.add(logoImageMesh);
 }
