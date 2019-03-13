@@ -6,6 +6,7 @@ require('imports?THREE=three!../../libs/shaders/DigitalGlitch');
 require('imports?THREE=three!../../libs/shaders/FilmShader');
 require('imports?THREE=three!../../libs/shaders/DotScreenShader');
 require('imports?THREE=three!../../libs/shaders/VignetteShader');
+require('imports?THREE=three!../../libs/shaders/LuminosityHighPassShader');
 require('imports?THREE=three!../../libs/shaders/TestShader');
 require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
 require('imports?THREE=three!../../libs/postprocessing/RenderPass');
@@ -13,6 +14,7 @@ require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
 require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
+require('imports?THREE=three!../../libs/postprocessing/UnrealBloomPass');
 
 var Pumper = require('pumper');
 
@@ -104,7 +106,7 @@ function initExtraBalls(){
     uniforms[ "rayleigh" ].value = 2;
     uniforms[ "luminance" ].value = 1;
     uniforms[ "mieCoefficient" ].value = 0.005;
-    uniforms[ "mieDirectionalG" ].value = 0.8;
+    uniforms[ "mieDirectionalG" ].value = 0.7;
     var parameters = {
         distance: 400,
         inclination: 0.49,
@@ -291,6 +293,13 @@ function initPostProcessing(){
     var effectFilmPass = new THREE.FilmPass(0.12, 0.125, 648, false);
     effectFilmPass.renderToScreen = true;
     composer.addPass(effectFilmPass);
+
+    var bloomPass = new THREE.UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+    bloomPass.renderToScreen = true;
+    bloomPass.threshold = 0.9;
+    bloomPass.strength = 0.51;
+    bloomPass.radius = 0.00;
+    composer.addPass(bloomPass)
 }
 
 function update() {
