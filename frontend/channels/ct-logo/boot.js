@@ -1,7 +1,7 @@
 var Pumper = require('pumper'),
     BeatProcessing = require('./index');
 
-var TRACK = '../../audio/ddd-gc.mp3';
+var TRACK = '../../audio/sea-shanty-trap.mp3';
 
 Pumper.start(TRACK, false);
 //Pumper.start('mic');
