@@ -1,4 +1,6 @@
 var THREE = require('three');
+require('imports?THREE=three!../../libs/objects/Water');
+require('imports?THREE=three!../../libs/objects/Sky');
 require('imports?THREE=three!../../libs/shaders/CopyShader');
 require('imports?THREE=three!../../libs/shaders/DigitalGlitch');
 require('imports?THREE=three!../../libs/shaders/FilmShader');
@@ -30,6 +32,8 @@ var headings = [
 ];
 var currentHeading = 0;
 
+var light, sky, water, cubeCamera;
+
 function init() {
 
     //Create bands
@@ -50,14 +54,15 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.z = 1100;
+    camera.position.set( 0, 90, 1100 );
 
     //Create scene
     scene = new THREE.Scene();
 
+    initExtraBalls();
     initLogoText();
     initLogoImage();
-    initHeading();
+    //initHeading();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -68,6 +73,65 @@ function init() {
 
     frame();
 }
+
+function initExtraBalls(){
+    light = new THREE.DirectionalLight( 0xffffff, 0.8 );
+    scene.add( light );
+
+    var waterGeometry = new THREE.PlaneBufferGeometry( 10000, 10000 );
+    water = new THREE.Water(
+        waterGeometry,
+        {
+            textureWidth: 512,
+            textureHeight: 512,
+            waterNormals: new THREE.TextureLoader().load( '../../assets/textures/waternormals.jpg', function ( texture ) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            } ),
+            alpha: 1.0,
+            sunDirection: light.position.clone().normalize(),
+            sunColor: 0xffffff,
+            waterColor: 0x001e0f,
+            distortionScale: 3.7,
+            fog: scene.fog !== undefined
+        }
+    );
+    water.rotation.x = - Math.PI / 2;
+    scene.add( water );
+
+    // Skybox
+    sky = new THREE.Sky();
+    sky.scale.setScalar( 10000 );
+    scene.add( sky );
+    var uniforms = sky.material.uniforms;
+    uniforms[ "turbidity" ].value = 10;
+    uniforms[ "rayleigh" ].value = 2;
+    uniforms[ "luminance" ].value = 1;
+    uniforms[ "mieCoefficient" ].value = 0.005;
+    uniforms[ "mieDirectionalG" ].value = 0.8;
+    var parameters = {
+        distance: 400,
+        inclination: 0.49,
+        azimuth: 0.205
+    };
+
+    cubeCamera = new THREE.CubeCamera( 1, 20000, 256 );
+    cubeCamera.renderTarget.texture.generateMipmaps = true;
+    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+    updateSun(parameters);
+
+}
+
+function updateSun(parameters) {
+    var theta = Math.PI * ( parameters.inclination - 0.5 );
+    var phi = 2 * Math.PI * ( parameters.azimuth - 0.5 );
+    light.position.x = parameters.distance * Math.cos( phi );
+    light.position.y = parameters.distance * Math.sin( phi ) * Math.sin( theta );
+    light.position.z = parameters.distance * Math.sin( phi ) * Math.cos( theta );
+    sky.material.uniforms[ "sunPosition" ].value = light.position.copy( light.position );
+    water.material.uniforms[ "sunDirection" ].value.copy( light.position ).normalize();
+    cubeCamera.update( renderer, scene );
+    }
 
 function initLogoText(){
     //Create shapes container
@@ -81,6 +145,7 @@ function initLogoText(){
     //create text image
     // canvas contents will be used for a texture
     logoTextLayerContainer = new THREE.Object3D();
+    logoTextLayerContainer.position.y += 280;
     scene.add(logoTextLayerContainer);
 
     slices1 = [];
@@ -123,7 +188,7 @@ function initLogoText(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map : texture, color: 0x000000, transparent: true, opacity: 1
+            map : texture, color: 0x000000, transparent: true, opacity: 1, depthWrite: false
         });
 
         posX = charOffset - txtWidth * 0.5;
@@ -223,7 +288,7 @@ function initPostProcessing(){
     var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass(shaderVignette);
     effectVignette.uniforms.offset.value = 0.5;
-    effectVignette.uniforms.darkness.value = 1.6;
+    effectVignette.uniforms.darkness.value = 2.6;
     composer.addPass(effectVignette);
 
     var effectFilmPass = new THREE.FilmPass(0.12, 0.125, 648, false);
@@ -233,6 +298,8 @@ function initPostProcessing(){
 
 function update() {
     Pumper.update();
+
+    water.material.uniforms[ "time" ].value += 1.0 / 60.0;
 
     //Animate logo text layers based on bands
     var logoTextLayers1 = logoTextMesh[0].slices1;
@@ -250,14 +317,22 @@ function update() {
 
     // Animate image mesh with volume of last band
     bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.1 - 175;
+    logoImageMesh.position.y = 280 + bandVolume * 0.1 - 175;
+
+    var parameters = {
+        distance: 400,
+        inclination: 0.51 - (Pumper.bands[4].volume / 255 * 0.05),
+        azimuth: 0.205
+    };
+    updateSun(parameters);
+
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 - 90;
+    camera.position.y = 90 + Pumper.bands[5].volume * 0.01;
     camera.position.x = 0;
     camera.position.x += Pumper.bands[4].volume * 0.005;
     camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
+    camera.position.z = 1100 - Pumper.bands[0].volume * 0.02;
 }
 
 function frame() {
