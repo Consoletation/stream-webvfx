@@ -1,4 +1,5 @@
 var THREE = require('three');
+require('imports?THREE=three!../../libs/loaders/GLTFLoader');
 require('imports?THREE=three!../../libs/objects/Water');
 require('imports?THREE=three!../../libs/objects/Sky');
 require('imports?THREE=three!../../libs/shaders/CopyShader');
@@ -119,6 +120,30 @@ function initExtraBalls(){
 
     updateSun(parameters);
 
+    // Runescape gnome
+    new THREE.GLTFLoader().load( '../../assets/models/gnome_child.glb', function ( gltf ) {
+        var model = gltf.scene;
+        model.position.x = -305;
+        model.position.y = -2;
+        model.position.z = 780;
+        model.scale.x = 10;
+        model.scale.y = 10;
+        model.scale.z = 10;
+        console.log(model);
+        scene.add( model );
+
+        // Mesh contains self-intersecting semi-transparent faces, which display
+        // z-fighting unless depthWrite is disabled.
+        var core = model.getObjectByName( 'geo1_HoloFillDark_0' );
+        core.material.depthWrite = false;
+
+        mixer = new THREE.AnimationMixer( model );
+        var clip = gltf.animations[ 0 ];
+        mixer.clipAction( clip.optimize() ).play();
+
+        animate();
+
+   } );
 }
 
 function updateSun(parameters) {
