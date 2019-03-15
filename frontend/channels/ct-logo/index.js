@@ -4,6 +4,7 @@ require('imports?THREE=three!../../libs/shaders/DigitalGlitch');
 require('imports?THREE=three!../../libs/shaders/FilmShader');
 require('imports?THREE=three!../../libs/shaders/DotScreenShader');
 require('imports?THREE=three!../../libs/shaders/VignetteShader');
+require('imports?THREE=three!../../libs/shaders/TestShader');
 require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
 require('imports?THREE=three!../../libs/postprocessing/RenderPass');
 require('imports?THREE=three!../../libs/postprocessing/MaskPass');
@@ -214,6 +215,10 @@ function initPostProcessing(){
     // postprocessing
     composer = new THREE.EffectComposer(renderer);
     composer.addPass(new THREE.RenderPass(scene, camera));
+
+    testPass = new THREE.ShaderPass(THREE.TestShader);
+    testPass.uniforms[ "amount" ].value = 0.95;
+    composer.addPass(testPass);
 
     var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass(shaderVignette);
