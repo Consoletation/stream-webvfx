@@ -14,7 +14,7 @@ require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 
 var Pumper = require('pumper');
 
-var logoText = 'CONSOLETATION';
+var logoText = 'MISCHACROSSING RAID';
 
 var textDivisions = logoText.length;
 
@@ -46,7 +46,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor(0xffffff, 1);
+    renderer.setClearColor(0x00ff00, 1);
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
@@ -56,8 +56,8 @@ function init() {
     scene = new THREE.Scene();
 
     initLogoText();
-    initLogoImage();
-    initHeading();
+    // initLogoImage();
+    // initHeading();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -94,7 +94,7 @@ function initLogoText(){
         g = bitmap.getContext('2d');
         bitmap.width = 1024;
         bitmap.height = 200;
-        if (j < 6){
+        if (j < 14){
             g.font = '600 160px rigid-square';
         }else{
             g.font = '300 160px rigid-square';
@@ -104,12 +104,13 @@ function initLogoText(){
         if (logoText.charAt(j) === 'A'){ divisionWidth = 110;}
         if (logoText.charAt(j) === 'E'){ divisionWidth = 100;}
         if (logoText.charAt(j) === 'I'){ divisionWidth = 90;}
+        if (logoText.charAt(j) === 'M'){ divisionWidth = 126;}
         if (logoText.charAt(j) === 'N'){ divisionWidth = 116;}
         if (logoText.charAt(j) === 'O'){ divisionWidth = 116;}
         if (logoText.charAt(j) === 'S'){ divisionWidth = 112;}
 
         bitmap.width = divisionWidth;
-        if (j < 7){
+        if (j < 15){
             g.font = '600 160px rigid-square';
         }else{
             g.font = '300 160px rigid-square';
@@ -123,7 +124,7 @@ function initLogoText(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map : texture, color: 0x000000, transparent: true, opacity: 1
+            map : texture, color: 0xffffff, transparent: true, opacity: 1
         });
 
         posX = charOffset - txtWidth * 0.5;
@@ -222,11 +223,11 @@ function initPostProcessing(){
 
     var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass(shaderVignette);
-    effectVignette.uniforms.offset.value = 0.5;
-    effectVignette.uniforms.darkness.value = 1.6;
+    effectVignette.uniforms.offset.value = 0.0;
+    effectVignette.uniforms.darkness.value = 0.0;
     composer.addPass(effectVignette);
 
-    var effectFilmPass = new THREE.FilmPass(0.12, 0.125, 648, false);
+    var effectFilmPass = new THREE.FilmPass(0.0, 0.0, 648, false);
     effectFilmPass.renderToScreen = true;
     composer.addPass(effectFilmPass);
 }
@@ -249,15 +250,15 @@ function update() {
     }
 
     // Animate image mesh with volume of last band
-    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.1 - 175;
+    // bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
+    // logoImageMesh.position.y = bandVolume * 0.1 - 175;
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 - 90;
+    camera.position.y = -300 + Pumper.bands[5].volume * -0.1 - 90;
     camera.position.x = 0;
     camera.position.x += Pumper.bands[4].volume * 0.005;
     camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
+    camera.position.z = 1100 - Pumper.bands[0].volume * 0.55;
 }
 
 function frame() {
