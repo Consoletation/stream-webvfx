@@ -2,7 +2,8 @@
 
 var CHANNELS = [
     'bp-stealthct',
-    'ct-logo'
+    'ct-logo',
+    'raid'
 ];
 
 var _entries = {};
