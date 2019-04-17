@@ -141,9 +141,12 @@ Pumper.start = function(srcValue, autoPlay) {
         // Request mic access, create source node and connect to analyzer
         navigator.getMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
         navigator.getMedia({
-                audio: true,
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false,
+                },
                 video: false,
-                googAutoGainControl: false
             },
             function(stream) {
                 micStream = stream;
