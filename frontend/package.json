@@ -10,7 +10,7 @@
     "three": "^0.102.0"
   },
   "scripts": {
-    "start:dev": "webpack-dev-server --host 0.0.0.0 --hot --inline",
+    "start:dev": "webpack-dev-server --host 0.0.0.0 --public 10.20.102.2:8080 --hot --inline",
     "build": "webpack -d"
   }
 }
