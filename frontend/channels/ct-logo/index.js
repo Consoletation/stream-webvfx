@@ -41,12 +41,12 @@ function init() {
     }
 
     //Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor(0xffffff, 1);
+    renderer.setClearColor(0x000000, 0);
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
@@ -123,7 +123,7 @@ function initLogoText(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map : texture, color: 0x000000, transparent: true, opacity: 1
+            map : texture, color: 0xffffff, transparent: true, opacity: 1
         });
 
         posX = charOffset - txtWidth * 0.5;
@@ -167,7 +167,7 @@ function initLogoText(){
 }
 
 function initLogoImage(){
-    var texture = new THREE.TextureLoader().load('../../assets/controller.png');
+    var texture = new THREE.TextureLoader().load('../../assets/controller-white.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     var geometry = new THREE.PlaneGeometry(256, 256);
 
@@ -192,6 +192,7 @@ function initHeading(){
         bitmap.width = g.measureText(headings[heading]).width;
         bitmap.height = 200;
         g.font = 'normal 48px rigid-square';
+        g.fillStyle = 'white';
         g.fillText(headings[heading], 0, 160);
 
         texture = new THREE.Texture(bitmap);
@@ -199,7 +200,7 @@ function initHeading(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map: texture, color: 0x000000, transparent: true, opacity: 1
+            map: texture, color: 0xffffff, transparent: true, opacity: 1
         });
         geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
         headingMesh = new THREE.Mesh(geometry, material);

@@ -1,9 +1,9 @@
 var Pumper = require('pumper'),
     BeatProcessing = require('./index');
 
-var TRACK = '../../audio/ddd-gc.mp3';
+var TRACK = '../../audio/temp.flac';
 
-//Pumper.start(TRACK, false);
+//Pumper.start(TRACK, true);
 Pumper.start('mic');
 Pumper.globalSpikeTolerance = 14;
 
