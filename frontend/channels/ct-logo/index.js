@@ -46,7 +46,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0x000000, 0.5);
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
