@@ -223,11 +223,11 @@ function initPostProcessing(){
 
     var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass(shaderVignette);
-    effectVignette.uniforms.offset.value = 0.0;
-    effectVignette.uniforms.darkness.value = 0.0;
+    effectVignette.uniforms.offset.value = 0.5;
+    effectVignette.uniforms.darkness.value = 1.6;
     composer.addPass(effectVignette);
 
-    var effectFilmPass = new THREE.FilmPass(0.0, 0.0, 648, false);
+    var effectFilmPass = new THREE.FilmPass(0.12, 0.125, 648, false);
     effectFilmPass.renderToScreen = true;
     composer.addPass(effectFilmPass);
 }
