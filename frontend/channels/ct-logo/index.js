@@ -46,7 +46,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor(0x000000, 0.75);
+    renderer.setClearColor(0x000000, 0);
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
@@ -57,7 +57,7 @@ function init() {
 
     initLogoText();
     initLogoImage();
-    initHeading();
+    //initHeading();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -243,22 +243,22 @@ function update() {
     var bandVolume;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume * 0.1;
-        logoTextLayers2[i].position.y = bandVolume * -0.2;
-        logoTextLayers3[i].position.y = bandVolume * 0.5;
+        logoTextLayers1[i].position.y = bandVolume * 0.2;
+        logoTextLayers2[i].position.y = bandVolume * 0.05;
+        logoTextLayers3[i].position.y = bandVolume * 0.4;
         logoTextLayers4[i].position.y = bandVolume * 0.3;
     }
 
     // Animate image mesh with volume of last band
     bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.1 - 175;
+    logoImageMesh.position.y = bandVolume * 0.2 - 175;
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 - 90;
-    camera.position.x = 0;
-    camera.position.x += Pumper.bands[4].volume * 0.005;
-    camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
+    camera.position.y = Pumper.bands[5].volume * -0.1 + 1490;
+    camera.position.x =- 2500;
+  //camera.position.x += Pumper.bands[4].volume * 0.005;
+  //camera.position.x -= Pumper.bands[5].volume * 0.005;
+    camera.position.z = 2800 - Pumper.bands[0].volume * 0.15;
 }
 
 function frame() {
@@ -275,10 +275,10 @@ function onWindowResize() {
 
 function click() {
     Pumper.play();  // if needed
-    headingsContainer.remove(headingsMesh[currentHeading]);
-    currentHeading++;
-    if (currentHeading > headings.length - 1) {currentHeading = 0;}
-    headingsContainer.add(headingsMesh[currentHeading]);
+    // headingsContainer.remove(headingsMesh[currentHeading]);
+    // currentHeading++;
+    // if (currentHeading > headings.length - 1) {currentHeading = 0;}
+    // headingsContainer.add(headingsMesh[currentHeading]);
 }
 
 var BeatProcessing = {
