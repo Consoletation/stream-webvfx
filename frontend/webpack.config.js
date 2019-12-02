@@ -1,6 +1,7 @@
 'use strict';
 
 var CHANNELS = [
+    'algoviz',
     'bp-stealthct',
     'ct-logo'
 ];
