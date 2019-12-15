@@ -2,7 +2,7 @@ var Pumper = require('pumper'),
     Common = require('./_common');
 
 var TOGGLE_CHANCE = 0.5,
-    COLORS = ['black', 'white'],
+    COLORS = ['rgba(0,0,0,0.5)', 'rgba(255,255,255,0.5)'],
     EQ_COLORS = [
         Common.BRAND_COLORS.red, 
         Common.BRAND_COLORS.blue, 
@@ -88,6 +88,7 @@ function _drawRasterLines() {
 }
 
 function render(_t) {
+    main.ctx.clearRect(0, 0, main.W, main.H);
     _drawBG();
     _drawCross();
     _drawText();

@@ -151,7 +151,8 @@ function _drawShape(shape, maxDist, zofs) {
 
     main.ctx.lineWidth = STROKE_SIZE * (alpha);
     if(shape.special && Pumper.isSpiking && pz < (maxDist * 0.5)) {
-        main.ctx.strokeStyle = 'white';//rgba(255,255,255,' + alpha + ')';
+      //main.ctx.strokeStyle = 'white';
+        main.ctx.strokeStyle = 'rgba(255,255,255,' + alpha + ')';
     } else {
         main.ctx.strokeStyle = 'rgba(' + rs + ',' + gs + ',' + bs + ',1)';
     }
@@ -245,7 +246,7 @@ function _drawUI() {
 function _drawRasterLines() {
     main.ctx.fillStyle = 'rgba(0,0,0,0.5)';
     for(var i = 0; i < main.H; i++) {
-        if(i % 4 === 0) main.ctx.fillRect(0, i, main.W, 1);
+        if(i % 6 === 0) main.ctx.fillRect(0, i, main.W, 2);
     }
 }
 

@@ -7,7 +7,7 @@ var lines = [];
 
 var MAX_LINES = 20,
     SEGMENT_SIZE = 10,
-    GRAY = '#222222',
+    GRAY = 'rgba(34,34,34,0.4)',
     REGEN_CHANCE = 0.5;
 
 var bands = [
@@ -144,7 +144,8 @@ function _drawText() {
 }
 
 function render(_t) {
-    main.ctx.fillStyle = (Pumper.isSpiking) ? 'white' : 'black';
+    main.ctx.clearRect(0, 0, main.W, main.H);
+    main.ctx.fillStyle = (Pumper.isSpiking) ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0)';
     main.ctx.fillRect(0, 0, main.W, main.H);
     if(Pumper.isSpiking) _drawText();
     _drawLines();

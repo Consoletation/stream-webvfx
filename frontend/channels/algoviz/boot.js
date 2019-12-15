@@ -4,9 +4,9 @@ var Pumper = require('pumper'),
 //var TRACK = '../../audio/sexualizer.mp3';
 var TRACK = '../../audio/audio.mp3';
 
-Pumper.start(TRACK, true);
-Pumper.globalSpikeTolerance = 8;
+//Pumper.start(TRACK, true);
 
-//Pumper.start('mic');
+Pumper.start('mic');
+Pumper.globalSpikeTolerance = 8;
 
 AlgoViz.init();
