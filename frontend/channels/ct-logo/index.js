@@ -14,7 +14,8 @@ require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 
 var Pumper = require('pumper');
 
-var logoText = 'CONSOLETATION';
+var logoText = 'WWF';
+var logoSpacing = 460;
 
 var textDivisions = logoText.length;
 
@@ -25,8 +26,8 @@ var logoImageMesh;
 function init() {
 
     //Create bands
-    var bandMin = 10;
-    var bandSize = Math.floor(80 / textDivisions);
+    var bandMin = 40;
+    var bandSize = Math.floor(60 / textDivisions);
     for (var i = 0 ; i < textDivisions ; i++){
         Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
         bandMin += bandSize;
@@ -42,7 +43,7 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.z = 1100;
+    camera.position.z = 2100;
 
     //Create scene
     scene = new THREE.Scene();
@@ -61,12 +62,18 @@ function init() {
 }
 
 function initLogoText(){
+    var letters = {
+        W: new THREE.TextureLoader().load('../../assets/wwf/wwf_w.png'),
+        F: new THREE.TextureLoader().load('../../assets/wwf/wwf_f.png')
+    }
+    var letterSize = {
+        W: {width: 446, height: 342},
+        F: {width: 288, height: 342}
+    }
     //Create shapes container
-    var txtWidth, bitmap,
-        g,
-        texture, material, logoTextLayerContainer,
+    var texture, material, geometry, logoTextLayerContainer,
         logoTextLayerMesh, logoTextLayerMesh2, logoTextLayerMesh3, logoTextLayerMesh4,
-        divisionWidth, slices1, slices2, slices3, slices4,
+        divisionWidth, divisionHeight, slices1, slices2, slices3, slices4,
         posX, posY, charOffset = 0;
 
     //create text image
@@ -81,48 +88,20 @@ function initLogoText(){
     for (var j = 0 ; j < textDivisions ; j ++){
         //Dirty as fuck, but I've got to create a canvas per logo slice
         //Also, weirdly the width can't seem to be set after adding a text in
-        bitmap = document.createElement('canvas');
-        g = bitmap.getContext('2d');
-        bitmap.width = 1024;
-        bitmap.height = 200;
-        if (j < 6){
-            g.font = '600 160px rigid-square';
-        }else{
-            g.font = '300 160px rigid-square';
-        }
-        g.fillStyle = 'white';
-        divisionWidth = g.measureText(logoText.charAt(j)).width;
-        if (logoText.charAt(j) === 'A'){ divisionWidth = 110;}
-        if (logoText.charAt(j) === 'E'){ divisionWidth = 100;}
-        if (logoText.charAt(j) === 'I'){ divisionWidth = 90;}
-        if (logoText.charAt(j) === 'N'){ divisionWidth = 116;}
-        if (logoText.charAt(j) === 'O'){ divisionWidth = 116;}
-        if (logoText.charAt(j) === 'S'){ divisionWidth = 112;}
+        divisionWidth = letterSize[logoText.charAt(j)].width;
+        divisionHeight = letterSize[logoText.charAt(j)].height;
 
-        bitmap.width = divisionWidth;
-        if (j < 7){
-            g.font = '600 160px rigid-square';
-        }else{
-            g.font = '300 160px rigid-square';
-        }
-        g.fillStyle = 'white';
-        txtWidth = g.measureText(logoText).width;
-        g.fillText(logoText.charAt(j), 0, 160 );
 
-        texture = new THREE.Texture(bitmap);
-        texture.needsUpdate = true;
-        texture.minFilter = THREE.LinearFilter;
-
-        material = new THREE.MeshBasicMaterial({
-            map : texture, color: 0xffffff, transparent: true, opacity: 1
-        });
-
-        posX = charOffset - txtWidth * 0.5;
+        texture = letters[logoText.charAt(j)];
+        material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
+        geometry = new THREE.PlaneGeometry(divisionWidth, divisionHeight);
+        posX = charOffset - divisionWidth * 0.5;
         posY = 0;
-        charOffset += divisionWidth;
+        var next = letterSize[logoText.charAt(j+1)];
+        if (next) {charOffset += next.width}
 
-        logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-        logoTextLayerMesh.material.opacity = 0.6;
+        logoTextLayerMesh = new THREE.Mesh(geometry, material);
+        logoTextLayerMesh.material.opacity = 1.0;
         logoTextLayerMesh.position.set(posX, posY, 0);
         logoTextLayerContainer.add(logoTextLayerMesh);
         slices1.push(logoTextLayerMesh);
@@ -158,13 +137,14 @@ function initLogoText(){
 }
 
 function initLogoImage(){
-    var texture = new THREE.TextureLoader().load('../../assets/controller-white.png');
+    var texture = new THREE.TextureLoader().load('../../assets/wwf/wwf_panda.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
-    var geometry = new THREE.PlaneGeometry(256, 256);
+    var geometry = new THREE.PlaneGeometry(1200, 1357);
 
     logoImageMesh = new THREE.Mesh( geometry, material );
     logoImageMesh.material.side = THREE.DoubleSide;
-    logoImageMesh.position.x = 557;  // y is determined in update()
+    logoImageMesh.material.opacity = 1.0;
+    logoImageMesh.position.x = 140;  // y is determined in update()
 
     scene.add(logoImageMesh);
 }
@@ -200,22 +180,24 @@ function update() {
     var bandVolume;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume * 0.2;
-        logoTextLayers2[i].position.y = bandVolume * 0.05;
-        logoTextLayers3[i].position.y = bandVolume * 0.4;
-        logoTextLayers4[i].position.y = bandVolume * 0.3;
+        if (i === 2) {bandVolume = bandVolume * 2}
+        bandVolume = bandVolume * 2; // Multiplier
+        logoTextLayers1[i].position.y = bandVolume * 0.2 - logoSpacing;
+        logoTextLayers2[i].position.y = bandVolume * 0.05 - logoSpacing;
+        logoTextLayers3[i].position.y = bandVolume * 0.4 - logoSpacing;
+        logoTextLayers4[i].position.y = bandVolume * 0.3 - logoSpacing;
     }
 
     // Animate image mesh with volume of last band
     bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.2 - 175;
+    logoImageMesh.position.y = bandVolume * 0.2 + logoSpacing;
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 + 1490;
-    camera.position.x =- 2500;
+    camera.position.y = Pumper.bands[1].volume * -0.1;
+    //-camera.position.x =- 2500;
   //camera.position.x += Pumper.bands[4].volume * 0.005;
   //camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 2800 - Pumper.bands[0].volume * 0.15;
+    camera.position.z = 2100 - Pumper.bands[0].volume * 0.35;
 }
 
 function frame() {
