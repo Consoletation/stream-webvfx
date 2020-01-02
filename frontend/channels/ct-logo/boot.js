@@ -3,8 +3,8 @@ var Pumper = require('pumper'),
 
 var TRACK = '../../audio/pacemaker.mp3';
 
-Pumper.start(TRACK, true);
-//Pumper.start('mic');
+//Pumper.start(TRACK, true);
+Pumper.start('mic');
 Pumper.globalSpikeTolerance = 14;
 
 WebFont.load({

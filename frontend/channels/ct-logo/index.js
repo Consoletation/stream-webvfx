@@ -26,8 +26,8 @@ var logoImageMesh;
 function init() {
 
     //Create bands
-    var bandMin = 40;
-    var bandSize = Math.floor(60 / textDivisions);
+    var bandMin = 30;
+    var bandSize = Math.floor(55 / textDivisions);
     for (var i = 0 ; i < textDivisions ; i++){
         Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
         bandMin += bandSize;
@@ -180,7 +180,8 @@ function update() {
     var bandVolume;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        if (i === 2) {bandVolume = bandVolume * 2}
+        // Band corrections
+        if (i === 2) {bandVolume = bandVolume * 1.2}
         bandVolume = bandVolume * 2; // Multiplier
         logoTextLayers1[i].position.y = bandVolume * 0.2 - logoSpacing;
         logoTextLayers2[i].position.y = bandVolume * 0.05 - logoSpacing;
@@ -195,8 +196,8 @@ function update() {
     // Give the camera a shove
     camera.position.y = Pumper.bands[1].volume * -0.1;
     //-camera.position.x =- 2500;
-  //camera.position.x += Pumper.bands[4].volume * 0.005;
-  //camera.position.x -= Pumper.bands[5].volume * 0.005;
+    camera.position.x = Pumper.bands[0].volume * 0.05;
+    camera.position.x -= Pumper.bands[2].volume * 0.05;
     camera.position.z = 2100 - Pumper.bands[0].volume * 0.35;
 }
 
