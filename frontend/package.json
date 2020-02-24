@@ -4,13 +4,15 @@
     "webpack-dev-server": "~1.16.5"
   },
   "dependencies": {
+    "@tweenjs/tween.js": "^18.5.0",
     "gsap": "^2.1.2",
     "imports-loader": "^0.6.4",
     "pex-geom": "^2.0.2",
-    "three": "^0.102.0"
+    "three": "^0.102.0",
+    "webmidi": "^2.5.1"
   },
   "scripts": {
-    "start:dev": "webpack-dev-server --host 0.0.0.0 --public 10.20.102.2:8080 --hot --inline",
+    "start:dev": "webpack-dev-server --host 0.0.0.0 --public 10.20.103.67:8080 --hot --inline",
     "build": "webpack -d"
   }
 }
