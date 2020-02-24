@@ -11,6 +11,8 @@ require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
 require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
+var WebMidi = require('webmidi');
+const TWEEN = require('@tweenjs/tween.js');
 
 var Pumper = require('pumper');
 
@@ -23,7 +25,29 @@ var camera, scene, renderer, composer;
 var logoTextMesh = [];
 var logoImageMesh;
 
+var clockInput;
+var clockCounter = 0;
+var tweenCoords = { x: 0, y: 0, z: 0 };
+const tweenUp = new TWEEN.Tween(tweenCoords) // Create a new tween that modifies 'coords'.
+    .to({ x: 0, y: 0, z: 400 }, 80) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Quadratic.Out); // Use an easing function to make the animation smooth.
+const tweenDown = new TWEEN.Tween(tweenCoords) // Create a new tween that modifies 'coords'.
+    .to({ x: 0, y: 0, z: 0 }, 200) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Quadratic.Out); // Use an easing function to make the animation smooth.
+tweenUp.chain(tweenDown);
+
 function init() {
+
+    WebMidi.enable(function (err) {
+        if (err) {
+            console.log("WebMidi could not be enabled.", err);
+        }
+
+        clockInput = WebMidi.getInputByName("DJM-900NXS2");
+        clockInput.addListener('clock', "all", function(e) {
+            clockCounter++;
+        })
+    });
 
     //Create bands
     var bandMin = 30;
@@ -171,6 +195,12 @@ function initPostProcessing(){
 
 function update() {
     Pumper.update();
+    TWEEN.update();
+    if (clockCounter > 23) {
+        clockCounter = 1;
+        tweenUp.start();
+        console.log("Beat!");
+    }
 
     //Animate logo text layers based on bands
     var logoTextLayers1 = logoTextMesh[0].slices1;
@@ -198,7 +228,7 @@ function update() {
     //-camera.position.x =- 2500;
     camera.position.x = Pumper.bands[0].volume * 0.05;
     camera.position.x -= Pumper.bands[2].volume * 0.05;
-    camera.position.z = 2100 - Pumper.bands[0].volume * 0.35;
+    camera.position.z = 2100 - Pumper.bands[0].volume * 0.35 - tweenCoords.z;
 }
 
 function frame() {
