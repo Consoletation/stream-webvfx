@@ -2,7 +2,11 @@
 
 var CHANNELS = [
     'bp-stealthct',
-    'ct-logo'
+    'ct-logo',
+    'ct-logo-trans',
+    'ct-logo-trans-corner',
+    'wwf',
+    'wwf-webmidi'
 ];
 
 var _entries = {};

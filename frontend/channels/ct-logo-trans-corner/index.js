@@ -21,14 +21,6 @@ var textDivisions = logoText.length;
 var camera, scene, renderer, composer;
 var logoTextMesh = [];
 var logoImageMesh;
-var headingsContainer;
-var headingsMesh = [];
-var headings = [
-    'Starting soon...',
-    'Back soon!',
-    'Thanks for watching!'
-];
-var currentHeading = 0;
 
 function init() {
 
@@ -41,12 +33,12 @@ function init() {
     }
 
     //Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor(0xffffff, 1);
+    renderer.setClearColor(0x000000, 0);
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
@@ -57,7 +49,6 @@ function init() {
 
     initLogoText();
     initLogoImage();
-    initHeading();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -123,7 +114,7 @@ function initLogoText(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map : texture, color: 0x000000, transparent: true, opacity: 1
+            map : texture, color: 0xffffff, transparent: true, opacity: 1
         });
 
         posX = charOffset - txtWidth * 0.5;
@@ -167,7 +158,7 @@ function initLogoText(){
 }
 
 function initLogoImage(){
-    var texture = new THREE.TextureLoader().load('../../assets/controller.png');
+    var texture = new THREE.TextureLoader().load('../../assets/controller-white.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     var geometry = new THREE.PlaneGeometry(256, 256);
 
@@ -176,39 +167,6 @@ function initLogoImage(){
     logoImageMesh.position.x = 557;  // y is determined in update()
 
     scene.add(logoImageMesh);
-}
-
-function initHeading(){
-    headingsContainer = new THREE.Object3D();
-    headingsContainer.position.x = window.innerWidth * 0.5;
-    headingsContainer.position.y = -900;
-    scene.add(headingsContainer);
-
-    var headingMesh, bitmap, g, texture, material, geometry;
-    for (var heading = 0; heading < headings.length; heading++){
-        bitmap = document.createElement('canvas');
-        g = bitmap.getContext('2d');
-        g.font = 'normal 48px rigid-square';
-        bitmap.width = g.measureText(headings[heading]).width;
-        bitmap.height = 200;
-        g.font = 'normal 48px rigid-square';
-        g.fillText(headings[heading], 0, 160);
-
-        texture = new THREE.Texture(bitmap);
-        texture.needsUpdate = true;
-        texture.minFilter = THREE.LinearFilter;
-
-        material = new THREE.MeshBasicMaterial({
-            map: texture, color: 0x000000, transparent: true, opacity: 1
-        });
-        geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
-        headingMesh = new THREE.Mesh(geometry, material);
-        headingMesh.position.x = window.innerWidth * -0.5;
-        headingMesh.position.y = window.innerHeight * 0.5;
-
-        headingsMesh.push(headingMesh);
-    }
-    headingsContainer.add(headingsMesh[currentHeading]);
 }
 
 function initPostProcessing(){
@@ -222,11 +180,11 @@ function initPostProcessing(){
 
     var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass(shaderVignette);
-    effectVignette.uniforms.offset.value = 0.5;
-    effectVignette.uniforms.darkness.value = 1.6;
+    effectVignette.uniforms.offset.value = 0.0;
+    effectVignette.uniforms.darkness.value = 0.0;
     composer.addPass(effectVignette);
 
-    var effectFilmPass = new THREE.FilmPass(0.12, 0.125, 648, false);
+    var effectFilmPass = new THREE.FilmPass(0.0, 0.0, 648, false);
     effectFilmPass.renderToScreen = true;
     composer.addPass(effectFilmPass);
 }
@@ -242,22 +200,22 @@ function update() {
     var bandVolume;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume * 0.1;
-        logoTextLayers2[i].position.y = bandVolume * -0.2;
-        logoTextLayers3[i].position.y = bandVolume * 0.5;
+        logoTextLayers1[i].position.y = bandVolume * 0.2;
+        logoTextLayers2[i].position.y = bandVolume * 0.05;
+        logoTextLayers3[i].position.y = bandVolume * 0.4;
         logoTextLayers4[i].position.y = bandVolume * 0.3;
     }
 
     // Animate image mesh with volume of last band
     bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.1 - 175;
+    logoImageMesh.position.y = bandVolume * 0.2 - 175;
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 - 90;
-    camera.position.x = 0;
-    camera.position.x += Pumper.bands[4].volume * 0.005;
-    camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
+    camera.position.y = Pumper.bands[5].volume * -0.1 + 1490;
+    camera.position.x =- 2500;
+  //camera.position.x += Pumper.bands[4].volume * 0.005;
+  //camera.position.x -= Pumper.bands[5].volume * 0.005;
+    camera.position.z = 2800 - Pumper.bands[0].volume * 0.15;
 }
 
 function frame() {
@@ -274,10 +232,6 @@ function onWindowResize() {
 
 function click() {
     Pumper.play();  // if needed
-    headingsContainer.remove(headingsMesh[currentHeading]);
-    currentHeading++;
-    if (currentHeading > headings.length - 1) {currentHeading = 0;}
-    headingsContainer.add(headingsMesh[currentHeading]);
 }
 
 var BeatProcessing = {
