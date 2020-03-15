@@ -5,6 +5,7 @@ var CHANNELS = [
     'ct-logo',
     'ct-logo-trans',
     'ct-logo-trans-corner',
+    'doom-three',
     'wwf',
     'wwf-webmidi'
 ];
