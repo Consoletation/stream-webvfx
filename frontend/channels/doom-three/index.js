@@ -11,6 +11,8 @@ require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
 require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
+var WebMidi = require('webmidi');
+const TWEEN = require('@tweenjs/tween.js');
 
 var Pumper = require('pumper');
 
@@ -22,7 +24,41 @@ var camera, scene, renderer, composer;
 var logoTextMesh = [];
 var logoImageMesh;
 
+const cameraInitPos = { x: -1100, y: 0, z: 2800 };
+
+var clockInput;
+var clockCounter = 0;
+
+// Tweening
+var tweenBeatCoords = { x: 0, y: 0, z: 0 };
+const tweenBeatIn = new TWEEN.Tween(tweenBeatCoords)
+    .to({ x: 0, y: 0, z: -30 }, 80)
+    .easing(TWEEN.Easing.Quadratic.Out);
+const tweenBeatOut = new TWEEN.Tween(tweenBeatCoords)
+    .to({ x: 0, y: 0, z: 0 }, 200)
+    .easing(TWEEN.Easing.Quadratic.Out);
+tweenBeatIn.chain(tweenBeatOut);
+var tweenAnimCoords = { x: 0, y: 0, z: 0 };
+const tweenAnimIn = new TWEEN.Tween(tweenAnimCoords)
+    .to({ x: 0, y: -3000, z: 0 }, 1000)
+    .easing(TWEEN.Easing.Quadratic.Out);
+const tweenAnimOut = new TWEEN.Tween(tweenAnimCoords)
+    .to({ x: 0, y: 0, z: 0 }, 1000)
+    .easing(TWEEN.Easing.Quadratic.Out);
+tweenAnimIn.chain(tweenAnimOut);
+
 function init() {
+
+    WebMidi.enable(function (err) {
+        if (err) {
+            console.log("WebMidi could not be enabled.", err);
+        }
+
+        clockInput = WebMidi.getInputByName("DJM-900NXS2");
+        clockInput.addListener('clock', "all", function(e) {
+            clockCounter++;
+        })
+    });
 
     //Create bands
     var bandMin = 10;
@@ -42,8 +78,7 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.x =- 1100;
-    camera.position.z = 1100;
+    Object.assign(camera.position, cameraInitPos);
 
     //Create scene
     scene = new THREE.Scene();
@@ -159,6 +194,14 @@ function initPostProcessing(){
 
 function update() {
     Pumper.update();
+    TWEEN.update();
+
+    // Beat tween
+    if (clockCounter > 23) {
+        clockCounter = 1;
+        tweenBeatIn.start();
+        console.log("Beat!");
+    }
 
     //Animate logo text layers based on bands
     var logoTextLayers1 = logoTextMesh[0].slices1;
@@ -168,8 +211,15 @@ function update() {
         logoTextLayers1[i].position.y = bandVolume;
     }
 
-    // Give the camera a shove
-    camera.position.z = 2800 - Pumper.bands[0].volume * 0.15;
+    // Camera changes
+    let cameraNewPos = {x: 0, y: 0, z: 0};
+    Object.assign(cameraNewPos, cameraInitPos);
+    //cameraNewPos.z -= Pumper.bands[0].volume * 0.15; // Pumper Z shove
+    cameraNewPos.z += tweenBeatCoords.z; // Beat shove
+    cameraNewPos.x += tweenAnimCoords.x; // Anim shove
+    cameraNewPos.y += tweenAnimCoords.y; // Anim shove
+    cameraNewPos.z += tweenAnimCoords.z; // Anim shove
+    Object.assign(camera.position, cameraNewPos);
 }
 
 function frame() {
@@ -185,6 +235,8 @@ function onWindowResize() {
 }
 
 function click() {
+    console.log('click!');
+    tweenAnimIn.start();
     //Pumper.play();  // if needed
 }
 
