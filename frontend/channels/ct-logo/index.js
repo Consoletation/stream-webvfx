@@ -273,7 +273,7 @@ function onWindowResize() {
 }
 
 function click() {
-    Pumper.play();  // if needed
+    //Pumper.play();  // if needed
     headingsContainer.remove(headingsMesh[currentHeading]);
     currentHeading++;
     if (currentHeading > headings.length - 1) {currentHeading = 0;}

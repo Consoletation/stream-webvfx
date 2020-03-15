@@ -231,7 +231,7 @@ function onWindowResize() {
 }
 
 function click() {
-    Pumper.play();  // if needed
+    //Pumper.play();  // if needed
 }
 
 var BeatProcessing = {
