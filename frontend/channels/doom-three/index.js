@@ -14,7 +14,7 @@ require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 
 var Pumper = require('pumper');
 
-var logoText = 'CONSOLETATION';
+var logoText = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 var textDivisions = logoText.length;
 
@@ -42,13 +42,14 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+    camera.position.x =- 1100;
     camera.position.z = 1100;
 
     //Create scene
     scene = new THREE.Scene();
 
     initLogoText();
-    initLogoImage();
+    //initLogoImage();
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -66,7 +67,7 @@ function initLogoText(){
         g,
         texture, material, logoTextLayerContainer,
         logoTextLayerMesh, logoTextLayerMesh2, logoTextLayerMesh3, logoTextLayerMesh4,
-        divisionWidth, slices1, slices2, slices3, slices4,
+        divisionWidth, slices1,
         posX, posY, charOffset = 0;
 
     //create text image
@@ -75,9 +76,6 @@ function initLogoText(){
     scene.add(logoTextLayerContainer);
 
     slices1 = [];
-    slices2 = [];
-    slices3 = [];
-    slices4 = [];
     for (var j = 0 ; j < textDivisions ; j ++){
         //Dirty as fuck, but I've got to create a canvas per logo slice
         //Also, weirdly the width can't seem to be set after adding a text in
@@ -85,26 +83,20 @@ function initLogoText(){
         g = bitmap.getContext('2d');
         bitmap.width = 1024;
         bitmap.height = 200;
-        if (j < 6){
-            g.font = '600 160px rigid-square';
-        }else{
-            g.font = '300 160px rigid-square';
-        }
+        g.font = '300 160px Turnpike';
         g.fillStyle = 'white';
         divisionWidth = g.measureText(logoText.charAt(j)).width;
-        if (logoText.charAt(j) === 'A'){ divisionWidth = 110;}
-        if (logoText.charAt(j) === 'E'){ divisionWidth = 100;}
+        if (logoText.charAt(j) === 'A'){ divisionWidth = 170;}
+        if (logoText.charAt(j) === 'B'){ divisionWidth = 170;}
+        if (logoText.charAt(j) === 'H'){ divisionWidth = 160;}
         if (logoText.charAt(j) === 'I'){ divisionWidth = 90;}
-        if (logoText.charAt(j) === 'N'){ divisionWidth = 116;}
-        if (logoText.charAt(j) === 'O'){ divisionWidth = 116;}
-        if (logoText.charAt(j) === 'S'){ divisionWidth = 112;}
+        if (logoText.charAt(j) === 'L'){ divisionWidth = 170;}
+        if (logoText.charAt(j) === 'M'){ divisionWidth = 190;}
+        if (logoText.charAt(j) === 'V'){ divisionWidth = 190;}
+        if (logoText.charAt(j) === 'W'){ divisionWidth = 230;}
 
         bitmap.width = divisionWidth;
-        if (j < 7){
-            g.font = '600 160px rigid-square';
-        }else{
-            g.font = '300 160px rigid-square';
-        }
+        g.font = '300 160px Turnpike';
         g.fillStyle = 'white';
         txtWidth = g.measureText(logoText).width;
         g.fillText(logoText.charAt(j), 0, 160 );
@@ -122,38 +114,14 @@ function initLogoText(){
         charOffset += divisionWidth;
 
         logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-        logoTextLayerMesh.material.opacity = 0.6;
+        logoTextLayerMesh.material.opacity = 0.95;
         logoTextLayerMesh.position.set(posX, posY, 0);
         logoTextLayerContainer.add(logoTextLayerMesh);
         slices1.push(logoTextLayerMesh);
-
-        logoTextLayerMesh2 = logoTextLayerMesh.clone();
-        logoTextLayerMesh2.material = material.clone();
-        logoTextLayerMesh2.position.set(posX, posY, 0);
-        logoTextLayerMesh2.material.opacity = 0.1;
-        logoTextLayerContainer.add(logoTextLayerMesh2);
-        slices2.push(logoTextLayerMesh2);
-
-        logoTextLayerMesh3 = logoTextLayerMesh.clone();
-        logoTextLayerMesh3.material = material.clone();
-        logoTextLayerMesh3.position.set(posX, posY, 0);
-        logoTextLayerMesh3.material.opacity = 0.1;
-        logoTextLayerContainer.add(logoTextLayerMesh3);
-        slices3.push(logoTextLayerMesh3);
-
-        logoTextLayerMesh4 = logoTextLayerMesh.clone();
-        logoTextLayerMesh4.material = material.clone();
-        logoTextLayerMesh4.position.set(posX, posY, 0);
-        logoTextLayerMesh4.material.opacity = 0.2;
-        logoTextLayerContainer.add(logoTextLayerMesh4);
-        slices4.push(logoTextLayerMesh4);
     }
     logoTextMesh.push({
         container: logoTextLayerContainer,
         slices1: slices1,
-        slices2: slices2,
-        slices3: slices3,
-        slices4: slices4
     });
 }
 
@@ -194,27 +162,13 @@ function update() {
 
     //Animate logo text layers based on bands
     var logoTextLayers1 = logoTextMesh[0].slices1;
-    var logoTextLayers2 = logoTextMesh[0].slices2;
-    var logoTextLayers3 = logoTextMesh[0].slices3;
-    var logoTextLayers4 = logoTextMesh[0].slices4;
     var bandVolume;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume * 0.2;
-        logoTextLayers2[i].position.y = bandVolume * 0.05;
-        logoTextLayers3[i].position.y = bandVolume * 0.4;
-        logoTextLayers4[i].position.y = bandVolume * 0.3;
+        logoTextLayers1[i].position.y = bandVolume;
     }
 
-    // Animate image mesh with volume of last band
-    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.2 - 175;
-
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 + 1490;
-    camera.position.x =- 2500;
-  //camera.position.x += Pumper.bands[4].volume * 0.005;
-  //camera.position.x -= Pumper.bands[5].volume * 0.005;
     camera.position.z = 2800 - Pumper.bands[0].volume * 0.15;
 }
 

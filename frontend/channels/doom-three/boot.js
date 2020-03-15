@@ -8,6 +8,9 @@ Pumper.start('mic');
 Pumper.globalSpikeTolerance = 14;
 
 WebFont.load({
-    typekit: {id: 'oiz4knz'},
+    custom: {
+        families: ['Turnpike'],
+        urls: ['https://consoletation.live/fonts/turnpike/stylesheet.css']
+    },
     active: BeatProcessing.init
 });
