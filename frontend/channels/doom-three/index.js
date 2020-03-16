@@ -73,8 +73,8 @@ function init() {
     //Create scene
     scene = new THREE.Scene();
 
-    initLogoText(100);
-    initLogoText(500);
+    initLogoText("MorrowindInMySails", 500);
+    initLogoText("raiding with a party of 69", 100);
     //initLogoImage();
 
     composer = new THREE.EffectComposer(renderer);
@@ -85,14 +85,16 @@ function init() {
     frame();
 }
 
-function initLogoText(posY){
+function initLogoText(alertTextP, posY){
     //Create shapes container
-    var txtWidth, bitmap,
+    var txtWidth, bitmap, alertText,
         g,
         texture, material, logoTextLayerContainer,
         logoTextLayerMesh,
         divisionWidth, slices,
         posX, charOffset = 0;
+
+    alertText = alertTextP.toUpperCase();
 
     //create text image
     // canvas contents will be used for a texture
@@ -100,7 +102,7 @@ function initLogoText(posY){
     scene.add(logoTextLayerContainer);
 
     slices = [];
-    for (var j = 0 ; j < logoText.length ; j ++){
+    for (var j = 0 ; j < alertText.length ; j ++){
         //Dirty as fuck, but I've got to create a canvas per logo slice
         //Also, weirdly the width can't seem to be set after adding a text in
         bitmap = document.createElement('canvas');
@@ -109,21 +111,21 @@ function initLogoText(posY){
         bitmap.height = 200;
         g.font = '300 160px Turnpike';
         g.fillStyle = 'white';
-        divisionWidth = g.measureText(logoText.charAt(j)).width;
-        if (logoText.charAt(j) === 'A'){ divisionWidth = 170;}
-        if (logoText.charAt(j) === 'B'){ divisionWidth = 170;}
-        if (logoText.charAt(j) === 'H'){ divisionWidth = 160;}
-        if (logoText.charAt(j) === 'I'){ divisionWidth = 90;}
-        if (logoText.charAt(j) === 'L'){ divisionWidth = 170;}
-        if (logoText.charAt(j) === 'M'){ divisionWidth = 190;}
-        if (logoText.charAt(j) === 'V'){ divisionWidth = 190;}
-        if (logoText.charAt(j) === 'W'){ divisionWidth = 230;}
+        divisionWidth = g.measureText(alertText.charAt(j)).width;
+        if (alertText.charAt(j) === 'A'){ divisionWidth = 170;}
+        if (alertText.charAt(j) === 'B'){ divisionWidth = 170;}
+        if (alertText.charAt(j) === 'H'){ divisionWidth = 160;}
+        if (alertText.charAt(j) === 'I'){ divisionWidth = 100;}
+        if (alertText.charAt(j) === 'L'){ divisionWidth = 170;}
+        if (alertText.charAt(j) === 'M'){ divisionWidth = 190;}
+        if (alertText.charAt(j) === 'V'){ divisionWidth = 190;}
+        if (alertText.charAt(j) === 'W'){ divisionWidth = 210;}
 
         bitmap.width = divisionWidth;
         g.font = '300 160px Turnpike';
         g.fillStyle = 'white';
-        txtWidth = g.measureText(logoText).width;
-        g.fillText(logoText.charAt(j), 0, 160 );
+        txtWidth = g.measureText(alertText).width;
+        g.fillText(alertText.charAt(j), 0, 160 );
 
         texture = new THREE.Texture(bitmap);
         texture.needsUpdate = true;
