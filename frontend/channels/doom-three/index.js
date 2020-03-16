@@ -7,10 +7,9 @@ var WebMidi = require('webmidi');
 const TWEEN = require('@tweenjs/tween.js');
 
 var Pumper = require('pumper');
+const pumperBandCount = 26;
 
 var logoText = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-var textDivisions = logoText.length;
 
 var camera, scene, renderer, composer;
 var logoTextMesh = [];
@@ -53,8 +52,8 @@ function init() {
 
     //Create bands
     var bandMin = 10;
-    var bandSize = Math.floor(80 / textDivisions);
-    for (var i = 0 ; i < textDivisions ; i++){
+    var bandSize = Math.floor(80 / logoText.length);
+    for (var i = 0 ; i < logoText.length ; i++){
         Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
         bandMin += bandSize;
     }
@@ -74,7 +73,8 @@ function init() {
     //Create scene
     scene = new THREE.Scene();
 
-    initLogoText();
+    initLogoText(100);
+    initLogoText(500);
     //initLogoImage();
 
     composer = new THREE.EffectComposer(renderer);
@@ -85,22 +85,22 @@ function init() {
     frame();
 }
 
-function initLogoText(){
+function initLogoText(posY){
     //Create shapes container
     var txtWidth, bitmap,
         g,
         texture, material, logoTextLayerContainer,
-        logoTextLayerMesh, logoTextLayerMesh2, logoTextLayerMesh3, logoTextLayerMesh4,
-        divisionWidth, slices1,
-        posX, posY, charOffset = 0;
+        logoTextLayerMesh,
+        divisionWidth, slices,
+        posX, charOffset = 0;
 
     //create text image
     // canvas contents will be used for a texture
     logoTextLayerContainer = new THREE.Object3D();
     scene.add(logoTextLayerContainer);
 
-    slices1 = [];
-    for (var j = 0 ; j < textDivisions ; j ++){
+    slices = [];
+    for (var j = 0 ; j < logoText.length ; j ++){
         //Dirty as fuck, but I've got to create a canvas per logo slice
         //Also, weirdly the width can't seem to be set after adding a text in
         bitmap = document.createElement('canvas');
@@ -134,18 +134,19 @@ function initLogoText(){
         });
 
         posX = charOffset - txtWidth * 0.5;
-        posY = 0;
+        //posY = 0;
         charOffset += divisionWidth;
 
         logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
         logoTextLayerMesh.material.opacity = 0.95;
         logoTextLayerMesh.position.set(posX, posY, 0);
         logoTextLayerContainer.add(logoTextLayerMesh);
-        slices1.push(logoTextLayerMesh);
+        slices.push(logoTextLayerMesh);
     }
     logoTextMesh.push({
         container: logoTextLayerContainer,
-        slices1: slices1,
+        slices: slices,
+        height: posY,
     });
 }
 
@@ -173,11 +174,14 @@ function update() {
     }
 
     //Animate logo text layers based on bands
-    var logoTextLayers1 = logoTextMesh[0].slices1;
+    var logoTextLayers;
     var bandVolume;
-    for (var i = 0 ; i < logoTextLayers1.length ; i ++){
-        bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume;
+    for (var j = 0; j < logoTextMesh.length; j++) {
+        logoTextLayers = logoTextMesh[j].slices;
+        for (var i = 0 ; i < logoTextLayers.length ; i ++){
+            bandVolume = Pumper.bands[i].volume;
+            logoTextLayers[i].position.y = logoTextMesh[j].height + bandVolume;
+        }
     }
 
     // Camera changes
