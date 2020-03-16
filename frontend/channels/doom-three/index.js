@@ -1,16 +1,8 @@
 var THREE = require('three');
 require('imports?THREE=three!../../libs/shaders/CopyShader');
-require('imports?THREE=three!../../libs/shaders/DigitalGlitch');
-require('imports?THREE=three!../../libs/shaders/FilmShader');
-require('imports?THREE=three!../../libs/shaders/DotScreenShader');
-require('imports?THREE=three!../../libs/shaders/VignetteShader');
-require('imports?THREE=three!../../libs/shaders/TestShader');
 require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
 require('imports?THREE=three!../../libs/postprocessing/RenderPass');
-require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
-require('imports?THREE=three!../../libs/postprocessing/FilmPass');
-require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 var WebMidi = require('webmidi');
 const TWEEN = require('@tweenjs/tween.js');
 
@@ -53,7 +45,6 @@ function init() {
         if (err) {
             console.log("WebMidi could not be enabled.", err);
         }
-
         clockInput = WebMidi.getInputByName("DJM-900NXS2");
         clockInput.addListener('clock', "all", function(e) {
             clockCounter++;
@@ -86,10 +77,8 @@ function init() {
     initLogoText();
     //initLogoImage();
 
-    //Bring the lights
-    scene.add(new THREE.AmbientLight(0xcacaca));
-
-    initPostProcessing();
+    composer = new THREE.EffectComposer(renderer);
+    composer.addPass(new THREE.RenderPass(scene, camera));
 
     window.addEventListener('resize', onWindowResize, false);
 
@@ -170,26 +159,6 @@ function initLogoImage(){
     logoImageMesh.position.x = 557;  // y is determined in update()
 
     scene.add(logoImageMesh);
-}
-
-function initPostProcessing(){
-    // postprocessing
-    composer = new THREE.EffectComposer(renderer);
-    composer.addPass(new THREE.RenderPass(scene, camera));
-
-    testPass = new THREE.ShaderPass(THREE.TestShader);
-    testPass.uniforms[ "amount" ].value = 0.95;
-    composer.addPass(testPass);
-
-    var shaderVignette = THREE.VignetteShader;
-    var effectVignette = new THREE.ShaderPass(shaderVignette);
-    effectVignette.uniforms.offset.value = 0.0;
-    effectVignette.uniforms.darkness.value = 0.0;
-    composer.addPass(effectVignette);
-
-    var effectFilmPass = new THREE.FilmPass(0.0, 0.0, 648, false);
-    effectFilmPass.renderToScreen = true;
-    composer.addPass(effectFilmPass);
 }
 
 function update() {
