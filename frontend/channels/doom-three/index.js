@@ -15,7 +15,7 @@ var camera, scene, renderer, composer;
 var logoTextMesh = [];
 var logoImageMesh;
 
-const cameraInitPos = { x: -1100, y: 0, z: 2800 };
+const cameraInitPos = { x: 0, y: 0, z: 1800 };
 
 var clockInput;
 var clockCounter = 0;
@@ -51,8 +51,8 @@ function init() {
     });
 
     //Create bands
-    var bandMin = 10;
-    var bandSize = Math.floor(80 / logoText.length);
+    var bandMin = 30;
+    var bandSize = Math.floor(60 / logoText.length);
     for (var i = 0 ; i < logoText.length ; i++){
         Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
         bandMin += bandSize;
@@ -73,8 +73,11 @@ function init() {
     //Create scene
     scene = new THREE.Scene();
 
-    initLogoText("MorrowindInMySails", 500);
-    initLogoText("raiding with a party of 69", 100);
+    initLogoText("twitch.tv/StealthCT", 0);
+    initLogoText("Friday 6pm GMT / 1pm CDT", -300, 160);
+    //initLogoText("MorrowindInMySails", 500);
+    //initLogoText("raiding with a party of", 100);
+    //initLogoText("69", -300);
     //initLogoImage();
 
     composer = new THREE.EffectComposer(renderer);
@@ -85,7 +88,7 @@ function init() {
     frame();
 }
 
-function initLogoText(alertTextP, posY){
+function initLogoText(alertTextP, posY, posX2 = 0, posZ = 0){
     //Create shapes container
     var txtWidth, bitmap, alertText,
         g,
@@ -112,14 +115,21 @@ function initLogoText(alertTextP, posY){
         g.font = '300 160px Turnpike';
         g.fillStyle = 'white';
         divisionWidth = g.measureText(alertText.charAt(j)).width;
-        if (alertText.charAt(j) === 'A'){ divisionWidth = 170;}
+        if (alertText.charAt(j) === 'A'){ divisionWidth = 190;}
         if (alertText.charAt(j) === 'B'){ divisionWidth = 170;}
-        if (alertText.charAt(j) === 'H'){ divisionWidth = 160;}
-        if (alertText.charAt(j) === 'I'){ divisionWidth = 100;}
+        if (alertText.charAt(j) === 'C'){ divisionWidth = 190;}
+        if (alertText.charAt(j) === 'E'){ divisionWidth = 190;}
+        if (alertText.charAt(j) === 'H'){ divisionWidth = 190;}
+        if (alertText.charAt(j) === 'I'){ divisionWidth = 130;}
         if (alertText.charAt(j) === 'L'){ divisionWidth = 170;}
         if (alertText.charAt(j) === 'M'){ divisionWidth = 190;}
+        if (alertText.charAt(j) === 'S'){ divisionWidth = 190;}
+        if (alertText.charAt(j) === 'T'){ divisionWidth = 190;}
         if (alertText.charAt(j) === 'V'){ divisionWidth = 190;}
-        if (alertText.charAt(j) === 'W'){ divisionWidth = 210;}
+        if (alertText.charAt(j) === 'W'){ divisionWidth = 230;}
+        if (alertText.charAt(j) === '/'){ divisionWidth = 160;}
+        if (alertText.charAt(j) === '.'){ divisionWidth = 110;}
+        if (alertText.charAt(j) === '1'){ divisionWidth = 130;}
 
         bitmap.width = divisionWidth;
         g.font = '300 160px Turnpike';
@@ -135,13 +145,13 @@ function initLogoText(alertTextP, posY){
             map : texture, color: 0xffffff, transparent: true, opacity: 1
         });
 
-        posX = charOffset - txtWidth * 0.5;
+        posX = posX2 + charOffset - txtWidth * 0.5;
         //posY = 0;
         charOffset += divisionWidth;
 
         logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
         logoTextLayerMesh.material.opacity = 0.95;
-        logoTextLayerMesh.position.set(posX, posY, 0);
+        logoTextLayerMesh.position.set(posX, posY, posZ);
         logoTextLayerContainer.add(logoTextLayerMesh);
         slices.push(logoTextLayerMesh);
     }
