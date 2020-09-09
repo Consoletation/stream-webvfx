@@ -46,7 +46,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor(0x000000, 0.75);
+    renderer.setClearColor(0x000000, 0);
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
@@ -181,7 +181,7 @@ function initLogoImage(){
 function initHeading(){
     headingsContainer = new THREE.Object3D();
     headingsContainer.position.x = window.innerWidth * 0.5;
-    headingsContainer.position.y = -900;
+    headingsContainer.position.y = -1100;
     scene.add(headingsContainer);
 
     var headingMesh, bitmap, g, texture, material, geometry;
@@ -243,18 +243,18 @@ function update() {
     var bandVolume;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume * 0.1;
-        logoTextLayers2[i].position.y = bandVolume * -0.2;
-        logoTextLayers3[i].position.y = bandVolume * 0.5;
+        logoTextLayers1[i].position.y = bandVolume * 0.2;
+        logoTextLayers2[i].position.y = bandVolume * -0.1 + 10;
+        logoTextLayers3[i].position.y = bandVolume * 0.6;
         logoTextLayers4[i].position.y = bandVolume * 0.3;
     }
 
     // Animate image mesh with volume of last band
     bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.1 - 175;
+    logoImageMesh.position.y = bandVolume * 0.2 - 175;
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 - 90;
+    camera.position.y = Pumper.bands[5].volume * -0.3 - 90;
     camera.position.x = 0;
     camera.position.x += Pumper.bands[4].volume * 0.005;
     camera.position.x -= Pumper.bands[5].volume * 0.005;
