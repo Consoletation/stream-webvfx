@@ -21,7 +21,6 @@ var Datas = require('./datas');
 
 var _ift = Date.now();
 var glitchTimeout;
-var bassCheck = Pumper.createBand(25, 80, 127, 15 );
 
 var bgColors = [0x050505, 0xd4fa7a, 0x6befac, 0x42ACCC, 0xCC7E6A, 0x7868FF, 0xFDFF98, 0x5B9CB2];
 var colors = [0x427cde, 0xffffff, 0xa7a7a7, 0xB23A5E, 0xFFB86C, 0x32AEB2, 0xFF4E46, 0xD7FF56];
@@ -53,12 +52,7 @@ function init() {
     Datas.names.unshift('Starting soon');
 
     //Create bands
-    var bandMin = 10;
-    var bandSize = 80 / divisions;
-    for (var i = 0 ; i < divisions ; i++){
-        Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
-        bandMin += bandSize;
-    }
+    Pumper.createBands(divisions, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -403,24 +397,24 @@ function update() {
         currentNameSlices3[i].position.y = bandVolume * 0.5;
         currentNameSlices4[i].position.y = bandVolume * 0.3;
     }
-    if(bassCheck.isSpiking === true) {
-        var volume = Math.floor((bassCheck.volume * 0.7));
+    if(Pumper.isSpiking === true) {
+        var volume = Math.floor((Pumper.volume * 0.7));
         var scale = 0.9 + (volume * 0.1);
 
         tweenVertices(scale * 0.02);
 
         if(stage === 1){
             if(glitchPass.goWild === false){
-                glitchPass.goWild = bassCheck.isSpiking;
+                glitchPass.goWild = Pumper.isSpiking;
                 glitchTimeout = setTimeout(function (){
-                    if(bassCheck.isSpiking === false){
+                    if(Pumper.isSpiking === false){
                         glitchPass.goWild = false;
                     }
                 }, volume * 1.5)
             }else{
                 clearTimeout( glitchTimeout )
                 glitchTimeout = setTimeout(function (){
-                    if(bassCheck.isSpiking === false){
+                    if(Pumper.isSpiking === false){
                         glitchPass.goWild = false;
                     }
                 }, volume * 1.5)

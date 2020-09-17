@@ -4,7 +4,7 @@ var Pumper = require('pumper'),
 var TRACK = '../../audio/temp.flac';
 
 //Pumper.start(TRACK, true);
-Pumper.start('mic');
+Pumper.start('mic', 0.03, 0.29);
 Pumper.globalSpikeTolerance = 14;
 
 WebFont.load({

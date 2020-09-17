@@ -51,12 +51,7 @@ function init() {
     });
 
     //Create bands
-    var bandMin = 30;
-    var bandSize = Math.floor(60 / logoText.length);
-    for (var i = 0 ; i < logoText.length ; i++){
-        Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
-        bandMin += bandSize;
-    }
+    Pumper.createBands(logoText.length, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });

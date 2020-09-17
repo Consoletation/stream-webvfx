@@ -26,12 +26,7 @@ var logoImageMesh;
 function init() {
 
     //Create bands
-    var bandMin = 30;
-    var bandSize = Math.floor(55 / textDivisions);
-    for (var i = 0 ; i < textDivisions ; i++){
-        Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
-        bandMin += bandSize;
-    }
+    Pumper.createBands(textDivisions, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });

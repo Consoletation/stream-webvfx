@@ -33,12 +33,7 @@ var currentHeading = 0;
 function init() {
 
     //Create bands
-    var bandMin = 10;
-    var bandSize = Math.floor(80 / textDivisions);
-    for (var i = 0 ; i < textDivisions ; i++){
-        Pumper.createBand(bandMin, bandMin + bandSize, 127, 4 );
-        bandMin += bandSize;
-    }
+    Pumper.createBands(textDivisions, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -244,8 +239,8 @@ function update() {
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
         bandVolume = Pumper.bands[i].volume;
         logoTextLayers1[i].position.y = bandVolume * 0.2;
-        logoTextLayers2[i].position.y = bandVolume * -0.1 + 10;
-        logoTextLayers3[i].position.y = bandVolume * 0.6;
+        logoTextLayers2[i].position.y = bandVolume * -0.08 + 8;
+        logoTextLayers3[i].position.y = bandVolume * 0.45;
         logoTextLayers4[i].position.y = bandVolume * 0.3;
     }
 
@@ -258,7 +253,7 @@ function update() {
     camera.position.x = 0;
     camera.position.x += Pumper.bands[4].volume * 0.005;
     camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
+    camera.position.z = 1100 - Pumper.volume * 0.12;
 }
 
 function frame() {
