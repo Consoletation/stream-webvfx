@@ -242,18 +242,27 @@ function update() {
         logoTextLayers2[i].position.y = bandVolume * -0.08 + 8;
         logoTextLayers3[i].position.y = bandVolume * 0.45;
         logoTextLayers4[i].position.y = bandVolume * 0.3;
+
+        var zDepth = (Pumper.volume*2 + bandVolume) * 0.2
+        logoTextLayers1[i].position.z = zDepth;
+        logoTextLayers2[i].position.z = zDepth;
+        logoTextLayers3[i].position.z = zDepth;
+        logoTextLayers4[i].position.z = zDepth;
     }
 
-    // Animate image mesh with volume of last band
+    // Animate image mesh with last letter
     bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
     logoImageMesh.position.y = bandVolume * 0.2 - 175;
+    logoImageMesh.position.z = (Pumper.volume*2 + bandVolume) * 0.2;
+
+    headingsContainer.position.z = Pumper.volume * 0.1;
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.3 - 90;
+    camera.position.y = Pumper.volume * -0.2 - 90;
     camera.position.x = 0;
     camera.position.x += Pumper.bands[4].volume * 0.005;
     camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.volume * 0.12;
+    camera.position.z = 1100 - Pumper.volume * 0.09;
 }
 
 function frame() {
@@ -269,7 +278,7 @@ function onWindowResize() {
 }
 
 function click() {
-    //Pumper.play();  // if needed
+    Pumper.play();  // if needed
     headingsContainer.remove(headingsMesh[currentHeading]);
     currentHeading++;
     if (currentHeading > headings.length - 1) {currentHeading = 0;}

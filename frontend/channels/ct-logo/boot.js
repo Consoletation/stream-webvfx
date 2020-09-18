@@ -3,8 +3,8 @@ var Pumper = require('pumper'),
 
 var TRACK = '../../audio/ddd-gc.mp3';
 
-//Pumper.start(TRACK, false);
-Pumper.start('mic', 0.03, 0.29);
+//Pumper.start(TRACK, 1440, 14000);
+Pumper.start('mic', 1440, 14000);
 Pumper.globalSpikeTolerance = 14;
 
 WebFont.load({
