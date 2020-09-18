@@ -10,10 +10,10 @@
  * Instantiated as a singleton - pass it around the app via require().
  *
  * API:
- * - Pumper.start(source, start = 1920, end = 16800, fftSize = 2048)
+ * - Pumper.start(source, start = 1920, end = 16800, precision = 12)
  *      - source can be a media URL or 'mic'
  *      - 'start' and 'end' define the global frequency ranges
- *      - fftSize will decide how many sections the analyzer will have
+ *      - precision will decide how many lookups the analyzer will have
  *
  * - Pumper.update()
  *      - updates all exposed properties with latest data
@@ -122,7 +122,7 @@ Pumper.bands = [];
  * Start the engine.
  * @param source - audio URL or 'mic'
  **/
-Pumper.start = function(srcValue, start = 880, end = 7720, fftSize = 2048) {
+Pumper.start = function(srcValue, start = 880, end = 7720, precision = 12) {
     if (!srcValue) __err('Missing "source" param');
 
     var ipt = getURLParam('input');
@@ -137,7 +137,7 @@ Pumper.start = function(srcValue, start = 880, end = 7720, fftSize = 2048) {
     // Set up analyzer and buffers
     analyzer = AUDIO.createAnalyser();
     maxFreq = AUDIO.sampleRate / 2;
-    analyzer.fftSize = fftSize;
+    analyzer.fftSize = Math.pow(2, precision);
     analyzer.minDecibels = -90;
     analyzer.maxDecibels = -10;
 
@@ -213,24 +213,23 @@ Pumper.resume = function() {
  * Create a new freq watcher (band)
  **/
 Pumper.createBand = function(
-    start = 0, end = 1, threshold = DEFAULTS.threshold,
+    start = 20, end = 20000, threshold = DEFAULTS.threshold,
     spikeTolerance = DEFAULTS.spikeTolerance, volScale = 1
 ) {
-    // Scale band sizes to global
-    var range = Pumper.end - Pumper.start;
     var band = new Band(
-        Pumper.start + range * start,
-        Pumper.start + range * end,
+        start,
+        end,
         threshold, spikeTolerance,
         volScale
     );
     Pumper.bands.push(band);
 
     //Debug
-    var bRangeStart = Math.round(band.start * (Pumper.freqDataLength - 1));
-    var bRangeEnd = Math.round(band.end * (Pumper.freqDataLength - 1));
-    console.log("ffts per band: ", bRangeEnd - bRangeStart);
+    var bRangeStart = Math.round(band.start / maxFreq * (Pumper.freqDataLength - 1));
+    var bRangeEnd = Math.round(band.end / maxFreq * (Pumper.freqDataLength - 1));
+    console.log("lookups per band: ", bRangeEnd - bRangeStart);
     console.log("range: ", bRangeStart, ", ", bRangeEnd);
+    console.log("volume: ", volScale);
 
     return band;
 };
@@ -238,13 +237,16 @@ Pumper.createBand = function(
 /**
  * Create a range of bands over the global scale
  **/
-Pumper.createBands = function(count, volStart = 1, volEnd = 1) {
+Pumper.createBands = function(start = 20, end = 20000, count = 1, volStart = 1, volEnd = 1, bleed = 0.5) {
     // Scale volume over created bands
+    var freqRange = end - start;
     var volRange = volEnd - volStart;
+    var bleedVal = freqRange / count * bleed;
+    console.log(bleedVal);
     for (var band = 0; band < count; band++) {
         Pumper.createBand(
-            band / count, // start
-            (band + 1) / count, // end
+            start + (freqRange * band / count) - bleedVal, // start
+            start + (freqRange * (band + 1) / count) + bleedVal, // end
             Pumper.globalThreshold,
             Pumper.globalSpikeTolerance,
             volStart + volRange * band / count // volScale
@@ -256,6 +258,8 @@ Pumper.createBands = function(count, volStart = 1, volEnd = 1) {
  * Performs analysis on the current audio, updates any registered bands.
  **/
 Pumper.update = function() {
+    // Update maxFreq in case sample rate changed
+    maxFreq = AUDIO.sampleRate / 2;
 
     analyzer.getByteFrequencyData(freqData);
     Pumper.freqData = freqData;

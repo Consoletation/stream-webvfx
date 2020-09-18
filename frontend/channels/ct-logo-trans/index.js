@@ -33,7 +33,12 @@ var currentHeading = 0;
 function init() {
 
     //Create bands
-    Pumper.createBands(textDivisions, 1, 1.25);
+    //Pumper.createBands(80, 220, textDivisions, 0.4, 0.49, 1.75);
+    //Pumper.createBands(2440, 4400 , textDivisions, 0.4, 0.47);
+    //Pumper.createBands(6440, 14400 , textDivisions, 0.6, 0.8, 1.5);
+    Pumper.createBands(80, 220, textDivisions, 0.3, 0.39, 1.5);
+    Pumper.createBands(1000, 2800 , textDivisions, 0.5, 0.77, 1.1);
+    Pumper.createBands(6440, 14400 , textDivisions, 0.6, 0.8, 1.5);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -235,34 +240,58 @@ function update() {
     var logoTextLayers2 = logoTextMesh[0].slices2;
     var logoTextLayers3 = logoTextMesh[0].slices3;
     var logoTextLayers4 = logoTextMesh[0].slices4;
-    var bandVolume;
+    var low = 0, mid = textDivisions, high = textDivisions*2
+    var lowVolume = 0, midVolume = 0, highVolume = 0;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
-        bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume * 0.2;
-        logoTextLayers2[i].position.y = bandVolume * -0.08 + 8;
-        logoTextLayers3[i].position.y = bandVolume * 0.45;
-        logoTextLayers4[i].position.y = bandVolume * 0.3;
+        // Bass positions
+        logoTextLayers1[i].position.y = 0;
+        logoTextLayers2[i].position.y = 8;
+        logoTextLayers3[i].position.y = 0;
+        logoTextLayers4[i].position.y = 0;
+        logoTextLayers1[i].position.z = 0;
+        logoTextLayers2[i].position.z = 0;
+        logoTextLayers3[i].position.z = 0;
+        logoTextLayers4[i].position.z = 0;
 
-        var zDepth = (Pumper.volume*2 + bandVolume) * 0.2
-        logoTextLayers1[i].position.z = zDepth;
-        logoTextLayers2[i].position.z = zDepth;
-        logoTextLayers3[i].position.z = zDepth;
-        logoTextLayers4[i].position.z = zDepth;
+        // Band volumes
+        lowVolume = Pumper.bands[low+i].volume;
+        midVolume = Pumper.bands[mid+i].volume;
+        highVolume = Pumper.bands[high+i].volume;
+
+        // mid work
+        logoTextLayers1[i].position.y += midVolume * 1;
+        logoTextLayers2[i].position.y += midVolume * 0.1;
+        logoTextLayers3[i].position.y += midVolume * 1.95;
+        logoTextLayers4[i].position.y += midVolume * 1.5;
+
+        // low work
+        var zDepth = (Pumper.volume*0.5 + lowVolume)
+        logoTextLayers1[i].position.z += zDepth;
+        logoTextLayers2[i].position.z += zDepth;
+        logoTextLayers3[i].position.z += zDepth;
+        logoTextLayers4[i].position.z += zDepth;
     }
 
     // Animate image mesh with last letter
-    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.2 - 175;
-    logoImageMesh.position.z = (Pumper.volume*2 + bandVolume) * 0.2;
+    lowVolume = Pumper.bands[low+logoTextLayers1.length - 1].volume
+    midVolume = Pumper.bands[mid+logoTextLayers1.length - 1].volume
+    logoImageMesh.position.y = midVolume * 1 - 175;
+    logoImageMesh.position.z = (Pumper.volume*0.5 + lowVolume);
 
-    headingsContainer.position.z = Pumper.volume * 0.1;
+    headingsContainer.position.y = -1100;
+    headingsContainer.position.z = 0;
+    headingsContainer.position.y += Pumper.volume * 0.3;
+    headingsContainer.position.z = Pumper.volume * 0.0;
 
-    // Give the camera a shove
-    camera.position.y = Pumper.volume * -0.2 - 90;
+    // Base camera positions
     camera.position.x = 0;
-    camera.position.x += Pumper.bands[4].volume * 0.005;
-    camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.volume * 0.09;
+    camera.position.y = -90;
+    camera.position.z = 1100;
+    // Give the camera a shove
+    camera.position.x += Pumper.bands[high+6].volume;
+    camera.position.x -= Pumper.bands[high+7].volume;
+    camera.position.y += Pumper.volume*-1.5 * -0.2;
+    camera.position.z -= Pumper.volume * 0.09;
 }
 
 function frame() {

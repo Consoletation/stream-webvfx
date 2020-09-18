@@ -1,10 +1,11 @@
 var Pumper = require('pumper'),
     BeatProcessing = require('./index');
 
-var TRACK = '../../audio/20000hz_44100.wav';
+var TRACK = '../../audio/home.mp3';
 
-//Pumper.start(TRACK, 1440, 14000);
-Pumper.start('mic', 1440, 14000);
+//Pumper.start(TRACK, 1160, 14000, 13);
+Pumper.start('mic', 1160, 14000, 13);
+//Pumper.start('mic', 60, 200);
 Pumper.globalSpikeTolerance = 14;
 
 WebFont.load({
