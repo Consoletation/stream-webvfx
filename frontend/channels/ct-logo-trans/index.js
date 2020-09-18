@@ -134,21 +134,21 @@ function initLogoText(){
         logoTextLayerMesh2 = logoTextLayerMesh.clone();
         logoTextLayerMesh2.material = material.clone();
         logoTextLayerMesh2.position.set(posX, posY, 0);
-        logoTextLayerMesh2.material.opacity = 0.1;
+        logoTextLayerMesh2.material.opacity = 0.05;
         logoTextLayerContainer.add(logoTextLayerMesh2);
         slices2.push(logoTextLayerMesh2);
 
         logoTextLayerMesh3 = logoTextLayerMesh.clone();
         logoTextLayerMesh3.material = material.clone();
         logoTextLayerMesh3.position.set(posX, posY, 0);
-        logoTextLayerMesh3.material.opacity = 0.1;
+        logoTextLayerMesh3.material.opacity = 0.05;
         logoTextLayerContainer.add(logoTextLayerMesh3);
         slices3.push(logoTextLayerMesh3);
 
         logoTextLayerMesh4 = logoTextLayerMesh.clone();
         logoTextLayerMesh4.material = material.clone();
         logoTextLayerMesh4.position.set(posX, posY, 0);
-        logoTextLayerMesh4.material.opacity = 0.2;
+        logoTextLayerMesh4.material.opacity = 0.1;
         logoTextLayerContainer.add(logoTextLayerMesh4);
         slices4.push(logoTextLayerMesh4);
     }
@@ -278,7 +278,7 @@ function onWindowResize() {
 }
 
 function click() {
-    Pumper.play();  // if needed
+    //Pumper.play();  // if needed
     headingsContainer.remove(headingsMesh[currentHeading]);
     currentHeading++;
     if (currentHeading > headings.length - 1) {currentHeading = 0;}
