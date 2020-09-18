@@ -9,6 +9,7 @@ require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
 require('imports?THREE=three!../../libs/postprocessing/RenderPass');
 require('imports?THREE=three!../../libs/postprocessing/MaskPass');
 require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
+require('imports?THREE=three!../../libs/postprocessing/GlitchPassCustom');
 require('imports?THREE=three!../../libs/postprocessing/FilmPass');
 require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
 
@@ -221,6 +222,9 @@ function initPostProcessing(){
     testPass.uniforms[ "amount" ].value = 0.95;
     composer.addPass(testPass);
 
+    glitchPass = new THREE.GlitchPass();
+    composer.addPass( glitchPass );
+
     var shaderVignette = THREE.VignetteShader;
     var effectVignette = new THREE.ShaderPass(shaderVignette);
     effectVignette.uniforms.offset.value = 0.0;
@@ -308,6 +312,10 @@ function onWindowResize() {
 
 function click() {
     //Pumper.play();  // if needed
+    glitchPass.goWild = true;
+    setTimeout(function (){
+        glitchPass.goWild = false;
+    }, 100)
     headingsContainer.remove(headingsMesh[currentHeading]);
     currentHeading++;
     if (currentHeading > headings.length - 1) {currentHeading = 0;}

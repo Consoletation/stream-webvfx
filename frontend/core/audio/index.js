@@ -180,7 +180,6 @@ Pumper.start = function(srcValue, start = 880, end = 7720, precision = 12) {
         track.setAttribute('src', srcValue);
         track.crossOrigin = 'anonymous';
         source = AUDIO.createMediaElementSource(track);
-        console.log(source.sampleRate);
         source.connect(analyzer);
         analyzer.connect(AUDIO.destination);
 
