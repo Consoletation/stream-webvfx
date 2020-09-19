@@ -4,7 +4,7 @@
  * @author felixturner / http://airtight.cc/
  */
 
- THREE.TestShader = {
+var TestShader = {
 
 	uniforms: {
 		"tDiffuse": { type: "t", value: null },
@@ -39,3 +39,5 @@
 	].join("\n")
 
 };
+
+export { TestShader };

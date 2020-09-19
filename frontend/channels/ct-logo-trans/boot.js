@@ -1,5 +1,5 @@
-var Pumper = require('pumper'),
-    BeatProcessing = require('./index');
+import Pumper from 'pumper';
+import BeatProcessing from './index.js';
 
 var TRACK = '../../audio/home.mp3';
 

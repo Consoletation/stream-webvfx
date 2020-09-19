@@ -1,12 +1,11 @@
-var THREE = require('three');
-require('imports-loader?THREE=three!../../libs/shaders/CopyShader');
-require('imports-loader?THREE=three!../../libs/postprocessing/EffectComposer');
-require('imports-loader?THREE=three!../../libs/postprocessing/RenderPass');
-require('imports-loader?THREE=three!../../libs/postprocessing/ShaderPass');
-var WebMidi = require('webmidi');
-const TWEEN = require('@tweenjs/tween.js');
+import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 
-var Pumper = require('pumper');
+import Pumper from 'pumper';
+import WebMidi from 'webmidi';
+import TWEEN from '@tweenjs/tween.js';
+
 const pumperBandCount = 26;
 
 var logoText = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -75,8 +74,8 @@ function init() {
     //initLogoText("69", -300);
     //initLogoImage();
 
-    composer = new THREE.EffectComposer(renderer);
-    composer.addPass(new THREE.RenderPass(scene, camera));
+    composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
 
     window.addEventListener('resize', onWindowResize, false);
 
@@ -224,4 +223,4 @@ var BeatProcessing = {
     init: init
 };
 
-module.exports = BeatProcessing;
+export default BeatProcessing;

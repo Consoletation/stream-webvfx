@@ -1,18 +1,12 @@
-var THREE = require('three');
-require('imports-loader?THREE=three!../../libs/shaders/CopyShader');
-require('imports-loader?THREE=three!../../libs/shaders/DigitalGlitch');
-require('imports-loader?THREE=three!../../libs/shaders/FilmShader');
-require('imports-loader?THREE=three!../../libs/shaders/DotScreenShader');
-require('imports-loader?THREE=three!../../libs/shaders/VignetteShader');
-require('imports-loader?THREE=three!../../libs/shaders/TestShader');
-require('imports-loader?THREE=three!../../libs/postprocessing/EffectComposer');
-require('imports-loader?THREE=three!../../libs/postprocessing/RenderPass');
-require('imports-loader?THREE=three!../../libs/postprocessing/MaskPass');
-require('imports-loader?THREE=three!../../libs/postprocessing/ShaderPass');
-require('imports-loader?THREE=three!../../libs/postprocessing/FilmPass');
-require('imports-loader?THREE=three!../../libs/postprocessing/DotScreenPass');
+import * as THREE from 'three';
+import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
+import { TestShader } from '../../libs/shaders/TestShader.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
-var Pumper = require('pumper');
+import Pumper from 'pumper';
 
 var logoText = 'CONSOLETATION';
 
@@ -166,20 +160,20 @@ function initLogoImage(){
 
 function initPostProcessing(){
     // postprocessing
-    composer = new THREE.EffectComposer(renderer);
-    composer.addPass(new THREE.RenderPass(scene, camera));
+    composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
 
-    testPass = new THREE.ShaderPass(THREE.TestShader);
+    var testPass = new ShaderPass(TestShader);
     testPass.uniforms[ "amount" ].value = 0.95;
     composer.addPass(testPass);
 
-    var shaderVignette = THREE.VignetteShader;
-    var effectVignette = new THREE.ShaderPass(shaderVignette);
+    var shaderVignette = VignetteShader;
+    var effectVignette = new ShaderPass(shaderVignette);
     effectVignette.uniforms.offset.value = 0.0;
     effectVignette.uniforms.darkness.value = 0.0;
     composer.addPass(effectVignette);
 
-    var effectFilmPass = new THREE.FilmPass(0.0, 0.0, 648, false);
+    var effectFilmPass = new FilmPass(0.0, 0.0, 648, false);
     effectFilmPass.renderToScreen = true;
     composer.addPass(effectFilmPass);
 }
@@ -233,4 +227,4 @@ var BeatProcessing = {
     init: init
 };
 
-module.exports = BeatProcessing;
+export default BeatProcessing;
