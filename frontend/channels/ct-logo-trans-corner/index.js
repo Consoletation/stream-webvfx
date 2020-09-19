@@ -1,16 +1,16 @@
 var THREE = require('three');
-require('imports?THREE=three!../../libs/shaders/CopyShader');
-require('imports?THREE=three!../../libs/shaders/DigitalGlitch');
-require('imports?THREE=three!../../libs/shaders/FilmShader');
-require('imports?THREE=three!../../libs/shaders/DotScreenShader');
-require('imports?THREE=three!../../libs/shaders/VignetteShader');
-require('imports?THREE=three!../../libs/shaders/TestShader');
-require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
-require('imports?THREE=three!../../libs/postprocessing/RenderPass');
-require('imports?THREE=three!../../libs/postprocessing/MaskPass');
-require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
-require('imports?THREE=three!../../libs/postprocessing/FilmPass');
-require('imports?THREE=three!../../libs/postprocessing/DotScreenPass');
+require('imports-loader?THREE=three!../../libs/shaders/CopyShader');
+require('imports-loader?THREE=three!../../libs/shaders/DigitalGlitch');
+require('imports-loader?THREE=three!../../libs/shaders/FilmShader');
+require('imports-loader?THREE=three!../../libs/shaders/DotScreenShader');
+require('imports-loader?THREE=three!../../libs/shaders/VignetteShader');
+require('imports-loader?THREE=three!../../libs/shaders/TestShader');
+require('imports-loader?THREE=three!../../libs/postprocessing/EffectComposer');
+require('imports-loader?THREE=three!../../libs/postprocessing/RenderPass');
+require('imports-loader?THREE=three!../../libs/postprocessing/MaskPass');
+require('imports-loader?THREE=three!../../libs/postprocessing/ShaderPass');
+require('imports-loader?THREE=three!../../libs/postprocessing/FilmPass');
+require('imports-loader?THREE=three!../../libs/postprocessing/DotScreenPass');
 
 var Pumper = require('pumper');
 

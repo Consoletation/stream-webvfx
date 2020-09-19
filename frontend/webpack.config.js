@@ -30,7 +30,7 @@ module.exports = {
         }
     },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.glsl$/,
                 loader: 'webpack-glsl'

@@ -1,8 +1,8 @@
 var THREE = require('three');
-require('imports?THREE=three!../../libs/shaders/CopyShader');
-require('imports?THREE=three!../../libs/postprocessing/EffectComposer');
-require('imports?THREE=three!../../libs/postprocessing/RenderPass');
-require('imports?THREE=three!../../libs/postprocessing/ShaderPass');
+require('imports-loader?THREE=three!../../libs/shaders/CopyShader');
+require('imports-loader?THREE=three!../../libs/postprocessing/EffectComposer');
+require('imports-loader?THREE=three!../../libs/postprocessing/RenderPass');
+require('imports-loader?THREE=three!../../libs/postprocessing/ShaderPass');
 var WebMidi = require('webmidi');
 const TWEEN = require('@tweenjs/tween.js');
 
