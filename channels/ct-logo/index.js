@@ -9,6 +9,7 @@ import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import Pumper from 'pumper';
 import OBSWebSocket from 'obs-websocket-js';
+import TWEEN from '@tweenjs/tween.js';
 
 var logoText = 'CONSOLETATION';
 
@@ -26,6 +27,7 @@ var headings = [
 ];
 var currentHeading = 0;
 let mainView = true;
+let mainViewUpdate = true;
 
 // OBS client
 const obsClient = new OBSWebSocket();
@@ -311,6 +313,14 @@ function initPostProcessing(){
 
 function update() {
     Pumper.update();
+    TWEEN.update();
+
+    let zDecay = false;
+    if (mainView || mainViewUpdate) {
+        mainViewUpdate = mainView;
+        zDecay = !mainViewUpdate; // Decay once this update
+    }
+    if (zDecay) console.log("zDecay activated");
 
     //Animate logo text layers based on bands
     var logoTextLayers1 = logoTextMesh[0].slices1;
@@ -320,15 +330,11 @@ function update() {
     var low = 0, mid = textDivisions, high = textDivisions*2
     var lowVolume = 0, midVolume = 0, highVolume = 0;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
-        // Bass positions
+        // Base positions
         logoTextLayers1[i].position.y = 0;
         logoTextLayers2[i].position.y = 8;
         logoTextLayers3[i].position.y = 0;
         logoTextLayers4[i].position.y = 0;
-        logoTextLayers1[i].position.z = 0;
-        logoTextLayers2[i].position.z = 0;
-        logoTextLayers3[i].position.z = 0;
-        logoTextLayers4[i].position.z = 0;
 
         // Band volumes
         lowVolume = Pumper.bands[low+i].volume;
@@ -350,10 +356,15 @@ function update() {
         // low work
         if (mainView) {
             var zDepth = (Pumper.volume*0.5 + lowVolume)
-            logoTextLayers1[i].position.z += zDepth;
-            logoTextLayers2[i].position.z += zDepth;
-            logoTextLayers3[i].position.z += zDepth;
-            logoTextLayers4[i].position.z += zDepth;
+            logoTextLayers1[i].position.z = zDepth;
+            logoTextLayers2[i].position.z = zDepth;
+            logoTextLayers3[i].position.z = zDepth;
+            logoTextLayers4[i].position.z = zDepth;
+        } else if (zDecay) {
+            let tween1 = new TWEEN.Tween(logoTextLayers1[i].position.z).to(0, 1000).start()
+            let tween2 = new TWEEN.Tween(logoTextLayers2[i].position.z).to(0, 1000).start()
+            let tween3 = new TWEEN.Tween(logoTextLayers3[i].position.z).to(0, 1000).start()
+            let tween4 = new TWEEN.Tween(logoTextLayers4[i].position.z).to(0, 1000).start()
         }
     }
 
@@ -362,11 +373,12 @@ function update() {
     midVolume = Pumper.bands[mid+logoTextLayers1.length - 1].volume
     highVolume = Pumper.bands[high+logoTextLayers1.length - 1].volume
     logoImageMesh.position.y = -175;
-    logoImageMesh.position.z = 0;
     logoImageMesh.position.y += midVolume * 0.5;
     logoImageMesh.position.y += highVolume * 1;
     if (mainView) {
         logoImageMesh.position.z = (Pumper.volume*0.5 + lowVolume);
+    } else if (zDecay) {
+        let tween = new TWEEN.Tween(logoImageMesh.position.z).to(0, 1000).start()
     }
 
     headingsContainer.position.y = -1100;
@@ -374,6 +386,8 @@ function update() {
     headingsContainer.position.y += Pumper.volume * 0.3;
     if (mainView) {
         headingsContainer.position.z = Pumper.volume * 0.0;
+    } else if (zDecay) {
+        let tween = new TWEEN.Tween(headingsContainer.position.z).to(0, 1000).start()
     }
 
     // Base camera positions
@@ -385,7 +399,9 @@ function update() {
     camera.position.x -= Pumper.bands[high+7].volume;
     camera.position.y += Pumper.volume*-1.5 * -0.2;
     if (mainView) {
-        camera.position.z -= Pumper.volume * 0.09;
+        camera.position.z = Pumper.volume * 0.09 + 1100;
+    } else if (zDecay) {
+        let tween = new TWEEN.Tween(camera.position.z).to(1100, 1000).start()
     }
 }
 
