@@ -8,6 +8,7 @@ import { GlitchPass } from '../../libs/three/postprocessing/GlitchPassCustom.js'
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import Pumper from 'pumper';
+import OBSWebSocket from 'obs-websocket-js';
 
 var logoText = 'CONSOLETATION';
 
@@ -24,6 +25,9 @@ var headings = [
     'Thanks for watching!'
 ];
 var currentHeading = 0;
+
+// OBS client
+const obsClient = new OBSWebSocket();
 
 // Get URL parameters
 const queryString = window.location.search;
@@ -80,6 +84,15 @@ function init() {
     //Create scene
     scene = new THREE.Scene();
 
+    // Initialize OBS client if we have values
+    if (urlParams.has('obs_password')) {
+        let address = 'localhost:4444';
+        if (urlParams.has('obs_address')) {
+            address = urlParams.get('obs_address');
+        }
+        let password = urlParams.get('obs_password');
+        initOBS(address, password);
+    }
     initLogoText();
     initLogoImage();
     initHeading();
@@ -92,6 +105,19 @@ function init() {
     window.addEventListener('resize', onWindowResize, false);
 
     frame();
+}
+
+function initOBS(address, password) {
+    obsClient.connect({ address: address, password: password }).then(
+        () => {
+            console.log(`OBS Client Connected!`);
+        }
+    ).catch(
+        err => {
+            console.log(err);
+            console.log("Failed to connect to OBS :(");
+        }
+    );
 }
 
 function initLogoText(){
