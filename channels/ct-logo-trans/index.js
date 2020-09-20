@@ -28,12 +28,9 @@ var currentHeading = 0;
 function init() {
 
     //Create bands
-    //Pumper.createBands(80, 220, textDivisions, 0.4, 0.49, 1.75);
-    //Pumper.createBands(2440, 4400 , textDivisions, 0.4, 0.47);
-    //Pumper.createBands(6440, 14400 , textDivisions, 0.6, 0.8, 1.5);
     Pumper.createBands(80, 220, textDivisions, 0.3, 0.39, 1.5);
     Pumper.createBands(1000, 2800 , textDivisions, 0.5, 0.77, 1.1);
-    Pumper.createBands(6440, 14400 , textDivisions, 0.6, 0.8, 1.5);
+    Pumper.createBands(2440, 10400 , textDivisions, 0.6, 0.9, 1.5);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -256,11 +253,17 @@ function update() {
         midVolume = Pumper.bands[mid+i].volume;
         highVolume = Pumper.bands[high+i].volume;
 
+        // high work
+        logoTextLayers1[i].position.y += highVolume * 1;
+        logoTextLayers2[i].position.y += highVolume * 0.1;
+        logoTextLayers3[i].position.y += highVolume * 1.95;
+        logoTextLayers4[i].position.y += highVolume * 1.5;
+
         // mid work
-        logoTextLayers1[i].position.y += midVolume * 1;
+        logoTextLayers1[i].position.y += midVolume * 0.5;
         logoTextLayers2[i].position.y += midVolume * 0.1;
-        logoTextLayers3[i].position.y += midVolume * 1.95;
-        logoTextLayers4[i].position.y += midVolume * 1.5;
+        logoTextLayers3[i].position.y += midVolume * 0.8;
+        logoTextLayers4[i].position.y += midVolume * 0.4;
 
         // low work
         var zDepth = (Pumper.volume*0.5 + lowVolume)
@@ -273,7 +276,10 @@ function update() {
     // Animate image mesh with last letter
     lowVolume = Pumper.bands[low+logoTextLayers1.length - 1].volume
     midVolume = Pumper.bands[mid+logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = midVolume * 1 - 175;
+    highVolume = Pumper.bands[high+logoTextLayers1.length - 1].volume
+    logoImageMesh.position.y = -175;
+    logoImageMesh.position.y += midVolume * 0.5;
+    logoImageMesh.position.y += highVolume * 1;
     logoImageMesh.position.z = (Pumper.volume*0.5 + lowVolume);
 
     headingsContainer.position.y = -1100;
