@@ -32,7 +32,7 @@ module.exports = {
     },
     resolve: {
         alias: {
-            'pumper': __dirname + '/core/audio'
+            'pumper': __dirname + '/libs/pumper'
         }
     },
     module: {

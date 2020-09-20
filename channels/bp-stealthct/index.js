@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
-import { TestShader } from '../../libs/shaders/TestShader.js';
+import { TestShader } from '../../libs/three/shaders/TestShader.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { GlitchPass } from '../../libs/postprocessing/GlitchPassCustom.js';
+import { GlitchPass } from '../../libs/three/postprocessing/GlitchPassCustom.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import Pumper from 'pumper';
