@@ -25,6 +25,7 @@ var headings = [
     'Thanks for watching!'
 ];
 var currentHeading = 0;
+let mainView = true;
 
 // OBS client
 const obsClient = new OBSWebSocket();
@@ -111,6 +112,28 @@ function initOBS(address, password) {
     obsClient.connect({ address: address, password: password }).then(
         () => {
             console.log(`OBS Client Connected!`);
+
+            // Get current scene
+            obsClient.send('GetCurrentScene').then(
+                (data) => {
+                    // set mainView if 'Title'
+                    mainView = data.name.startsWith('Title');
+                }
+            );
+
+            // Handle scene changes
+            obsClient.on('SwitchScenes', function callback(data) {
+                //obsClient.off('SwitchScenes', callback);
+                console.log(data.sceneName);
+                mainView = data.sceneName.startsWith('Title');
+            })
+
+            // Handle transitions to Title scene only
+            obsClient.on('TransitionBegin', function callback(data) {
+                if (data.toScene.startsWith('Title')) {
+                    mainView = true;
+                }
+            })
         }
     ).catch(
         err => {
@@ -325,11 +348,13 @@ function update() {
         logoTextLayers4[i].position.y += midVolume * 0.4;
 
         // low work
-        var zDepth = (Pumper.volume*0.5 + lowVolume)
-        logoTextLayers1[i].position.z += zDepth;
-        logoTextLayers2[i].position.z += zDepth;
-        logoTextLayers3[i].position.z += zDepth;
-        logoTextLayers4[i].position.z += zDepth;
+        if (mainView) {
+            var zDepth = (Pumper.volume*0.5 + lowVolume)
+            logoTextLayers1[i].position.z += zDepth;
+            logoTextLayers2[i].position.z += zDepth;
+            logoTextLayers3[i].position.z += zDepth;
+            logoTextLayers4[i].position.z += zDepth;
+        }
     }
 
     // Animate image mesh with last letter
@@ -337,14 +362,19 @@ function update() {
     midVolume = Pumper.bands[mid+logoTextLayers1.length - 1].volume
     highVolume = Pumper.bands[high+logoTextLayers1.length - 1].volume
     logoImageMesh.position.y = -175;
+    logoImageMesh.position.z = 0;
     logoImageMesh.position.y += midVolume * 0.5;
     logoImageMesh.position.y += highVolume * 1;
-    logoImageMesh.position.z = (Pumper.volume*0.5 + lowVolume);
+    if (mainView) {
+        logoImageMesh.position.z = (Pumper.volume*0.5 + lowVolume);
+    }
 
     headingsContainer.position.y = -1100;
     headingsContainer.position.z = 0;
     headingsContainer.position.y += Pumper.volume * 0.3;
-    headingsContainer.position.z = Pumper.volume * 0.0;
+    if (mainView) {
+        headingsContainer.position.z = Pumper.volume * 0.0;
+    }
 
     // Base camera positions
     camera.position.x = 0;
@@ -354,7 +384,9 @@ function update() {
     camera.position.x += Pumper.bands[high+6].volume;
     camera.position.x -= Pumper.bands[high+7].volume;
     camera.position.y += Pumper.volume*-1.5 * -0.2;
-    camera.position.z -= Pumper.volume * 0.09;
+    if (mainView) {
+        camera.position.z -= Pumper.volume * 0.09;
+    }
 }
 
 function frame() {
