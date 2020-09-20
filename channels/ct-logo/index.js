@@ -369,17 +369,12 @@ function update() {
     }
 
     // Animate image mesh with last letter
-    lowVolume = Pumper.bands[low+logoTextLayers1.length - 1].volume
-    midVolume = Pumper.bands[mid+logoTextLayers1.length - 1].volume
-    highVolume = Pumper.bands[high+logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = -175;
-    logoImageMesh.position.y += midVolume * 0.5;
-    logoImageMesh.position.y += highVolume * 1;
-    if (mainView) {
-        logoImageMesh.position.z = (Pumper.volume*0.5 + lowVolume);
-    } else if (zDecay) {
-        let tween = new TWEEN.Tween(logoImageMesh.position.z).to(0, 1000).start()
-    }
+    logoImageMesh.position.x = logoTextLayers1[textDivisions-1].position.x;
+    logoImageMesh.position.y = logoTextLayers1[textDivisions-1].position.y;
+    logoImageMesh.position.z = logoTextLayers1[textDivisions-1].position.z;
+    // Position correction
+    logoImageMesh.position.x -= 49;
+    logoImageMesh.position.y -= 175;
 
     headingsContainer.position.y = -1100;
     headingsContainer.position.z = 0;
