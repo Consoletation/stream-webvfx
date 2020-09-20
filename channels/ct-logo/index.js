@@ -51,7 +51,7 @@ var config = {
         'filmGrain': [0.12, 0.125, 648, false]
     }
 };
-var currentConfig = config.classic; // Default config
+var currentConfig = config.transparent; // Default config
 
 function init() {
 
