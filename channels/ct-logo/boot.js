@@ -3,8 +3,8 @@ import BeatProcessing from './index.js';
 
 var TRACK = '../../audio/ddd-gc.mp3';
 
-//Pumper.start(TRACK, 1440, 14000);
-Pumper.start('mic', 1440, 14000);
+//Pumper.start(TRACK, 1160, 14000, 12);
+Pumper.start('mic', 1160, 14000, 12);
 Pumper.globalSpikeTolerance = 14;
 
 WebFont.load({

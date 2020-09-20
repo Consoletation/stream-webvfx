@@ -4,6 +4,7 @@ import { TestShader } from '../../libs/three/shaders/TestShader.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { GlitchPass } from '../../libs/three/postprocessing/GlitchPassCustom.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import Pumper from 'pumper';
@@ -12,7 +13,7 @@ var logoText = 'CONSOLETATION';
 
 var textDivisions = logoText.length;
 
-var camera, scene, renderer, composer;
+var camera, scene, renderer, composer, glitchPass;
 var logoTextMesh = [];
 var logoImageMesh;
 var headingsContainer;
@@ -24,18 +25,53 @@ var headings = [
 ];
 var currentHeading = 0;
 
+// Get URL parameters
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+
+var config = {
+    'transparent': {
+        'bgColor': [0x000000, 0],
+        'textColor': 0xffffff,
+        'contLogo': '../../assets/controller-white.png',
+        'vignette': {
+            'offset': 0.0,
+            'darkness': 0.0,
+        },
+        'filmGrain': [0, 0, 648, false]
+    },
+    'classic': {
+        'bgColor': [0xffffff, 1],
+        'textColor': 0x000000,
+        'contLogo': '../../assets/controller.png',
+        'vignette': {
+            'offset': 0.5,
+            'darkness': 1.6,
+        },
+        'filmGrain': [0.12, 0.125, 648, false]
+    }
+};
+var currentConfig = config.classic; // Default config
+
 function init() {
 
+    // Get config from query
+    if (urlParams.has('config')) {
+        currentConfig = config[urlParams.get('config')]
+    }
+
     //Create bands
-    Pumper.createBands(textDivisions, 1, 1.25);
+    Pumper.createBands(80, 220, textDivisions, 0.3, 0.39, 1.5);
+    Pumper.createBands(1000, 2800 , textDivisions, 0.5, 0.77, 1.1);
+    Pumper.createBands(2440, 10400 , textDivisions, 0.6, 0.9, 1.5);
 
     //Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor(0xffffff, 1);
+    renderer.setClearColor.apply(null, currentConfig.bgColor);
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
@@ -112,7 +148,7 @@ function initLogoText(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map : texture, color: 0x000000, transparent: true, opacity: 1
+            map : texture, color: currentConfig.textColor, transparent: true, opacity: 1
         });
 
         posX = charOffset - txtWidth * 0.5;
@@ -128,21 +164,21 @@ function initLogoText(){
         logoTextLayerMesh2 = logoTextLayerMesh.clone();
         logoTextLayerMesh2.material = material.clone();
         logoTextLayerMesh2.position.set(posX, posY, 0);
-        logoTextLayerMesh2.material.opacity = 0.1;
+        logoTextLayerMesh2.material.opacity = 0.05;
         logoTextLayerContainer.add(logoTextLayerMesh2);
         slices2.push(logoTextLayerMesh2);
 
         logoTextLayerMesh3 = logoTextLayerMesh.clone();
         logoTextLayerMesh3.material = material.clone();
         logoTextLayerMesh3.position.set(posX, posY, 0);
-        logoTextLayerMesh3.material.opacity = 0.1;
+        logoTextLayerMesh3.material.opacity = 0.05;
         logoTextLayerContainer.add(logoTextLayerMesh3);
         slices3.push(logoTextLayerMesh3);
 
         logoTextLayerMesh4 = logoTextLayerMesh.clone();
         logoTextLayerMesh4.material = material.clone();
         logoTextLayerMesh4.position.set(posX, posY, 0);
-        logoTextLayerMesh4.material.opacity = 0.2;
+        logoTextLayerMesh4.material.opacity = 0.1;
         logoTextLayerContainer.add(logoTextLayerMesh4);
         slices4.push(logoTextLayerMesh4);
     }
@@ -156,7 +192,7 @@ function initLogoText(){
 }
 
 function initLogoImage(){
-    var texture = new THREE.TextureLoader().load('../../assets/controller.png');
+    var texture = new THREE.TextureLoader().load(currentConfig.contLogo);
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     var geometry = new THREE.PlaneGeometry(256, 256);
 
@@ -170,7 +206,7 @@ function initLogoImage(){
 function initHeading(){
     headingsContainer = new THREE.Object3D();
     headingsContainer.position.x = window.innerWidth * 0.5;
-    headingsContainer.position.y = -900;
+    headingsContainer.position.y = -1100;
     scene.add(headingsContainer);
 
     var headingMesh, bitmap, g, texture, material, geometry;
@@ -181,6 +217,7 @@ function initHeading(){
         bitmap.width = g.measureText(headings[heading]).width;
         bitmap.height = 200;
         g.font = 'normal 48px rigid-square';
+        g.fillStyle = 'white';
         g.fillText(headings[heading], 0, 160);
 
         texture = new THREE.Texture(bitmap);
@@ -188,7 +225,7 @@ function initHeading(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map: texture, color: 0x000000, transparent: true, opacity: 1
+            map: texture, color: currentConfig.textColor, transparent: true, opacity: 1
         });
         geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
         headingMesh = new THREE.Mesh(geometry, material);
@@ -209,13 +246,16 @@ function initPostProcessing(){
     testPass.uniforms[ "amount" ].value = 0.95;
     composer.addPass(testPass);
 
+    glitchPass = new GlitchPass();
+    composer.addPass( glitchPass );
+
     var shaderVignette = VignetteShader;
     var effectVignette = new ShaderPass(shaderVignette);
-    effectVignette.uniforms.offset.value = 0.5;
-    effectVignette.uniforms.darkness.value = 1.6;
+    effectVignette.uniforms.offset.value = currentConfig.vignette.offset;
+    effectVignette.uniforms.darkness.value = currentConfig.vignette.darkness;
     composer.addPass(effectVignette);
 
-    var effectFilmPass = new FilmPass(0.12, 0.125, 648, false);
+    var effectFilmPass = new FilmPass(...currentConfig.filmGrain);
     effectFilmPass.renderToScreen = true;
     composer.addPass(effectFilmPass);
 }
@@ -228,25 +268,67 @@ function update() {
     var logoTextLayers2 = logoTextMesh[0].slices2;
     var logoTextLayers3 = logoTextMesh[0].slices3;
     var logoTextLayers4 = logoTextMesh[0].slices4;
-    var bandVolume;
+    var low = 0, mid = textDivisions, high = textDivisions*2
+    var lowVolume = 0, midVolume = 0, highVolume = 0;
     for (var i = 0 ; i < logoTextLayers1.length ; i ++){
-        bandVolume = Pumper.bands[i].volume;
-        logoTextLayers1[i].position.y = bandVolume * 0.1;
-        logoTextLayers2[i].position.y = bandVolume * -0.2;
-        logoTextLayers3[i].position.y = bandVolume * 0.5;
-        logoTextLayers4[i].position.y = bandVolume * 0.3;
+        // Bass positions
+        logoTextLayers1[i].position.y = 0;
+        logoTextLayers2[i].position.y = 8;
+        logoTextLayers3[i].position.y = 0;
+        logoTextLayers4[i].position.y = 0;
+        logoTextLayers1[i].position.z = 0;
+        logoTextLayers2[i].position.z = 0;
+        logoTextLayers3[i].position.z = 0;
+        logoTextLayers4[i].position.z = 0;
+
+        // Band volumes
+        lowVolume = Pumper.bands[low+i].volume;
+        midVolume = Pumper.bands[mid+i].volume;
+        highVolume = Pumper.bands[high+i].volume;
+
+        // high work
+        logoTextLayers1[i].position.y += highVolume * 1;
+        logoTextLayers2[i].position.y += highVolume * 0.1;
+        logoTextLayers3[i].position.y += highVolume * 1.95;
+        logoTextLayers4[i].position.y += highVolume * 1.5;
+
+        // mid work
+        logoTextLayers1[i].position.y += midVolume * 0.5;
+        logoTextLayers2[i].position.y += midVolume * 0.1;
+        logoTextLayers3[i].position.y += midVolume * 0.8;
+        logoTextLayers4[i].position.y += midVolume * 0.4;
+
+        // low work
+        var zDepth = (Pumper.volume*0.5 + lowVolume)
+        logoTextLayers1[i].position.z += zDepth;
+        logoTextLayers2[i].position.z += zDepth;
+        logoTextLayers3[i].position.z += zDepth;
+        logoTextLayers4[i].position.z += zDepth;
     }
 
-    // Animate image mesh with volume of last band
-    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
-    logoImageMesh.position.y = bandVolume * 0.1 - 175;
+    // Animate image mesh with last letter
+    lowVolume = Pumper.bands[low+logoTextLayers1.length - 1].volume
+    midVolume = Pumper.bands[mid+logoTextLayers1.length - 1].volume
+    highVolume = Pumper.bands[high+logoTextLayers1.length - 1].volume
+    logoImageMesh.position.y = -175;
+    logoImageMesh.position.y += midVolume * 0.5;
+    logoImageMesh.position.y += highVolume * 1;
+    logoImageMesh.position.z = (Pumper.volume*0.5 + lowVolume);
 
-    // Give the camera a shove
-    camera.position.y = Pumper.bands[5].volume * -0.1 - 90;
+    headingsContainer.position.y = -1100;
+    headingsContainer.position.z = 0;
+    headingsContainer.position.y += Pumper.volume * 0.3;
+    headingsContainer.position.z = Pumper.volume * 0.0;
+
+    // Base camera positions
     camera.position.x = 0;
-    camera.position.x += Pumper.bands[4].volume * 0.005;
-    camera.position.x -= Pumper.bands[5].volume * 0.005;
-    camera.position.z = 1100 - Pumper.bands[0].volume * 0.15;
+    camera.position.y = -90;
+    camera.position.z = 1100;
+    // Give the camera a shove
+    camera.position.x += Pumper.bands[high+6].volume;
+    camera.position.x -= Pumper.bands[high+7].volume;
+    camera.position.y += Pumper.volume*-1.5 * -0.2;
+    camera.position.z -= Pumper.volume * 0.09;
 }
 
 function frame() {
@@ -263,6 +345,10 @@ function onWindowResize() {
 
 function click() {
     //Pumper.play();  // if needed
+    glitchPass.goWild = true;
+    setTimeout(function (){
+        glitchPass.goWild = false;
+    }, 100)
     headingsContainer.remove(headingsMesh[currentHeading]);
     currentHeading++;
     if (currentHeading > headings.length - 1) {currentHeading = 0;}
@@ -271,6 +357,6 @@ function click() {
 
 var BeatProcessing = {
     init: init
-};
+}
 
 export default BeatProcessing;
