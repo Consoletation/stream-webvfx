@@ -18,6 +18,10 @@ module.exports = {
     plugins: [
         new CopyPlugin({
             patterns: [
+                'index.html',
+                'common.css',
+                'main.js',
+                'assets/**/*',
                 'channels/**/*.html',
             ],
         }),
