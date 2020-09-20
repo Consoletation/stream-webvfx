@@ -1,17 +1,10 @@
 'use strict';
 
-var CHANNELS = [
-    'bp-stealthct',
-    'ct-logo',
-    'ct-logo-trans',
-    'ct-logo-trans-corner',
-    'doom-three',
-    'wwf',
-    'wwf-webmidi'
-];
+var glob = require('glob');
 
+// Get all valid channels
+var CHANNELS = glob.sync("channels/**/boot.js").map(path => path.split('/')[1])
 var _entries = {};
-
 CHANNELS.forEach(function(c) {
     _entries[c] = './channels/' + c + '/boot.js';
 });
