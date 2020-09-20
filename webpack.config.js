@@ -1,6 +1,8 @@
 'use strict';
 
 var glob = require('glob');
+var path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 // Get all valid channels
 var CHANNELS = glob.sync("channels/**/boot.js").map(path => path.split('/')[1])
@@ -13,8 +15,15 @@ console.log('ENTRIES', _entries);
 
 module.exports = {
     entry: _entries,
+    plugins: [
+        new CopyPlugin({
+            patterns: [
+                'channels/**/*.html',
+            ],
+        }),
+    ],
     output: {
-        path: __dirname,
+        path: path.join(__dirname, '/build'),
         filename: './channels/[name]/[name].bundle.js'
     },
     resolve: {
