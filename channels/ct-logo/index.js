@@ -16,6 +16,8 @@ var logoText = 'CONSOLETATION';
 var textDivisions = logoText.length;
 
 var camera, scene, renderer, composer, glitchPass;
+var baseCameraDirection = new THREE.Vector3;
+var cameraDirection = new THREE.Vector3;
 var logoTextMesh;
 var logoImageMesh;
 var headingsContainer;
@@ -70,11 +72,13 @@ const animConfigs = {
             globM: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
         },
         headings: {
-            base: { y: -800, z: 0 },
+            base: { y: -900, z: 0 },
             globM: { y: 0.3, z: 0 },
         },
         camera: {
-            base: { y: -90, z: 1100 },
+            base: { x: -43, y: -90, z: 1000 },
+            dirB: { x: 0, y: 0, z: 0 },
+            dirT: { x: 0.18, y: 0, z: 0 },
             globM: { x: 1, y: 0.3, z: 0.09 },
         },
     },
@@ -87,24 +91,40 @@ const animConfigs = {
             globM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
         },
         headings: {
-            base: { y: -1600, z: 0 },
+            base: { y: -1000, z: 0 },
             globM: { y: 0, z: 0 },
         },
         camera: {
-            base: { y: -90, z: 1100 },
+            base: { x: -43, y: 100, z: 720 },
+            dirB: { x: 0, y: 0, z: 0 },
+            dirT: { x: 0, y: 0, z: 0 },
             globM: { x: 0, y: 0.2, z: 0 },
         },
     },
 }
 
 let currAnimConfig = JSON.parse(JSON.stringify(animConfigs.main)); // so gross
+var cameraDir = Object.assign({}, currAnimConfig.camera.dirB);
 const tweenLow = new TWEEN.Tween(currAnimConfig)
-    .to(animConfigs.low, 1000)
-    .easing(TWEEN.Easing.Quadratic.Out);
+    .to(animConfigs.low, 300)
+    .easing(TWEEN.Easing.Quintic.InOut);
 const tweenMain = new TWEEN.Tween(currAnimConfig)
-    .to(animConfigs.main, 1000)
-    .easing(TWEEN.Easing.Quadratic.Out);
-//tweenLow.chain(tweenMain);
+    .to(animConfigs.main, 1200)
+    .easing(TWEEN.Easing.Quintic.InOut);
+const transCamLow = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.low.camera.dirT, 150)
+    .easing(TWEEN.Easing.Sinusoidal.In);
+const transCamLow2 = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.low.camera.dirB, 150)
+    .easing(TWEEN.Easing.Sinusoidal.Out);
+transCamLow.chain(transCamLow2);
+const transCamMain = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.main.camera.dirT, 600)
+    .easing(TWEEN.Easing.Sinusoidal.In);
+const transCamMain2 = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.main.camera.dirB, 1200)
+    .easing(TWEEN.Easing.Sinusoidal.Out);
+transCamMain.chain(transCamMain2);
 
 function init() {
 
@@ -128,7 +148,18 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.z = 1100;
+    camera.position.x = currAnimConfig.camera.base.x;
+    camera.position.y = currAnimConfig.camera.base.y;
+    camera.position.z = currAnimConfig.camera.base.z;
+    // Get base camera direction
+    camera.getWorldDirection(baseCameraDirection);
+    cameraDirection.copy(baseCameraDirection);
+    cameraDirection.x += cameraDir.x;
+    cameraDirection.y += cameraDir.y;
+    cameraDirection.z += cameraDir.z;
+    // Calculate camera position
+    cameraDirection.add(camera.position);
+    camera.lookAt(cameraDirection);
 
     //Create scene
     scene = new THREE.Scene();
@@ -236,7 +267,7 @@ function initLogoText(){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map : texture, color: currentConfig.textColor, transparent: true, opacity: 1
+            map : texture, color: currentConfig.textColor, transparent: true, opacity: 0.0, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetUnits: -1, polygonOffsetFactor: 0
         });
 
         posX = charOffset - txtWidth * 0.5;
@@ -246,12 +277,14 @@ function initLogoText(){
         logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
         logoTextLayerMesh.material.opacity = 0.6;
         logoTextLayerMesh.position.set(posX, posY, 0);
+        logoTextLayerMesh.material.polygonOffsetFactor = -1;
         logoTextLayerContainer.add(logoTextLayerMesh);
         slices1.push(logoTextLayerMesh);
 
         logoTextLayerMesh2 = logoTextLayerMesh.clone();
         logoTextLayerMesh2.material = material.clone();
         logoTextLayerMesh2.position.set(posX, posY, 0);
+        logoTextLayerMesh2.material.polygonOffsetFactor = -2;
         logoTextLayerMesh2.material.opacity = 0.05;
         logoTextLayerContainer.add(logoTextLayerMesh2);
         slices2.push(logoTextLayerMesh2);
@@ -259,6 +292,7 @@ function initLogoText(){
         logoTextLayerMesh3 = logoTextLayerMesh.clone();
         logoTextLayerMesh3.material = material.clone();
         logoTextLayerMesh3.position.set(posX, posY, 0);
+        logoTextLayerMesh3.material.polygonOffsetFactor = -3;
         logoTextLayerMesh3.material.opacity = 0.05;
         logoTextLayerContainer.add(logoTextLayerMesh3);
         slices3.push(logoTextLayerMesh3);
@@ -266,6 +300,7 @@ function initLogoText(){
         logoTextLayerMesh4 = logoTextLayerMesh.clone();
         logoTextLayerMesh4.material = material.clone();
         logoTextLayerMesh4.position.set(posX, posY, 0);
+        logoTextLayerMesh4.material.polygonOffsetFactor = -4;
         logoTextLayerMesh4.material.opacity = 0.1;
         logoTextLayerContainer.add(logoTextLayerMesh4);
         slices4.push(logoTextLayerMesh4);
@@ -278,11 +313,10 @@ function initLogoText(){
 
 function initLogoImage(){
     var texture = new THREE.TextureLoader().load(currentConfig.contLogo);
-    var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
+    var material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
     var geometry = new THREE.PlaneGeometry(256, 256);
 
     logoImageMesh = new THREE.Mesh( geometry, material );
-    logoImageMesh.material.side = THREE.DoubleSide;
     logoImageMesh.position.x = 557;  // y is determined in update()
 
     scene.add(logoImageMesh);
@@ -355,9 +389,11 @@ function update() {
         if (mainViewUpdate) {
             console.log('Tweening to main');
             tweenMain.start();
+            transCamMain.start();
         } else {
             console.log('Tweening to low');
             tweenLow.start();
+            transCamLow.start();
         }
     }
 
@@ -405,14 +441,23 @@ function update() {
     headingsContainer.position.y += globVolume * currAnimConfig.headings.globM.y;
     headingsContainer.position.z += globVolume * currAnimConfig.headings.globM.z;
 
+    // Calculate camera direction
+    cameraDirection.copy(baseCameraDirection);
+    cameraDirection.x += cameraDir.x;
+    cameraDirection.y += cameraDir.y;
+    cameraDirection.z += cameraDir.z;
+    // Calculate camera position
+    cameraDirection.add(camera.position);
+    camera.lookAt(cameraDirection);
+
     // Base camera positions
+    camera.position.x = currAnimConfig.camera.base.x;
     camera.position.y = currAnimConfig.camera.base.y;
     camera.position.z = currAnimConfig.camera.base.z;
     camera.position.y += globVolume * currAnimConfig.camera.globM.y;
     camera.position.z += globVolume * currAnimConfig.camera.globM.z;
 
     // Extra illegal X-axis sizzle
-    camera.position.x = 0;
     camera.position.x += Pumper.bands[high+6].volume * currAnimConfig.camera.globM.x;
     camera.position.x -= Pumper.bands[high+7].volume * currAnimConfig.camera.globM.x;
 }
