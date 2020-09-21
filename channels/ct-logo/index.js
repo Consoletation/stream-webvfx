@@ -16,7 +16,7 @@ var logoText = 'CONSOLETATION';
 var textDivisions = logoText.length;
 
 var camera, scene, renderer, composer, glitchPass;
-var logoTextMesh = [];
+var logoTextMesh;
 var logoImageMesh;
 var headingsContainer;
 var headingsMesh = [];
@@ -59,6 +59,24 @@ var config = {
     }
 };
 var currentConfig = config.transparent; // Default config
+
+const pumperAnimConfig = {
+    logo: {
+        base: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+        highM: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
+        midM: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
+        lowM: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
+        globM: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
+    },
+    headings: {
+        base: { y: -1100, z: 0 },
+        globM: { y: 0.3, z: 0 },
+    },
+    camera: {
+        base: { y: -90, z: 1100 },
+        globM: { y: 0.3, z: 0.09 },
+    }
+}
 
 function init() {
 
@@ -233,13 +251,10 @@ function initLogoText(){
         logoTextLayerContainer.add(logoTextLayerMesh4);
         slices4.push(logoTextLayerMesh4);
     }
-    logoTextMesh.push({
+    logoTextMesh = {
         container: logoTextLayerContainer,
-        slices1: slices1,
-        slices2: slices2,
-        slices3: slices3,
-        slices4: slices4
-    });
+        slices: [slices1, slices2, slices3, slices4]
+    };
 }
 
 function initLogoImage(){
@@ -323,81 +338,59 @@ function update() {
     if (zDecay) console.log("zDecay activated");
 
     //Animate logo text layers based on bands
-    var logoTextLayers1 = logoTextMesh[0].slices1;
-    var logoTextLayers2 = logoTextMesh[0].slices2;
-    var logoTextLayers3 = logoTextMesh[0].slices3;
-    var logoTextLayers4 = logoTextMesh[0].slices4;
-    var low = 0, mid = textDivisions, high = textDivisions*2
-    var lowVolume = 0, midVolume = 0, highVolume = 0;
-    for (var i = 0 ; i < logoTextLayers1.length ; i ++){
-        // Base positions
-        logoTextLayers1[i].position.y = 0;
-        logoTextLayers2[i].position.y = 8;
-        logoTextLayers3[i].position.y = 0;
-        logoTextLayers4[i].position.y = 0;
+    const low = 0, mid = textDivisions, high = textDivisions*2;
+    let lowVolume = 0, midVolume = 0, highVolume = 0, globVolume = Pumper.volume;
+    for (let letter = 0; letter < textDivisions; letter++){
 
         // Band volumes
-        lowVolume = Pumper.bands[low+i].volume;
-        midVolume = Pumper.bands[mid+i].volume;
-        highVolume = Pumper.bands[high+i].volume;
+        lowVolume = Pumper.bands[low+letter].volume;
+        midVolume = Pumper.bands[mid+letter].volume;
+        highVolume = Pumper.bands[high+letter].volume;
 
-        // high work
-        logoTextLayers1[i].position.y += highVolume * 1;
-        logoTextLayers2[i].position.y += highVolume * 0.1;
-        logoTextLayers3[i].position.y += highVolume * 1.95;
-        logoTextLayers4[i].position.y += highVolume * 1.5;
+        for (let slice = 0; slice < logoTextMesh.slices.length; slice++) {
+            // Base positions
+            logoTextMesh.slices[slice][letter].position.y = pumperAnimConfig.logo.base.y[slice];
+            logoTextMesh.slices[slice][letter].position.z = pumperAnimConfig.logo.base.z[slice];
+            // high work
+            logoTextMesh.slices[slice][letter].position.y += highVolume * pumperAnimConfig.logo.highM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += highVolume * pumperAnimConfig.logo.highM.z[slice];
+            // mid work
+            logoTextMesh.slices[slice][letter].position.y += midVolume * pumperAnimConfig.logo.midM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += midVolume * pumperAnimConfig.logo.midM.z[slice];
+            //low work
+            logoTextMesh.slices[slice][letter].position.y += lowVolume * pumperAnimConfig.logo.lowM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += lowVolume * pumperAnimConfig.logo.lowM.z[slice];
+            //global work
+            logoTextMesh.slices[slice][letter].position.y += globVolume * pumperAnimConfig.logo.globM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += globVolume * pumperAnimConfig.logo.globM.z[slice];
 
-        // mid work
-        logoTextLayers1[i].position.y += midVolume * 0.5;
-        logoTextLayers2[i].position.y += midVolume * 0.1;
-        logoTextLayers3[i].position.y += midVolume * 0.8;
-        logoTextLayers4[i].position.y += midVolume * 0.4;
-
-        // low work
-        if (mainView) {
-            var zDepth = (Pumper.volume*0.5 + lowVolume)
-            logoTextLayers1[i].position.z = zDepth;
-            logoTextLayers2[i].position.z = zDepth;
-            logoTextLayers3[i].position.z = zDepth;
-            logoTextLayers4[i].position.z = zDepth;
-        } else if (zDecay) {
-            let tween1 = new TWEEN.Tween(logoTextLayers1[i].position.z).to(0, 1000).start()
-            let tween2 = new TWEEN.Tween(logoTextLayers2[i].position.z).to(0, 1000).start()
-            let tween3 = new TWEEN.Tween(logoTextLayers3[i].position.z).to(0, 1000).start()
-            let tween4 = new TWEEN.Tween(logoTextLayers4[i].position.z).to(0, 1000).start()
         }
     }
 
     // Animate image mesh with last letter
-    logoImageMesh.position.x = logoTextLayers1[textDivisions-1].position.x;
-    logoImageMesh.position.y = logoTextLayers1[textDivisions-1].position.y;
-    logoImageMesh.position.z = logoTextLayers1[textDivisions-1].position.z;
+    logoImageMesh.position.x = logoTextMesh.slices[0][textDivisions-1].position.x;
+    logoImageMesh.position.y = logoTextMesh.slices[0][textDivisions-1].position.y;
+    logoImageMesh.position.z = logoTextMesh.slices[0][textDivisions-1].position.z;
     // Position correction
     logoImageMesh.position.x -= 49;
     logoImageMesh.position.y -= 175;
 
-    headingsContainer.position.y = -1100;
-    headingsContainer.position.z = 0;
-    headingsContainer.position.y += Pumper.volume * 0.3;
-    if (mainView) {
-        headingsContainer.position.z = Pumper.volume * 0.0;
-    } else if (zDecay) {
-        let tween = new TWEEN.Tween(headingsContainer.position.z).to(0, 1000).start()
-    }
+    // Headings container position
+    headingsContainer.position.y = pumperAnimConfig.headings.base.y;
+    headingsContainer.position.z = pumperAnimConfig.headings.base.z;
+    headingsContainer.position.y += globVolume * pumperAnimConfig.headings.globM.y;
+    headingsContainer.position.z += globVolume * pumperAnimConfig.headings.globM.z;
 
     // Base camera positions
+    camera.position.y = pumperAnimConfig.camera.base.y;
+    camera.position.z = pumperAnimConfig.camera.base.z;
+    camera.position.y += globVolume * pumperAnimConfig.camera.globM.y;
+    camera.position.z += globVolume * pumperAnimConfig.camera.globM.z;
+
+    // Extra illegal X-axis sizzle
     camera.position.x = 0;
-    camera.position.y = -90;
-    camera.position.z = 1100;
-    // Give the camera a shove
     camera.position.x += Pumper.bands[high+6].volume;
     camera.position.x -= Pumper.bands[high+7].volume;
-    camera.position.y += Pumper.volume*-1.5 * -0.2;
-    if (mainView) {
-        camera.position.z = Pumper.volume * 0.09 + 1100;
-    } else if (zDecay) {
-        let tween = new TWEEN.Tween(camera.position.z).to(1100, 1000).start()
-    }
 }
 
 function frame() {
