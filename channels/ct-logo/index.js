@@ -60,23 +60,51 @@ var config = {
 };
 var currentConfig = config.transparent; // Default config
 
-const pumperAnimConfig = {
-    logo: {
-        base: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
-        highM: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
-        midM: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
-        lowM: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
-        globM: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
+const animConfigs = {
+    main: {
+        logo: {
+            base: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            highM: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
+            midM: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
+            lowM: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
+            globM: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
+        },
+        headings: {
+            base: { y: -800, z: 0 },
+            globM: { y: 0.3, z: 0 },
+        },
+        camera: {
+            base: { y: -90, z: 1100 },
+            globM: { x: 1, y: 0.3, z: 0.09 },
+        },
     },
-    headings: {
-        base: { y: -1100, z: 0 },
-        globM: { y: 0.3, z: 0 },
+    low: {
+        logo: {
+            base: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            highM: { y: [0.6, 0.6, 0.6, 0.6], z: [0, 0, 0, 0] },
+            midM: { y: [0.2, 0.2, 0.2, 0.2], z: [0, 0, 0, 0] },
+            lowM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            globM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+        },
+        headings: {
+            base: { y: -1600, z: 0 },
+            globM: { y: 0, z: 0 },
+        },
+        camera: {
+            base: { y: -90, z: 1100 },
+            globM: { x: 0, y: 0.2, z: 0 },
+        },
     },
-    camera: {
-        base: { y: -90, z: 1100 },
-        globM: { y: 0.3, z: 0.09 },
-    }
 }
+
+let currAnimConfig = JSON.parse(JSON.stringify(animConfigs.main)); // so gross
+const tweenLow = new TWEEN.Tween(currAnimConfig)
+    .to(animConfigs.low, 1000)
+    .easing(TWEEN.Easing.Quadratic.Out);
+const tweenMain = new TWEEN.Tween(currAnimConfig)
+    .to(animConfigs.main, 1000)
+    .easing(TWEEN.Easing.Quadratic.Out);
+//tweenLow.chain(tweenMain);
 
 function init() {
 
@@ -141,18 +169,9 @@ function initOBS(address, password) {
                 }
             );
 
-            // Handle scene changes
-            obsClient.on('SwitchScenes', function callback(data) {
-                //obsClient.off('SwitchScenes', callback);
-                console.log(data.sceneName);
-                mainView = data.sceneName.startsWith('Title');
-            })
-
-            // Handle transitions to Title scene only
+            // Handle transitions to/from Title scene
             obsClient.on('TransitionBegin', function callback(data) {
-                if (data.toScene.startsWith('Title')) {
-                    mainView = true;
-                }
+                mainView = data.toScene.startsWith('Title');
             })
         }
     ).catch(
@@ -330,12 +349,17 @@ function update() {
     Pumper.update();
     TWEEN.update();
 
-    let zDecay = false;
-    if (mainView || mainViewUpdate) {
+    // Handle animation config change
+    if (mainView !== mainViewUpdate) {
         mainViewUpdate = mainView;
-        zDecay = !mainViewUpdate; // Decay once this update
+        if (mainViewUpdate) {
+            console.log('Tweening to main');
+            tweenMain.start();
+        } else {
+            console.log('Tweening to low');
+            tweenLow.start();
+        }
     }
-    if (zDecay) console.log("zDecay activated");
 
     //Animate logo text layers based on bands
     const low = 0, mid = textDivisions, high = textDivisions*2;
@@ -349,20 +373,20 @@ function update() {
 
         for (let slice = 0; slice < logoTextMesh.slices.length; slice++) {
             // Base positions
-            logoTextMesh.slices[slice][letter].position.y = pumperAnimConfig.logo.base.y[slice];
-            logoTextMesh.slices[slice][letter].position.z = pumperAnimConfig.logo.base.z[slice];
+            logoTextMesh.slices[slice][letter].position.y = currAnimConfig.logo.base.y[slice];
+            logoTextMesh.slices[slice][letter].position.z = currAnimConfig.logo.base.z[slice];
             // high work
-            logoTextMesh.slices[slice][letter].position.y += highVolume * pumperAnimConfig.logo.highM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += highVolume * pumperAnimConfig.logo.highM.z[slice];
+            logoTextMesh.slices[slice][letter].position.y += highVolume * currAnimConfig.logo.highM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += highVolume * currAnimConfig.logo.highM.z[slice];
             // mid work
-            logoTextMesh.slices[slice][letter].position.y += midVolume * pumperAnimConfig.logo.midM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += midVolume * pumperAnimConfig.logo.midM.z[slice];
+            logoTextMesh.slices[slice][letter].position.y += midVolume * currAnimConfig.logo.midM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += midVolume * currAnimConfig.logo.midM.z[slice];
             //low work
-            logoTextMesh.slices[slice][letter].position.y += lowVolume * pumperAnimConfig.logo.lowM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += lowVolume * pumperAnimConfig.logo.lowM.z[slice];
+            logoTextMesh.slices[slice][letter].position.y += lowVolume * currAnimConfig.logo.lowM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += lowVolume * currAnimConfig.logo.lowM.z[slice];
             //global work
-            logoTextMesh.slices[slice][letter].position.y += globVolume * pumperAnimConfig.logo.globM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += globVolume * pumperAnimConfig.logo.globM.z[slice];
+            logoTextMesh.slices[slice][letter].position.y += globVolume * currAnimConfig.logo.globM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += globVolume * currAnimConfig.logo.globM.z[slice];
 
         }
     }
@@ -376,21 +400,21 @@ function update() {
     logoImageMesh.position.y -= 175;
 
     // Headings container position
-    headingsContainer.position.y = pumperAnimConfig.headings.base.y;
-    headingsContainer.position.z = pumperAnimConfig.headings.base.z;
-    headingsContainer.position.y += globVolume * pumperAnimConfig.headings.globM.y;
-    headingsContainer.position.z += globVolume * pumperAnimConfig.headings.globM.z;
+    headingsContainer.position.y = currAnimConfig.headings.base.y;
+    headingsContainer.position.z = currAnimConfig.headings.base.z;
+    headingsContainer.position.y += globVolume * currAnimConfig.headings.globM.y;
+    headingsContainer.position.z += globVolume * currAnimConfig.headings.globM.z;
 
     // Base camera positions
-    camera.position.y = pumperAnimConfig.camera.base.y;
-    camera.position.z = pumperAnimConfig.camera.base.z;
-    camera.position.y += globVolume * pumperAnimConfig.camera.globM.y;
-    camera.position.z += globVolume * pumperAnimConfig.camera.globM.z;
+    camera.position.y = currAnimConfig.camera.base.y;
+    camera.position.z = currAnimConfig.camera.base.z;
+    camera.position.y += globVolume * currAnimConfig.camera.globM.y;
+    camera.position.z += globVolume * currAnimConfig.camera.globM.z;
 
     // Extra illegal X-axis sizzle
     camera.position.x = 0;
-    camera.position.x += Pumper.bands[high+6].volume;
-    camera.position.x -= Pumper.bands[high+7].volume;
+    camera.position.x += Pumper.bands[high+6].volume * currAnimConfig.camera.globM.x;
+    camera.position.x -= Pumper.bands[high+7].volume * currAnimConfig.camera.globM.x;
 }
 
 function frame() {
