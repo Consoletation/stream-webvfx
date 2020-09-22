@@ -24,7 +24,7 @@ var headingsContainer;
 var headingsMesh = [];
 var headings = [
     'Starting soon...',
-    'Back soon!',
+    'Taking a quick break!',
     'Thanks for watching!'
 ];
 var currentHeading = 0;
@@ -203,6 +203,17 @@ function initOBS(address, password) {
             // Handle transitions to/from Title scene
             obsClient.on('TransitionBegin', function callback(data) {
                 mainView = data.toScene.startsWith('Title');
+            })
+
+            // Handle Title text sources
+            obsClient.on('SceneItemVisibilityChanged', function callback(data) {
+                if (data.itemName.startsWith('Heading')) {
+                    let heading = data.itemName.charAt(data.itemName.length-1) - 1;
+                    console.log("Setting heading text to:", headings[heading]);
+                    headingsContainer.remove(headingsMesh[currentHeading]);
+                    currentHeading = heading;
+                    headingsContainer.add(headingsMesh[currentHeading]);
+                }
             })
         }
     ).catch(
