@@ -11,9 +11,25 @@ import Pumper from 'pumper';
 import OBSWebSocket from 'obs-websocket-js';
 import TWEEN from '@tweenjs/tween.js';
 
-var logoText = 'CONSOLETATION';
+const logo = new function() {
+    this.fulltext = "CONSOLETATION";
+    this.splitPoint = 7;
+    this.text = [
+        this.fulltext.slice(0, this.splitPoint),
+        this.fulltext.slice(this.splitPoint, this.fulltext.length)
+    ];
+    this.font = [
+        '600 160px rigid-square',
+        '300 160px rigid-square'
+    ];
+    this.bands = {};
 
-var textDivisions = logoText.length;
+    this.createBands = function() {
+        this.bands.low = Pumper.createBands(80, 220, this.fulltext.length, 0.3, 0.39, 1.5);
+        this.bands.mid = Pumper.createBands(1000, 2800, this.fulltext.length, 0.5, 0.77, 1.1);
+        this.bands.high = Pumper.createBands(2440, 10400, this.fulltext.length, 0.6, 0.9, 1.5);
+    };
+}
 
 var camera, scene, renderer, composer, glitchPass;
 var baseCameraDirection = new THREE.Vector3;
@@ -134,9 +150,7 @@ function init() {
     }
 
     //Create bands
-    Pumper.createBands(80, 220, textDivisions, 0.3, 0.39, 1.5);
-    Pumper.createBands(1000, 2800 , textDivisions, 0.5, 0.77, 1.1);
-    Pumper.createBands(2440, 10400 , textDivisions, 0.6, 0.9, 1.5);
+    logo.createBands();
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -224,7 +238,7 @@ function initOBS(address, password) {
     );
 }
 
-function initLogoText(){
+function initLogoText() {
     //Create shapes container
     var txtWidth, bitmap,
         g,
@@ -242,43 +256,50 @@ function initLogoText(){
     slices2 = [];
     slices3 = [];
     slices4 = [];
-    for (var j = 0 ; j < textDivisions ; j ++){
+    for (let i = 0; i < logo.fulltext.length; i++) {
         //Dirty as fuck, but I've got to create a canvas per logo slice
         //Also, weirdly the width can't seem to be set after adding a text in
         bitmap = document.createElement('canvas');
         g = bitmap.getContext('2d');
         bitmap.width = 1024;
         bitmap.height = 200;
-        if (j < 6){
-            g.font = '600 160px rigid-square';
-        }else{
-            g.font = '300 160px rigid-square';
+        if (i < logo.splitPoint) {
+            g.font = logo.font[0];
+        } else {
+            g.font = logo.font[1];
         }
         g.fillStyle = 'white';
-        divisionWidth = g.measureText(logoText.charAt(j)).width;
-        if (logoText.charAt(j) === 'A'){ divisionWidth = 110;}
-        if (logoText.charAt(j) === 'E'){ divisionWidth = 100;}
-        if (logoText.charAt(j) === 'I'){ divisionWidth = 90;}
-        if (logoText.charAt(j) === 'N'){ divisionWidth = 116;}
-        if (logoText.charAt(j) === 'O'){ divisionWidth = 116;}
-        if (logoText.charAt(j) === 'S'){ divisionWidth = 112;}
+        divisionWidth = g.measureText(logo.fulltext.charAt(i)).width;
+        if (logo.fulltext.charAt(i) === 'A') divisionWidth = 110;
+        if (logo.fulltext.charAt(i) === 'E') divisionWidth = 100;
+        if (logo.fulltext.charAt(i) === 'I') divisionWidth = 90;
+        if (logo.fulltext.charAt(i) === 'N') divisionWidth = 116;
+        if (logo.fulltext.charAt(i) === 'O') divisionWidth = 116;
+        if (logo.fulltext.charAt(i) === 'S') divisionWidth = 112;
 
         bitmap.width = divisionWidth;
-        if (j < 7){
-            g.font = '600 160px rigid-square';
-        }else{
-            g.font = '300 160px rigid-square';
+        if (i < logo.splitPoint) {
+            g.font = logo.font[0];
+        } else {
+            g.font = logo.font[1];
         }
         g.fillStyle = 'white';
-        txtWidth = g.measureText(logoText).width;
-        g.fillText(logoText.charAt(j), 0, 160 );
+        txtWidth = g.measureText(logo.fulltext).width;
+        g.fillText(logo.fulltext.charAt(i), 0, 160);
 
         texture = new THREE.Texture(bitmap);
         texture.needsUpdate = true;
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map : texture, color: currentConfig.textColor, transparent: true, opacity: 0.0, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetUnits: -1, polygonOffsetFactor: 0
+            map: texture,
+            color: currentConfig.textColor,
+            transparent: true,
+            opacity: 0.0,
+            side: THREE.DoubleSide,
+            polygonOffset: true,
+            polygonOffsetUnits: -1,
+            polygonOffsetFactor: 0
         });
 
         posX = charOffset - txtWidth * 0.5;
@@ -408,15 +429,13 @@ function update() {
         }
     }
 
-    //Animate logo text layers based on bands
-    const low = 0, mid = textDivisions, high = textDivisions*2;
-    let lowVolume = 0, midVolume = 0, highVolume = 0, globVolume = Pumper.volume;
-    for (let letter = 0; letter < textDivisions; letter++){
+    //Animate logo.fulltext layers based on bands
+    for (let letter = 0; letter < logo.fulltext.length; letter++) {
 
         // Band volumes
-        lowVolume = Pumper.bands[low+letter].volume;
-        midVolume = Pumper.bands[mid+letter].volume;
-        highVolume = Pumper.bands[high+letter].volume;
+        let lowVolume = logo.bands.low[letter].volume;
+        let midVolume = logo.bands.mid[letter].volume;
+        let highVolume = logo.bands.high[letter].volume;
 
         for (let slice = 0; slice < logoTextMesh.slices.length; slice++) {
             // Base positions
@@ -432,16 +451,16 @@ function update() {
             logoTextMesh.slices[slice][letter].position.y += lowVolume * currAnimConfig.logo.lowM.y[slice];
             logoTextMesh.slices[slice][letter].position.z += lowVolume * currAnimConfig.logo.lowM.z[slice];
             //global work
-            logoTextMesh.slices[slice][letter].position.y += globVolume * currAnimConfig.logo.globM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += globVolume * currAnimConfig.logo.globM.z[slice];
+            logoTextMesh.slices[slice][letter].position.y += Pumper.volume * currAnimConfig.logo.globM.y[slice];
+            logoTextMesh.slices[slice][letter].position.z += Pumper.volume * currAnimConfig.logo.globM.z[slice];
 
         }
     }
 
     // Animate image mesh with last letter
-    logoImageMesh.position.x = logoTextMesh.slices[0][textDivisions-1].position.x;
-    logoImageMesh.position.y = logoTextMesh.slices[0][textDivisions-1].position.y;
-    logoImageMesh.position.z = logoTextMesh.slices[0][textDivisions-1].position.z;
+    logoImageMesh.position.x = logoTextMesh.slices[0][logo.fulltext.length - 1].position.x;
+    logoImageMesh.position.y = logoTextMesh.slices[0][logo.fulltext.length - 1].position.y;
+    logoImageMesh.position.z = logoTextMesh.slices[0][logo.fulltext.length - 1].position.z;
     // Position correction
     logoImageMesh.position.x -= 49;
     logoImageMesh.position.y -= 175;
@@ -449,8 +468,8 @@ function update() {
     // Headings container position
     headingsContainer.position.y = currAnimConfig.headings.base.y;
     headingsContainer.position.z = currAnimConfig.headings.base.z;
-    headingsContainer.position.y += globVolume * currAnimConfig.headings.globM.y;
-    headingsContainer.position.z += globVolume * currAnimConfig.headings.globM.z;
+    headingsContainer.position.y += Pumper.volume * currAnimConfig.headings.globM.y;
+    headingsContainer.position.z += Pumper.volume * currAnimConfig.headings.globM.z;
 
     // Calculate camera direction
     cameraDirection.copy(baseCameraDirection);
@@ -465,12 +484,12 @@ function update() {
     camera.position.x = currAnimConfig.camera.base.x;
     camera.position.y = currAnimConfig.camera.base.y;
     camera.position.z = currAnimConfig.camera.base.z;
-    camera.position.y += globVolume * currAnimConfig.camera.globM.y;
-    camera.position.z += globVolume * currAnimConfig.camera.globM.z;
+    camera.position.y += Pumper.volume * currAnimConfig.camera.globM.y;
+    camera.position.z += Pumper.volume * currAnimConfig.camera.globM.z;
 
     // Extra illegal X-axis sizzle
-    camera.position.x += Pumper.bands[high+6].volume * currAnimConfig.camera.globM.x;
-    camera.position.x -= Pumper.bands[high+7].volume * currAnimConfig.camera.globM.x;
+    camera.position.x += logo.bands.high[6].volume * currAnimConfig.camera.globM.x;
+    camera.position.x -= logo.bands.high[7].volume * currAnimConfig.camera.globM.x;
 }
 
 function frame() {
