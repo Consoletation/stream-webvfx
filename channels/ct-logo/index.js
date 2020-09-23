@@ -29,6 +29,7 @@ const config = {
         typeFace: 'rigid-square',
         logoImage: 'controller-white.png',
         logoImageSize: 256,
+        logoImagePosCorr: { x: 342, y: -175 },
         vignette: {
             offset: 0.0,
             darkness: 0.0,
@@ -41,12 +42,39 @@ const config = {
         typeFace: 'rigid-square',
         logoImage: 'controller.png',
         logoImageSize: 256,
+        logoImagePosCorr: { x: 342, y: -175 },
         vignette: {
             offset: 0.5,
             darkness: 1.6,
         },
         filmGrain: [0.12, 0.125, 648, false]
-    }
+    },
+    transparentNew: {
+        bgColor: [0x000000, 0],
+        textColor: 0xffffff,
+        typeFace: 'video',
+        logoImage: 'controller-up-white.png',
+        logoImageSize: 198,
+        logoImagePosCorr: { x: 284, y: -159 },
+        vignette: {
+            offset: 0.0,
+            darkness: 0.0,
+        },
+        filmGrain: [0, 0, 648, false]
+    },
+    classicNew: {
+        bgColor: [0xffffff, 1],
+        textColor: 0x000000,
+        typeFace: 'video',
+        logoImage: 'controller-up.png',
+        logoImageSize: 198,
+        logoImagePosCorr: { x: 284, y: -159 },
+        vignette: {
+            offset: 0.5,
+            darkness: 1.6,
+        },
+        filmGrain: [0.12, 0.125, 648, false]
+    },
 };
 
 // Globals updated via init()
@@ -271,9 +299,9 @@ function update() {
     logoImageMesh.position.x = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.x;
     logoImageMesh.position.y = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.y;
     logoImageMesh.position.z = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.z;
-    // Position correction
-    logoImageMesh.position.x += 342;
-    logoImageMesh.position.y -= 175;
+    // Position correction from config
+    logoImageMesh.position.x += currentConfig.logoImagePosCorr.x;
+    logoImageMesh.position.y += currentConfig.logoImagePosCorr.y;
 
     // Headings container position
     headingsContainer.position.y = animConfig.positions.headings.y;

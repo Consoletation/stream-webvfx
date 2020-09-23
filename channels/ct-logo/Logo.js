@@ -69,14 +69,25 @@ class Logo {
 
                 bitmap.width = currWidth - prevWidth;
 
-                // I'll never understand this
-                if (section.text.charAt(i) == 'A') {
-                    bitmap.width += 12.5;
-                    currWidth -= 25;
-                }
-                if (section.text.charAt(i-1) == 'A') {
-                    bitmap.width += 12.5;
-                    prevWidth -= 25;
+                // I'll never understand why this is needed
+                if (section.font.endsWith('rigid-square')) {
+                    if (section.text.charAt(i) == 'A') {
+                        bitmap.width += 12.5;
+                        currWidth -= 25;
+                    }
+                    if (section.text.charAt(i-1) == 'A') {
+                        bitmap.width += 12.5;
+                        prevWidth -= 25;
+                    }
+                } else if (section.font.endsWith('video')) {
+                    if (section.text.charAt(i) == 'A') {
+                        bitmap.width += 4;
+                        currWidth -= 8;
+                    }
+                    if (section.text.charAt(i-1) == 'A') {
+                        bitmap.width += 4;
+                        prevWidth -= 8;
+                    }
                 }
 
                 g.font = section.font;
