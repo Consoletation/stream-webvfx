@@ -22,14 +22,156 @@ const logo = new function() {
         '600 160px rigid-square',
         '300 160px rigid-square'
     ];
+    this.sections = [
+        {
+            text: this.text[0],
+            font: this.font[0],
+            bands: {}
+        },
+        {
+            text: this.text[1],
+            font: this.font[1],
+            bands: {}
+        }
+    ];
     this.bands = {};
 
     this.createBands = function() {
         this.bands.low = Pumper.createBands(80, 220, this.fulltext.length, 0.3, 0.39, 1.5);
         this.bands.mid = Pumper.createBands(1000, 2800, this.fulltext.length, 0.5, 0.77, 1.1);
         this.bands.high = Pumper.createBands(2440, 10400, this.fulltext.length, 0.6, 0.9, 1.5);
+
+        this.sections[0].bands.low = this.bands.low.slice(0, this.splitPoint);
+        this.sections[1].bands.low = this.bands.low.slice(this.splitPoint, this.fulltext.length);
+        this.sections[0].bands.mid = this.bands.mid.slice(0, this.splitPoint);
+        this.sections[1].bands.mid = this.bands.mid.slice(this.splitPoint, this.fulltext.length);
+        this.sections[0].bands.high = this.bands.high.slice(0, this.splitPoint);
+        this.sections[1].bands.high = this.bands.high.slice(this.splitPoint, this.fulltext.length);
     };
-}
+    this.createMeshs = function() {
+        this.sections.forEach(function(section) {
+            let logoTextLayerContainer = new THREE.Object3D();
+            scene.add(logoTextLayerContainer);
+
+            let slices1 = [];
+            let slices2 = [];
+            let slices3 = [];
+            let slices4 = [];
+            let charOffset = 0;
+            let txtWidth;
+
+            for (let i = 0; i < section.text.length; i++) {
+                let bitmap = document.createElement('canvas');
+                let g = bitmap.getContext('2d');
+                bitmap.width = 1024;
+                bitmap.height = 200;
+                g.font = section.font;
+                g.fillStyle = 'white';
+                let divisionWidth = g.measureText(section.text.charAt(i)).width;
+                if (section.text.charAt(i) === 'A') divisionWidth = 110;
+                if (section.text.charAt(i) === 'E') divisionWidth = 100;
+                if (section.text.charAt(i) === 'I') divisionWidth = 90;
+                if (section.text.charAt(i) === 'N') divisionWidth = 116;
+                if (section.text.charAt(i) === 'O') divisionWidth = 116;
+                if (section.text.charAt(i) === 'S') divisionWidth = 112;
+
+                bitmap.width = divisionWidth;
+                g.font = section.font;
+                g.fillStyle = 'white';
+                txtWidth = g.measureText(section.text).width;
+                g.fillText(section.text.charAt(i), 0, 160);
+
+                let texture = new THREE.Texture(bitmap);
+                texture.needsUpdate = true;
+                texture.minFilter = THREE.LinearFilter;
+
+                let material = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    color: currentConfig.textColor,
+                    transparent: true,
+                    opacity: 0.0,
+                    side: THREE.DoubleSide,
+                    polygonOffset: true,
+                    polygonOffsetUnits: -1,
+                    polygonOffsetFactor: 0
+                });
+
+                let posX = charOffset - txtWidth * 0.5;
+                let posY = 0;
+                charOffset += divisionWidth;
+
+                let logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
+                logoTextLayerMesh.material.opacity = 0.6;
+                logoTextLayerMesh.position.set(posX, posY, 0);
+                logoTextLayerMesh.material.polygonOffsetFactor = -1;
+                logoTextLayerContainer.add(logoTextLayerMesh);
+                slices1.push(logoTextLayerMesh);
+
+                let logoTextLayerMesh2 = logoTextLayerMesh.clone();
+                logoTextLayerMesh2.material = material.clone();
+                logoTextLayerMesh2.position.set(posX, posY, 0);
+                logoTextLayerMesh2.material.polygonOffsetFactor = -2;
+                logoTextLayerMesh2.material.opacity = 0.05;
+                logoTextLayerContainer.add(logoTextLayerMesh2);
+                slices2.push(logoTextLayerMesh2);
+
+                let logoTextLayerMesh3 = logoTextLayerMesh.clone();
+                logoTextLayerMesh3.material = material.clone();
+                logoTextLayerMesh3.position.set(posX, posY, 0);
+                logoTextLayerMesh3.material.polygonOffsetFactor = -3;
+                logoTextLayerMesh3.material.opacity = 0.05;
+                logoTextLayerContainer.add(logoTextLayerMesh3);
+                slices3.push(logoTextLayerMesh3);
+
+                let logoTextLayerMesh4 = logoTextLayerMesh.clone();
+                logoTextLayerMesh4.material = material.clone();
+                logoTextLayerMesh4.position.set(posX, posY, 0);
+                logoTextLayerMesh4.material.polygonOffsetFactor = -4;
+                logoTextLayerMesh4.material.opacity = 0.1;
+                logoTextLayerContainer.add(logoTextLayerMesh4);
+                slices4.push(logoTextLayerMesh4);
+            }
+
+            section.mesh = {
+                container: logoTextLayerContainer,
+                width: txtWidth,
+                slices: [slices1, slices2, slices3, slices4]
+            };
+        });
+        // Position calculation
+        let totalWidth = this.sections[0].mesh.width + this.sections[1].mesh.width;
+        this.sections[0].mesh.container.position.x -= (totalWidth - this.sections[0].mesh.width)/2;
+        this.sections[1].mesh.container.position.x += (totalWidth - this.sections[1].mesh.width)/2;
+    };
+    this.meshUpdate = function() {
+        this.sections.forEach(function(section) {
+            for (let letter = 0; letter < section.text.length; letter++) {
+                // Band volumes
+                let lowVolume = section.bands.low[letter].volume;
+                let midVolume = section.bands.mid[letter].volume;
+                let highVolume = section.bands.high[letter].volume;
+
+                for (let slice = 0; slice < section.mesh.slices.length; slice++) {
+                    // Base positions
+                    section.mesh.slices[slice][letter].position.y = currAnimConfig.logo.base.y[slice];
+                    section.mesh.slices[slice][letter].position.z = currAnimConfig.logo.base.z[slice];
+                    // high work
+                    section.mesh.slices[slice][letter].position.y += highVolume * currAnimConfig.logo.highM.y[slice];
+                    section.mesh.slices[slice][letter].position.z += highVolume * currAnimConfig.logo.highM.z[slice];
+                    // mid work
+                    section.mesh.slices[slice][letter].position.y += midVolume * currAnimConfig.logo.midM.y[slice];
+                    section.mesh.slices[slice][letter].position.z += midVolume * currAnimConfig.logo.midM.z[slice];
+                    //low work
+                    section.mesh.slices[slice][letter].position.y += lowVolume * currAnimConfig.logo.lowM.y[slice];
+                    section.mesh.slices[slice][letter].position.z += lowVolume * currAnimConfig.logo.lowM.z[slice];
+                    //global work
+                    section.mesh.slices[slice][letter].position.y += Pumper.volume * currAnimConfig.logo.globM.y[slice];
+                    section.mesh.slices[slice][letter].position.z += Pumper.volume * currAnimConfig.logo.globM.z[slice];
+                }
+            }
+        });
+    };
+};
 
 var camera, scene, renderer, composer, glitchPass;
 var baseCameraDirection = new THREE.Vector3;
@@ -187,9 +329,10 @@ function init() {
         let password = urlParams.get('obs_password');
         initOBS(address, password);
     }
-    initLogoText();
-    initLogoImage();
-    initHeading();
+
+    logo.createMeshs(); // Initialize logo meshs
+    initLogoImage();    // Initialize logo image
+    initHeading();      // Initialize subheadings
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
@@ -236,111 +379,6 @@ function initOBS(address, password) {
             console.log("Failed to connect to OBS :(");
         }
     );
-}
-
-function initLogoText() {
-    //Create shapes container
-    var txtWidth, bitmap,
-        g,
-        texture, material, logoTextLayerContainer,
-        logoTextLayerMesh, logoTextLayerMesh2, logoTextLayerMesh3, logoTextLayerMesh4,
-        divisionWidth, slices1, slices2, slices3, slices4,
-        posX, posY, charOffset = 0;
-
-    //create text image
-    // canvas contents will be used for a texture
-    logoTextLayerContainer = new THREE.Object3D();
-    scene.add(logoTextLayerContainer);
-
-    slices1 = [];
-    slices2 = [];
-    slices3 = [];
-    slices4 = [];
-    for (let i = 0; i < logo.fulltext.length; i++) {
-        //Dirty as fuck, but I've got to create a canvas per logo slice
-        //Also, weirdly the width can't seem to be set after adding a text in
-        bitmap = document.createElement('canvas');
-        g = bitmap.getContext('2d');
-        bitmap.width = 1024;
-        bitmap.height = 200;
-        if (i < logo.splitPoint) {
-            g.font = logo.font[0];
-        } else {
-            g.font = logo.font[1];
-        }
-        g.fillStyle = 'white';
-        divisionWidth = g.measureText(logo.fulltext.charAt(i)).width;
-        if (logo.fulltext.charAt(i) === 'A') divisionWidth = 110;
-        if (logo.fulltext.charAt(i) === 'E') divisionWidth = 100;
-        if (logo.fulltext.charAt(i) === 'I') divisionWidth = 90;
-        if (logo.fulltext.charAt(i) === 'N') divisionWidth = 116;
-        if (logo.fulltext.charAt(i) === 'O') divisionWidth = 116;
-        if (logo.fulltext.charAt(i) === 'S') divisionWidth = 112;
-
-        bitmap.width = divisionWidth;
-        if (i < logo.splitPoint) {
-            g.font = logo.font[0];
-        } else {
-            g.font = logo.font[1];
-        }
-        g.fillStyle = 'white';
-        txtWidth = g.measureText(logo.fulltext).width;
-        g.fillText(logo.fulltext.charAt(i), 0, 160);
-
-        texture = new THREE.Texture(bitmap);
-        texture.needsUpdate = true;
-        texture.minFilter = THREE.LinearFilter;
-
-        material = new THREE.MeshBasicMaterial({
-            map: texture,
-            color: currentConfig.textColor,
-            transparent: true,
-            opacity: 0.0,
-            side: THREE.DoubleSide,
-            polygonOffset: true,
-            polygonOffsetUnits: -1,
-            polygonOffsetFactor: 0
-        });
-
-        posX = charOffset - txtWidth * 0.5;
-        posY = 0;
-        charOffset += divisionWidth;
-
-        logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
-        logoTextLayerMesh.material.opacity = 0.6;
-        logoTextLayerMesh.position.set(posX, posY, 0);
-        logoTextLayerMesh.material.polygonOffsetFactor = -1;
-        logoTextLayerContainer.add(logoTextLayerMesh);
-        slices1.push(logoTextLayerMesh);
-
-        logoTextLayerMesh2 = logoTextLayerMesh.clone();
-        logoTextLayerMesh2.material = material.clone();
-        logoTextLayerMesh2.position.set(posX, posY, 0);
-        logoTextLayerMesh2.material.polygonOffsetFactor = -2;
-        logoTextLayerMesh2.material.opacity = 0.05;
-        logoTextLayerContainer.add(logoTextLayerMesh2);
-        slices2.push(logoTextLayerMesh2);
-
-        logoTextLayerMesh3 = logoTextLayerMesh.clone();
-        logoTextLayerMesh3.material = material.clone();
-        logoTextLayerMesh3.position.set(posX, posY, 0);
-        logoTextLayerMesh3.material.polygonOffsetFactor = -3;
-        logoTextLayerMesh3.material.opacity = 0.05;
-        logoTextLayerContainer.add(logoTextLayerMesh3);
-        slices3.push(logoTextLayerMesh3);
-
-        logoTextLayerMesh4 = logoTextLayerMesh.clone();
-        logoTextLayerMesh4.material = material.clone();
-        logoTextLayerMesh4.position.set(posX, posY, 0);
-        logoTextLayerMesh4.material.polygonOffsetFactor = -4;
-        logoTextLayerMesh4.material.opacity = 0.1;
-        logoTextLayerContainer.add(logoTextLayerMesh4);
-        slices4.push(logoTextLayerMesh4);
-    }
-    logoTextMesh = {
-        container: logoTextLayerContainer,
-        slices: [slices1, slices2, slices3, slices4]
-    };
 }
 
 function initLogoImage(){
@@ -430,39 +468,14 @@ function update() {
     }
 
     //Animate logo.fulltext layers based on bands
-    for (let letter = 0; letter < logo.fulltext.length; letter++) {
-
-        // Band volumes
-        let lowVolume = logo.bands.low[letter].volume;
-        let midVolume = logo.bands.mid[letter].volume;
-        let highVolume = logo.bands.high[letter].volume;
-
-        for (let slice = 0; slice < logoTextMesh.slices.length; slice++) {
-            // Base positions
-            logoTextMesh.slices[slice][letter].position.y = currAnimConfig.logo.base.y[slice];
-            logoTextMesh.slices[slice][letter].position.z = currAnimConfig.logo.base.z[slice];
-            // high work
-            logoTextMesh.slices[slice][letter].position.y += highVolume * currAnimConfig.logo.highM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += highVolume * currAnimConfig.logo.highM.z[slice];
-            // mid work
-            logoTextMesh.slices[slice][letter].position.y += midVolume * currAnimConfig.logo.midM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += midVolume * currAnimConfig.logo.midM.z[slice];
-            //low work
-            logoTextMesh.slices[slice][letter].position.y += lowVolume * currAnimConfig.logo.lowM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += lowVolume * currAnimConfig.logo.lowM.z[slice];
-            //global work
-            logoTextMesh.slices[slice][letter].position.y += Pumper.volume * currAnimConfig.logo.globM.y[slice];
-            logoTextMesh.slices[slice][letter].position.z += Pumper.volume * currAnimConfig.logo.globM.z[slice];
-
-        }
-    }
+    logo.meshUpdate();
 
     // Animate image mesh with last letter
-    logoImageMesh.position.x = logoTextMesh.slices[0][logo.fulltext.length - 1].position.x;
-    logoImageMesh.position.y = logoTextMesh.slices[0][logo.fulltext.length - 1].position.y;
-    logoImageMesh.position.z = logoTextMesh.slices[0][logo.fulltext.length - 1].position.z;
+    logoImageMesh.position.x = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.x;
+    logoImageMesh.position.y = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.y;
+    logoImageMesh.position.z = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.z;
     // Position correction
-    logoImageMesh.position.x -= 49;
+    logoImageMesh.position.x += 342;
     logoImageMesh.position.y -= 175;
 
     // Headings container position
