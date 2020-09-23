@@ -57,30 +57,47 @@ const logo = new function() {
             let slices2 = [];
             let slices3 = [];
             let slices4 = [];
-            let charOffset = 0;
-            let txtWidth;
+            let charArray = [];
 
             for (let i = 0; i < section.text.length; i++) {
                 let bitmap = document.createElement('canvas');
                 let g = bitmap.getContext('2d');
                 bitmap.width = 1024;
                 bitmap.height = 200;
-                g.font = section.font;
-                g.fillStyle = 'white';
-                let divisionWidth = g.measureText(section.text.charAt(i)).width;
-                if (section.text.charAt(i) === 'A') divisionWidth = 110;
-                if (section.text.charAt(i) === 'E') divisionWidth = 100;
-                if (section.text.charAt(i) === 'I') divisionWidth = 90;
-                if (section.text.charAt(i) === 'N') divisionWidth = 116;
-                if (section.text.charAt(i) === 'O') divisionWidth = 116;
-                if (section.text.charAt(i) === 'S') divisionWidth = 112;
 
-                bitmap.width = divisionWidth;
                 g.font = section.font;
                 g.fillStyle = 'white';
-                txtWidth = g.measureText(section.text).width;
+                let currWidth = g.measureText(section.text.slice(0, i+1)).width;
+                g.font = section.font;
+                g.fillStyle = 'white';
+                let prevWidth = g.measureText(section.text.slice(0, i)).width;
+
+                bitmap.width = currWidth - prevWidth;
+
+                // I'll never understand this
+                if (section.text.charAt(i) == 'A') {
+                    bitmap.width += 12.5;
+                    currWidth -= 25;
+                }
+                if (section.text.charAt(i-1) == 'A') {
+                    bitmap.width += 12.5;
+                    prevWidth -= 25;
+                }
+
+                g.font = section.font;
+                g.fillStyle = 'white';
                 g.fillText(section.text.charAt(i), 0, 160);
 
+                charArray.push({
+                    bitmap: bitmap,
+                    prevWidth: prevWidth,
+                    currWidth: currWidth,
+                });
+            };
+            for (let i = 0; i < charArray.length; i++) {
+                let bitmap = charArray[i].bitmap;
+                let prevWidth = charArray[i].prevWidth;
+                let currWidth = charArray[i].currWidth;
                 let texture = new THREE.Texture(bitmap);
                 texture.needsUpdate = true;
                 texture.minFilter = THREE.LinearFilter;
@@ -96,11 +113,13 @@ const logo = new function() {
                     polygonOffsetFactor: 0
                 });
 
-                let posX = charOffset - txtWidth * 0.5;
+                let posX = -charArray[charArray.length - 1].currWidth/2;
+                posX -= charArray[0].bitmap.width/2;
+                posX += prevWidth;
+                posX += (currWidth-prevWidth)/2;
                 let posY = 0;
-                charOffset += divisionWidth;
 
-                let logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
+                let logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(bitmap.width, 200), material);
                 logoTextLayerMesh.material.opacity = 0.6;
                 logoTextLayerMesh.position.set(posX, posY, 0);
                 logoTextLayerMesh.material.polygonOffsetFactor = -1;
@@ -130,11 +149,11 @@ const logo = new function() {
                 logoTextLayerMesh4.material.opacity = 0.1;
                 logoTextLayerContainer.add(logoTextLayerMesh4);
                 slices4.push(logoTextLayerMesh4);
-            }
+            };
 
             section.mesh = {
                 container: logoTextLayerContainer,
-                width: txtWidth,
+                width: charArray[charArray.length - 1].currWidth,
                 slices: [slices1, slices2, slices3, slices4]
             };
         });
