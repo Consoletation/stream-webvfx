@@ -63,7 +63,7 @@ let currentHeading = 0;
 let mainView = true;
 let mainViewUpdate = true;
 
-const animConfigs = new function() {
+const animConfig = new function() {
     this.profiles = {};
 
     // Main profile
@@ -131,41 +131,47 @@ const animConfigs = new function() {
         },
     };
     this.profiles.low.directions.transition = this.profiles.low.directions.base; // Compat
+
+    // Functions
+    this.loadProfile = function(profile) {
+        this.current = {
+            multipliers: jCopy(this.profiles[profile].multipliers.base),
+            positions: jCopy(this.profiles[profile].positions.base),
+            directions: jCopy(this.profiles[profile].directions.base),
+        };
+        return this.current;
+    }
 }
 
 // Current animation presets
 // Updated via tweens and applied within update()
-let currAnimConfig = {
-    multipliers: jCopy(animConfigs.profiles.main.multipliers.base),
-    positions: jCopy(animConfigs.profiles.main.positions.base),
-    directions: jCopy(animConfigs.profiles.main.directions.base),
-};
+animConfig.loadProfile('main');
 
 // Set up tweens
-const newTweenMultipliersLow = new TWEEN.Tween(currAnimConfig.multipliers)
-    .to(animConfigs.profiles.low.multipliers.base, 300)
+const newTweenMultipliersLow = new TWEEN.Tween(animConfig.current.multipliers)
+    .to(animConfig.profiles.low.multipliers.base, 300)
     .easing(TWEEN.Easing.Quintic.InOut);
-const newTweenMultipliersMain = new TWEEN.Tween(currAnimConfig.multipliers)
-    .to(animConfigs.profiles.main.multipliers.base, 1200)
+const newTweenMultipliersMain = new TWEEN.Tween(animConfig.current.multipliers)
+    .to(animConfig.profiles.main.multipliers.base, 1200)
     .easing(TWEEN.Easing.Quintic.InOut);
-const newTweenPositionsLow = new TWEEN.Tween(currAnimConfig.positions)
-    .to(animConfigs.profiles.low.positions.base, 300)
+const newTweenPositionsLow = new TWEEN.Tween(animConfig.current.positions)
+    .to(animConfig.profiles.low.positions.base, 300)
     .easing(TWEEN.Easing.Quintic.InOut);
-const newTweenPositionsMain = new TWEEN.Tween(currAnimConfig.positions)
-    .to(animConfigs.profiles.main.positions.base, 1200)
+const newTweenPositionsMain = new TWEEN.Tween(animConfig.current.positions)
+    .to(animConfig.profiles.main.positions.base, 1200)
     .easing(TWEEN.Easing.Quintic.InOut);
-const newTweenDirectionsLow = new TWEEN.Tween(currAnimConfig.directions)
-    .to(animConfigs.profiles.low.directions.transition, 150)
+const newTweenDirectionsLow = new TWEEN.Tween(animConfig.current.directions)
+    .to(animConfig.profiles.low.directions.transition, 150)
     .easing(TWEEN.Easing.Sinusoidal.In);
-const newTweenDirectionsLow2 = new TWEEN.Tween(currAnimConfig.directions)
-    .to(animConfigs.profiles.low.directions.base, 150)
+const newTweenDirectionsLow2 = new TWEEN.Tween(animConfig.current.directions)
+    .to(animConfig.profiles.low.directions.base, 150)
     .easing(TWEEN.Easing.Sinusoidal.Out);
 newTweenDirectionsLow.chain(newTweenDirectionsLow2);
-const newTweenDirectionsMain = new TWEEN.Tween(currAnimConfig.directions)
-    .to(animConfigs.profiles.main.directions.transition, 600)
+const newTweenDirectionsMain = new TWEEN.Tween(animConfig.current.directions)
+    .to(animConfig.profiles.main.directions.transition, 600)
     .easing(TWEEN.Easing.Sinusoidal.In);
-const newTweenDirectionsMain2 = new TWEEN.Tween(currAnimConfig.directions)
-    .to(animConfigs.profiles.main.directions.base, 1200)
+const newTweenDirectionsMain2 = new TWEEN.Tween(animConfig.current.directions)
+    .to(animConfig.profiles.main.directions.base, 1200)
     .easing(TWEEN.Easing.Sinusoidal.Out);
 newTweenDirectionsMain.chain(newTweenDirectionsMain2);
 
@@ -209,15 +215,15 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.x = currAnimConfig.positions.camera.x;
-    camera.position.y = currAnimConfig.positions.camera.y;
-    camera.position.z = currAnimConfig.positions.camera.z;
+    camera.position.x = animConfig.current.positions.camera.x;
+    camera.position.y = animConfig.current.positions.camera.y;
+    camera.position.z = animConfig.current.positions.camera.z;
     // Get base camera direction
     camera.getWorldDirection(baseCameraDirection);
     cameraDirection.copy(baseCameraDirection);
-    cameraDirection.x += currAnimConfig.directions.camera.x;
-    cameraDirection.y += currAnimConfig.directions.camera.y;
-    cameraDirection.z += currAnimConfig.directions.camera.z;
+    cameraDirection.x += animConfig.current.directions.camera.x;
+    cameraDirection.y += animConfig.current.directions.camera.y;
+    cameraDirection.z += animConfig.current.directions.camera.z;
     // Calculate camera position
     cameraDirection.add(camera.position);
     camera.lookAt(cameraDirection);
@@ -447,20 +453,20 @@ class Logo {
 
                 for (let slice = 0; slice < section.mesh.slices.length; slice++) {
                     // Base positions
-                    section.mesh.slices[slice][letter].position.y = currAnimConfig.positions.logo.y[slice];
-                    section.mesh.slices[slice][letter].position.z = currAnimConfig.positions.logo.z[slice];
+                    section.mesh.slices[slice][letter].position.y = animConfig.current.positions.logo.y[slice];
+                    section.mesh.slices[slice][letter].position.z = animConfig.current.positions.logo.z[slice];
                     // high work
-                    section.mesh.slices[slice][letter].position.y += highVolume * currAnimConfig.multipliers.logo.high.y[slice];
-                    section.mesh.slices[slice][letter].position.z += highVolume * currAnimConfig.multipliers.logo.high.z[slice];
+                    section.mesh.slices[slice][letter].position.y += highVolume * animConfig.current.multipliers.logo.high.y[slice];
+                    section.mesh.slices[slice][letter].position.z += highVolume * animConfig.current.multipliers.logo.high.z[slice];
                     // mid work
-                    section.mesh.slices[slice][letter].position.y += midVolume * currAnimConfig.multipliers.logo.mid.y[slice];
-                    section.mesh.slices[slice][letter].position.z += midVolume * currAnimConfig.multipliers.logo.mid.z[slice];
+                    section.mesh.slices[slice][letter].position.y += midVolume * animConfig.current.multipliers.logo.mid.y[slice];
+                    section.mesh.slices[slice][letter].position.z += midVolume * animConfig.current.multipliers.logo.mid.z[slice];
                     //low work
-                    section.mesh.slices[slice][letter].position.y += lowVolume * currAnimConfig.multipliers.logo.low.y[slice];
-                    section.mesh.slices[slice][letter].position.z += lowVolume * currAnimConfig.multipliers.logo.low.z[slice];
+                    section.mesh.slices[slice][letter].position.y += lowVolume * animConfig.current.multipliers.logo.low.y[slice];
+                    section.mesh.slices[slice][letter].position.z += lowVolume * animConfig.current.multipliers.logo.low.z[slice];
                     //global work
-                    section.mesh.slices[slice][letter].position.y += Pumper.volume * currAnimConfig.multipliers.logo.global.y[slice];
-                    section.mesh.slices[slice][letter].position.z += Pumper.volume * currAnimConfig.multipliers.logo.global.z[slice];
+                    section.mesh.slices[slice][letter].position.y += Pumper.volume * animConfig.current.multipliers.logo.global.y[slice];
+                    section.mesh.slices[slice][letter].position.z += Pumper.volume * animConfig.current.multipliers.logo.global.z[slice];
                 }
             }
         });
@@ -569,30 +575,30 @@ function update() {
     logoImageMesh.position.y -= 175;
 
     // Headings container position
-    headingsContainer.position.y = currAnimConfig.positions.headings.y;
-    headingsContainer.position.z = currAnimConfig.positions.headings.z;
-    headingsContainer.position.y += Pumper.volume * currAnimConfig.multipliers.headings.global.y;
-    headingsContainer.position.z += Pumper.volume * currAnimConfig.multipliers.headings.global.z;
+    headingsContainer.position.y = animConfig.current.positions.headings.y;
+    headingsContainer.position.z = animConfig.current.positions.headings.z;
+    headingsContainer.position.y += Pumper.volume * animConfig.current.multipliers.headings.global.y;
+    headingsContainer.position.z += Pumper.volume * animConfig.current.multipliers.headings.global.z;
 
     // Calculate camera direction
     cameraDirection.copy(baseCameraDirection);
-    cameraDirection.x += currAnimConfig.directions.camera.x;
-    cameraDirection.y += currAnimConfig.directions.camera.y;
-    cameraDirection.z += currAnimConfig.directions.camera.z;
+    cameraDirection.x += animConfig.current.directions.camera.x;
+    cameraDirection.y += animConfig.current.directions.camera.y;
+    cameraDirection.z += animConfig.current.directions.camera.z;
     // Calculate camera position
     cameraDirection.add(camera.position);
     camera.lookAt(cameraDirection);
 
     // Base camera positions
-    camera.position.x = currAnimConfig.positions.camera.x;
-    camera.position.y = currAnimConfig.positions.camera.y;
-    camera.position.z = currAnimConfig.positions.camera.z;
-    camera.position.y += Pumper.volume * currAnimConfig.multipliers.camera.global.y;
-    camera.position.z += Pumper.volume * currAnimConfig.multipliers.camera.global.z;
+    camera.position.x = animConfig.current.positions.camera.x;
+    camera.position.y = animConfig.current.positions.camera.y;
+    camera.position.z = animConfig.current.positions.camera.z;
+    camera.position.y += Pumper.volume * animConfig.current.multipliers.camera.global.y;
+    camera.position.z += Pumper.volume * animConfig.current.multipliers.camera.global.z;
 
     // Extra illegal X-axis sizzle
-    camera.position.x += logo.bands.high[6].volume * currAnimConfig.multipliers.camera.global.x;
-    camera.position.x -= logo.bands.high[7].volume * currAnimConfig.multipliers.camera.global.x;
+    camera.position.x += logo.bands.high[6].volume * animConfig.current.multipliers.camera.global.x;
+    camera.position.x -= logo.bands.high[7].volume * animConfig.current.multipliers.camera.global.x;
 }
 
 function frame() {
