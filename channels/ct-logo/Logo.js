@@ -166,22 +166,23 @@ class Logo {
                 let midVolume = section.bands.mid[letter].volume;
                 let highVolume = section.bands.high[letter].volume;
 
+                // Letter animation
                 for (let slice = 0; slice < section.mesh.slices.length; slice++) {
                     // Base positions
-                    section.mesh.slices[slice][letter].position.y = config.positions.logo.y[slice];
-                    section.mesh.slices[slice][letter].position.z = config.positions.logo.z[slice];
+                    section.mesh.slices[slice][letter].position.y = config.positions.letters.y[slice];
+                    section.mesh.slices[slice][letter].position.z = config.positions.letters.z[slice];
                     // high work
-                    section.mesh.slices[slice][letter].position.y += highVolume * config.multipliers.logo.high.y[slice];
-                    section.mesh.slices[slice][letter].position.z += highVolume * config.multipliers.logo.high.z[slice];
+                    section.mesh.slices[slice][letter].position.y += highVolume * config.multipliers.letters.high.y[slice];
+                    section.mesh.slices[slice][letter].position.z += highVolume * config.multipliers.letters.high.z[slice];
                     // mid work
-                    section.mesh.slices[slice][letter].position.y += midVolume * config.multipliers.logo.mid.y[slice];
-                    section.mesh.slices[slice][letter].position.z += midVolume * config.multipliers.logo.mid.z[slice];
+                    section.mesh.slices[slice][letter].position.y += midVolume * config.multipliers.letters.mid.y[slice];
+                    section.mesh.slices[slice][letter].position.z += midVolume * config.multipliers.letters.mid.z[slice];
                     //low work
-                    section.mesh.slices[slice][letter].position.y += lowVolume * config.multipliers.logo.low.y[slice];
-                    section.mesh.slices[slice][letter].position.z += lowVolume * config.multipliers.logo.low.z[slice];
+                    section.mesh.slices[slice][letter].position.y += lowVolume * config.multipliers.letters.low.y[slice];
+                    section.mesh.slices[slice][letter].position.z += lowVolume * config.multipliers.letters.low.z[slice];
                     //global work
-                    section.mesh.slices[slice][letter].position.y += Pumper.volume * config.multipliers.logo.global.y[slice];
-                    section.mesh.slices[slice][letter].position.z += Pumper.volume * config.multipliers.logo.global.z[slice];
+                    section.mesh.slices[slice][letter].position.y += Pumper.volume * config.multipliers.letters.global.y[slice];
+                    section.mesh.slices[slice][letter].position.z += Pumper.volume * config.multipliers.letters.global.z[slice];
                 }
             }
         });

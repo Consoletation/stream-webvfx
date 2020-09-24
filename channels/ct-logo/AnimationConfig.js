@@ -12,7 +12,7 @@ const profiles = {
 };
 profiles.main.multipliers = {
     base: {
-        logo: {
+        letters: {
             high: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
             mid: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
             low: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
@@ -34,7 +34,7 @@ profiles.main.multipliers = {
 };
 profiles.main.positions = {
     base: {
-        logo: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+        letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
         headings: { y: -900, z: 0 },
         camera: { x: -43, y: -90, z: 1000 },
     },
@@ -60,7 +60,7 @@ profiles.main.directions = {
 };
 profiles.low.multipliers = {
     base: {
-        logo: {
+        letters: {
             high: { y: [0.6, 0.6, 0.6, 0.6], z: [0, 0, 0, 0] },
             mid: { y: [0.2, 0.2, 0.2, 0.2], z: [0, 0, 0, 0] },
             low: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
@@ -82,7 +82,7 @@ profiles.low.multipliers = {
 };
 profiles.low.positions = {
     base: {
-        logo: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+        letters: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
         headings: { y: -1000, z: 0 },
         camera: { x: -43, y: 100, z: 720 },
     },
