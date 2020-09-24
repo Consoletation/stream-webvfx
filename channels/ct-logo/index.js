@@ -22,6 +22,7 @@ const headings = [
     'Taking a quick break!',
     'Thanks for watching!'
 ];
+const imagesMesh = [];
 const config = {
     transparent: {
         bgColor: [0x000000, 0],
@@ -88,8 +89,8 @@ let currentConfig = config.transparent; // Default config
 // Globals updated via init() or update()
 let cameraDirection = new THREE.Vector3;
 let logo;
-let logoImageMesh;
 let headingsContainer; // Updated by click() or OBS events
+let imageContainer;
 let currentHeading = 0;
 let mainView = true;
 let mainViewUpdate = true;
@@ -211,16 +212,17 @@ async function initOBS(address, password) {
 }
 
 function initLogoImage(scene){
+    imageContainer = new THREE.Object3D();
+    scene.add(imageContainer);
+
     const basePath = '../../assets/';
     let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImage);
     let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
     let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
-    logoImageMesh = new THREE.Mesh( geometry, material );
-    // TODO: Set initial position
-    //logoImageMesh.position.x = 557;  // y is determined in update()
-
-    scene.add(logoImageMesh);
+    let logoImageMesh = new THREE.Mesh( geometry, material );
+    imagesMesh.push(logoImageMesh);
+    imageContainer.add(imagesMesh[0]);
 }
 
 function initHeading(scene){
@@ -302,18 +304,18 @@ function update() {
     // Animate image mesh with a section and a letter
     let tS = Math.round(animConfig.positions.image.tracker[0]);
     let tL = Math.round(animConfig.positions.image.tracker[1]);
-    logoImageMesh.position.x = logo.sections[tS].mesh.container.position.x;
-    logoImageMesh.position.y = logo.sections[tS].mesh.container.position.y;
-    logoImageMesh.position.z = logo.sections[tS].mesh.container.position.z;
-    logoImageMesh.position.x += logo.sections[tS].mesh.slices[0][tL].position.x;
-    logoImageMesh.position.y += logo.sections[tS].mesh.slices[0][tL].position.y;
-    logoImageMesh.position.z += logo.sections[tS].mesh.slices[0][tL].position.z;
+    imageContainer.position.x = logo.sections[tS].mesh.container.position.x;
+    imageContainer.position.y = logo.sections[tS].mesh.container.position.y;
+    imageContainer.position.z = logo.sections[tS].mesh.container.position.z;
+    imageContainer.position.x += logo.sections[tS].mesh.slices[0][tL].position.x;
+    imageContainer.position.y += logo.sections[tS].mesh.slices[0][tL].position.y;
+    imageContainer.position.z += logo.sections[tS].mesh.slices[0][tL].position.z;
     // Position correction from config
-    logoImageMesh.position.x += currentConfig.logoImagePosCorr.x;
-    logoImageMesh.position.y += currentConfig.logoImagePosCorr.y;
+    imageContainer.position.x += currentConfig.logoImagePosCorr.x;
+    imageContainer.position.y += currentConfig.logoImagePosCorr.y;
     // Position correction from animation config
-    logoImageMesh.position.x += animConfig.positions.image.x;
-    logoImageMesh.position.y += animConfig.positions.image.y;
+    imageContainer.position.x += animConfig.positions.image.x;
+    imageContainer.position.y += animConfig.positions.image.y;
 
     // Headings container position
     headingsContainer.position.y = animConfig.positions.headings.y;
