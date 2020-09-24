@@ -11,6 +11,10 @@ import Pumper from 'pumper';
 import OBSWebSocket from 'obs-websocket-js';
 import TWEEN from '@tweenjs/tween.js';
 
+function jCopy(object) {
+    return JSON.parse(JSON.stringify(object));
+}
+
 // Static globals
 const obsClient = new OBSWebSocket(); // OBS client
 const headingsMesh = [];
@@ -59,69 +63,111 @@ let currentHeading = 0;
 let mainView = true;
 let mainViewUpdate = true;
 
-const animConfigs = {
-    main: {
-        logo: {
-            base: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
-            highM: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
-            midM: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
-            lowM: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
-            globM: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
+const animConfigs = new function() {
+    this.profiles = {};
+
+    // Main profile
+    this.profiles.main = {};
+    this.profiles.main.multipliers = {
+        base: {
+            logo: {
+                high: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
+                mid: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
+                low: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
+                global: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
+            },
+            headings: {
+                global: { y: 0.3, z: 0 },
+            },
+            camera: {
+                global: { x: 1, y: 0.3, z: 0.09 },
+            },
         },
-        headings: {
-            base: { y: -900, z: 0 },
-            globM: { y: 0.3, z: 0 },
+    }
+    this.profiles.main.positions = {
+        base: {
+            logo: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            headings: { y: -900, z: 0 },
+            camera: { x: -43, y: -90, z: 1000 },
         },
-        camera: {
-            base: { x: -43, y: -90, z: 1000 },
-            dirB: { x: 0, y: 0, z: 0 },
-            dirT: { x: 0.18, y: 0, z: 0 },
-            globM: { x: 1, y: 0.3, z: 0.09 },
+    }
+    this.profiles.main.directions = {
+        base: {
+            camera: { x: 0, y: 0, z: 0 },
         },
-    },
-    low: {
-        logo: {
-            base: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-            highM: { y: [0.6, 0.6, 0.6, 0.6], z: [0, 0, 0, 0] },
-            midM: { y: [0.2, 0.2, 0.2, 0.2], z: [0, 0, 0, 0] },
-            lowM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-            globM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+        transition: {
+            camera: { x: 0.18, y: 0, z: 0 },
         },
-        headings: {
-            base: { y: -1000, z: 0 },
-            globM: { y: 0, z: 0 },
+    };
+
+    // Low profile
+    this.profiles.low = {};
+    this.profiles.low.multipliers = {
+        base: {
+            logo: {
+                high: { y: [0.6, 0.6, 0.6, 0.6], z: [0, 0, 0, 0] },
+                mid: { y: [0.2, 0.2, 0.2, 0.2], z: [0, 0, 0, 0] },
+                low: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+                global: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            },
+            headings: {
+                global: { y: 0, z: 0 },
+            },
+            camera: {
+                global: { x: 0, y: 0.2, z: 0 },
+            },
         },
-        camera: {
-            base: { x: -43, y: 100, z: 720 },
-            dirB: { x: 0, y: 0, z: 0 },
-            dirT: { x: 0, y: 0, z: 0 },
-            globM: { x: 0, y: 0.2, z: 0 },
+    }
+    this.profiles.low.positions = {
+        base: {
+            logo: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            headings: { y: -1000, z: 0 },
+            camera: { x: -43, y: 100, z: 720 },
         },
-    },
+    }
+    this.profiles.low.directions = {
+        base: {
+            camera: { x: 0, y: 0, z: 0 },
+        },
+    };
+    this.profiles.low.directions.transition = this.profiles.low.directions.base; // Compat
 }
 
-let currAnimConfig = JSON.parse(JSON.stringify(animConfigs.main)); // so gross
-var cameraDir = Object.assign({}, currAnimConfig.camera.dirB);
-const tweenLow = new TWEEN.Tween(currAnimConfig)
-    .to(animConfigs.low, 300)
+// Current animation presets
+// Updated via tweens and applied within update()
+let currAnimConfig = {
+    multipliers: jCopy(animConfigs.profiles.main.multipliers.base),
+    positions: jCopy(animConfigs.profiles.main.positions.base),
+    directions: jCopy(animConfigs.profiles.main.directions.base),
+};
+
+// Set up tweens
+const newTweenMultipliersLow = new TWEEN.Tween(currAnimConfig.multipliers)
+    .to(animConfigs.profiles.low.multipliers.base, 300)
     .easing(TWEEN.Easing.Quintic.InOut);
-const tweenMain = new TWEEN.Tween(currAnimConfig)
-    .to(animConfigs.main, 1200)
+const newTweenMultipliersMain = new TWEEN.Tween(currAnimConfig.multipliers)
+    .to(animConfigs.profiles.main.multipliers.base, 1200)
     .easing(TWEEN.Easing.Quintic.InOut);
-const transCamLow = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.low.camera.dirT, 150)
+const newTweenPositionsLow = new TWEEN.Tween(currAnimConfig.positions)
+    .to(animConfigs.profiles.low.positions.base, 300)
+    .easing(TWEEN.Easing.Quintic.InOut);
+const newTweenPositionsMain = new TWEEN.Tween(currAnimConfig.positions)
+    .to(animConfigs.profiles.main.positions.base, 1200)
+    .easing(TWEEN.Easing.Quintic.InOut);
+const newTweenDirectionsLow = new TWEEN.Tween(currAnimConfig.directions)
+    .to(animConfigs.profiles.low.directions.transition, 150)
     .easing(TWEEN.Easing.Sinusoidal.In);
-const transCamLow2 = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.low.camera.dirB, 150)
+const newTweenDirectionsLow2 = new TWEEN.Tween(currAnimConfig.directions)
+    .to(animConfigs.profiles.low.directions.base, 150)
     .easing(TWEEN.Easing.Sinusoidal.Out);
-transCamLow.chain(transCamLow2);
-const transCamMain = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.main.camera.dirT, 600)
+newTweenDirectionsLow.chain(newTweenDirectionsLow2);
+const newTweenDirectionsMain = new TWEEN.Tween(currAnimConfig.directions)
+    .to(animConfigs.profiles.main.directions.transition, 600)
     .easing(TWEEN.Easing.Sinusoidal.In);
-const transCamMain2 = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.main.camera.dirB, 1200)
+const newTweenDirectionsMain2 = new TWEEN.Tween(currAnimConfig.directions)
+    .to(animConfigs.profiles.main.directions.base, 1200)
     .easing(TWEEN.Easing.Sinusoidal.Out);
-transCamMain.chain(transCamMain2);
+newTweenDirectionsMain.chain(newTweenDirectionsMain2);
 
 function init() {
 
@@ -163,15 +209,15 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.x = currAnimConfig.camera.base.x;
-    camera.position.y = currAnimConfig.camera.base.y;
-    camera.position.z = currAnimConfig.camera.base.z;
+    camera.position.x = currAnimConfig.positions.camera.x;
+    camera.position.y = currAnimConfig.positions.camera.y;
+    camera.position.z = currAnimConfig.positions.camera.z;
     // Get base camera direction
     camera.getWorldDirection(baseCameraDirection);
     cameraDirection.copy(baseCameraDirection);
-    cameraDirection.x += cameraDir.x;
-    cameraDirection.y += cameraDir.y;
-    cameraDirection.z += cameraDir.z;
+    cameraDirection.x += currAnimConfig.directions.camera.x;
+    cameraDirection.y += currAnimConfig.directions.camera.y;
+    cameraDirection.z += currAnimConfig.directions.camera.z;
     // Calculate camera position
     cameraDirection.add(camera.position);
     camera.lookAt(cameraDirection);
@@ -401,20 +447,20 @@ class Logo {
 
                 for (let slice = 0; slice < section.mesh.slices.length; slice++) {
                     // Base positions
-                    section.mesh.slices[slice][letter].position.y = currAnimConfig.logo.base.y[slice];
-                    section.mesh.slices[slice][letter].position.z = currAnimConfig.logo.base.z[slice];
+                    section.mesh.slices[slice][letter].position.y = currAnimConfig.positions.logo.y[slice];
+                    section.mesh.slices[slice][letter].position.z = currAnimConfig.positions.logo.z[slice];
                     // high work
-                    section.mesh.slices[slice][letter].position.y += highVolume * currAnimConfig.logo.highM.y[slice];
-                    section.mesh.slices[slice][letter].position.z += highVolume * currAnimConfig.logo.highM.z[slice];
+                    section.mesh.slices[slice][letter].position.y += highVolume * currAnimConfig.multipliers.logo.high.y[slice];
+                    section.mesh.slices[slice][letter].position.z += highVolume * currAnimConfig.multipliers.logo.high.z[slice];
                     // mid work
-                    section.mesh.slices[slice][letter].position.y += midVolume * currAnimConfig.logo.midM.y[slice];
-                    section.mesh.slices[slice][letter].position.z += midVolume * currAnimConfig.logo.midM.z[slice];
+                    section.mesh.slices[slice][letter].position.y += midVolume * currAnimConfig.multipliers.logo.mid.y[slice];
+                    section.mesh.slices[slice][letter].position.z += midVolume * currAnimConfig.multipliers.logo.mid.z[slice];
                     //low work
-                    section.mesh.slices[slice][letter].position.y += lowVolume * currAnimConfig.logo.lowM.y[slice];
-                    section.mesh.slices[slice][letter].position.z += lowVolume * currAnimConfig.logo.lowM.z[slice];
+                    section.mesh.slices[slice][letter].position.y += lowVolume * currAnimConfig.multipliers.logo.low.y[slice];
+                    section.mesh.slices[slice][letter].position.z += lowVolume * currAnimConfig.multipliers.logo.low.z[slice];
                     //global work
-                    section.mesh.slices[slice][letter].position.y += Pumper.volume * currAnimConfig.logo.globM.y[slice];
-                    section.mesh.slices[slice][letter].position.z += Pumper.volume * currAnimConfig.logo.globM.z[slice];
+                    section.mesh.slices[slice][letter].position.y += Pumper.volume * currAnimConfig.multipliers.logo.global.y[slice];
+                    section.mesh.slices[slice][letter].position.z += Pumper.volume * currAnimConfig.multipliers.logo.global.z[slice];
                 }
             }
         });
@@ -500,12 +546,14 @@ function update() {
         mainViewUpdate = mainView;
         if (mainViewUpdate) {
             console.log('Tweening to main');
-            tweenMain.start();
-            transCamMain.start();
+            newTweenMultipliersMain.start();
+            newTweenPositionsMain.start();
+            newTweenDirectionsMain.start();
         } else {
             console.log('Tweening to low');
-            tweenLow.start();
-            transCamLow.start();
+            newTweenMultipliersLow.start();
+            newTweenPositionsLow.start();
+            newTweenDirectionsLow.start();
         }
     }
 
@@ -521,30 +569,30 @@ function update() {
     logoImageMesh.position.y -= 175;
 
     // Headings container position
-    headingsContainer.position.y = currAnimConfig.headings.base.y;
-    headingsContainer.position.z = currAnimConfig.headings.base.z;
-    headingsContainer.position.y += Pumper.volume * currAnimConfig.headings.globM.y;
-    headingsContainer.position.z += Pumper.volume * currAnimConfig.headings.globM.z;
+    headingsContainer.position.y = currAnimConfig.positions.headings.y;
+    headingsContainer.position.z = currAnimConfig.positions.headings.z;
+    headingsContainer.position.y += Pumper.volume * currAnimConfig.multipliers.headings.global.y;
+    headingsContainer.position.z += Pumper.volume * currAnimConfig.multipliers.headings.global.z;
 
     // Calculate camera direction
     cameraDirection.copy(baseCameraDirection);
-    cameraDirection.x += cameraDir.x;
-    cameraDirection.y += cameraDir.y;
-    cameraDirection.z += cameraDir.z;
+    cameraDirection.x += currAnimConfig.directions.camera.x;
+    cameraDirection.y += currAnimConfig.directions.camera.y;
+    cameraDirection.z += currAnimConfig.directions.camera.z;
     // Calculate camera position
     cameraDirection.add(camera.position);
     camera.lookAt(cameraDirection);
 
     // Base camera positions
-    camera.position.x = currAnimConfig.camera.base.x;
-    camera.position.y = currAnimConfig.camera.base.y;
-    camera.position.z = currAnimConfig.camera.base.z;
-    camera.position.y += Pumper.volume * currAnimConfig.camera.globM.y;
-    camera.position.z += Pumper.volume * currAnimConfig.camera.globM.z;
+    camera.position.x = currAnimConfig.positions.camera.x;
+    camera.position.y = currAnimConfig.positions.camera.y;
+    camera.position.z = currAnimConfig.positions.camera.z;
+    camera.position.y += Pumper.volume * currAnimConfig.multipliers.camera.global.y;
+    camera.position.z += Pumper.volume * currAnimConfig.multipliers.camera.global.z;
 
     // Extra illegal X-axis sizzle
-    camera.position.x += logo.bands.high[6].volume * currAnimConfig.camera.globM.x;
-    camera.position.x -= logo.bands.high[7].volume * currAnimConfig.camera.globM.x;
+    camera.position.x += logo.bands.high[6].volume * currAnimConfig.multipliers.camera.global.x;
+    camera.position.x -= logo.bands.high[7].volume * currAnimConfig.multipliers.camera.global.x;
 }
 
 function frame() {
