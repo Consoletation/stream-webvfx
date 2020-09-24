@@ -11,6 +11,50 @@ import Pumper from 'pumper';
 import OBSWebSocket from 'obs-websocket-js';
 import TWEEN from '@tweenjs/tween.js';
 
+// Static globals
+const obsClient = new OBSWebSocket(); // OBS client
+const headingsMesh = [];
+const headings = [
+    'Starting soon...',
+    'Taking a quick break!',
+    'Thanks for watching!'
+];
+const config = {
+    transparent: {
+        bgColor: [0x000000, 0],
+        textColor: 0xffffff,
+        contLogo: '../../assets/controller-white.png',
+        vignette: {
+            offset: 0.0,
+            darkness: 0.0,
+        },
+        filmGrain: [0, 0, 648, false]
+    },
+    classic: {
+        bgColor: [0xffffff, 1],
+        textColor: 0x000000,
+        contLogo: '../../assets/controller.png',
+        vignette: {
+            offset: 0.5,
+            darkness: 1.6,
+        },
+        filmGrain: [0.12, 0.125, 648, false]
+    }
+};
+
+// Globals updated via init()
+let camera, scene, renderer, composer, glitchPass;
+let baseCameraDirection = new THREE.Vector3;
+let currentConfig = config.transparent; // Default config
+// Globals updated via init() or update()
+let cameraDirection = new THREE.Vector3;
+let logoImageMesh;
+let headingsContainer; // Updated by click() or OBS events
+let currentHeading = 0;
+let mainView = true;
+let mainViewUpdate = true;
+
+// Big logo code
 const logo = new function() {
     this.fulltext = "CONSOLETATION";
     this.splitPoint = 7;
@@ -192,53 +236,6 @@ const logo = new function() {
     };
 };
 
-var camera, scene, renderer, composer, glitchPass;
-var baseCameraDirection = new THREE.Vector3;
-var cameraDirection = new THREE.Vector3;
-var logoTextMesh;
-var logoImageMesh;
-var headingsContainer;
-var headingsMesh = [];
-var headings = [
-    'Starting soon...',
-    'Taking a quick break!',
-    'Thanks for watching!'
-];
-var currentHeading = 0;
-let mainView = true;
-let mainViewUpdate = true;
-
-// OBS client
-const obsClient = new OBSWebSocket();
-
-// Get URL parameters
-const queryString = window.location.search;
-const urlParams = new URLSearchParams(queryString);
-
-var config = {
-    'transparent': {
-        'bgColor': [0x000000, 0],
-        'textColor': 0xffffff,
-        'contLogo': '../../assets/controller-white.png',
-        'vignette': {
-            'offset': 0.0,
-            'darkness': 0.0,
-        },
-        'filmGrain': [0, 0, 648, false]
-    },
-    'classic': {
-        'bgColor': [0xffffff, 1],
-        'textColor': 0x000000,
-        'contLogo': '../../assets/controller.png',
-        'vignette': {
-            'offset': 0.5,
-            'darkness': 1.6,
-        },
-        'filmGrain': [0.12, 0.125, 648, false]
-    }
-};
-var currentConfig = config.transparent; // Default config
-
 const animConfigs = {
     main: {
         logo: {
@@ -304,6 +301,10 @@ const transCamMain2 = new TWEEN.Tween(cameraDir)
 transCamMain.chain(transCamMain2);
 
 function init() {
+
+    // Get URL parameters
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
 
     // Get config from query
     if (urlParams.has('config')) {
