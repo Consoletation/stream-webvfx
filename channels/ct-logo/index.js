@@ -212,6 +212,8 @@ async function initOBS(address, password) {
             // Handle Title text sources
             console.log(`Subscribing to Headings sources changes for headings`);
             obsClient.on('SceneItemVisibilityChanged', function callback(data) {
+                // Ignore events not on 'Flegs' scene
+                if (data.sceneName != 'Flegs') return;
                 if (data.itemName.startsWith('Heading')) {
                     let heading = data.itemName.charAt(data.itemName.length-1) - 1;
                     console.log(`Setting heading text to: ${headings[heading]}`);
