@@ -50,7 +50,7 @@ const config = {
 };
 
 // Globals updated via init()
-let camera, scene, renderer, composer, glitchPass;
+let camera, renderer, composer, glitchPass;
 let baseCameraDirection = new THREE.Vector3;
 let currentConfig = config.transparent; // Default config
 // Globals updated via init() or update()
@@ -120,16 +120,16 @@ function init() {
     camera.lookAt(cameraDirection);
 
     //Create scene
-    scene = new THREE.Scene();
+    const scene = new THREE.Scene();
 
     logo.createMeshs(scene); // Initialize logo meshs
-    initLogoImage();    // Initialize logo image
-    initHeading();      // Initialize subheadings
+    initLogoImage(scene);    // Initialize logo image
+    initHeading(scene);      // Initialize subheadings
 
     //Bring the lights
     scene.add(new THREE.AmbientLight(0xcacaca));
 
-    initPostProcessing();
+    initPostProcessing(scene);
 
     window.addEventListener('resize', onWindowResize, false);
 
@@ -178,7 +178,7 @@ async function initOBS(address, password) {
     );
 }
 
-function initLogoImage(){
+function initLogoImage(scene){
     const basePath = '../../assets/';
     let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImage);
     let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
@@ -191,7 +191,7 @@ function initLogoImage(){
     scene.add(logoImageMesh);
 }
 
-function initHeading(){
+function initHeading(scene){
     headingsContainer = new THREE.Object3D();
     headingsContainer.position.x = window.innerWidth * 0.5;
     headingsContainer.position.y = -1100;
@@ -225,7 +225,7 @@ function initHeading(){
     headingsContainer.add(headingsMesh[currentHeading]);
 }
 
-function initPostProcessing(){
+function initPostProcessing(scene){
     // postprocessing
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
