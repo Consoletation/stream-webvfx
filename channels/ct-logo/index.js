@@ -29,7 +29,7 @@ const config = {
         typeFace: 'rigid-square',
         logoImage: 'controller-white.png',
         logoImageSize: 256,
-        logoImagePosCorr: { x: 342, y: -175 },
+        logoImagePosCorr: { x: -48, y: -175 },
         animationProfiles: ['main', 'low'],
         vignette: {
             offset: 0.0,
@@ -43,7 +43,7 @@ const config = {
         typeFace: 'rigid-square',
         logoImage: 'controller.png',
         logoImageSize: 256,
-        logoImagePosCorr: { x: 342, y: -175 },
+        logoImagePosCorr: { x: -48, y: -175 },
         animationProfiles: ['main', 'low'],
         vignette: {
             offset: 0.5,
@@ -57,7 +57,7 @@ const config = {
         typeFace: 'video',
         logoImage: 'controller-up-white.png',
         logoImageSize: 198,
-        logoImagePosCorr: { x: 284, y: -159 },
+        logoImagePosCorr: { x: -51, y: -159 },
         animationProfiles: ['main', 'lowsplit'],
         vignette: {
             offset: 0.0,
@@ -71,7 +71,7 @@ const config = {
         typeFace: 'video',
         logoImage: 'controller-up.png',
         logoImageSize: 198,
-        logoImagePosCorr: { x: 284, y: -159 },
+        logoImagePosCorr: { x: -51, y: -159 },
         animationProfiles: ['main', 'lowsplit'],
         vignette: {
             offset: 0.5,
@@ -299,10 +299,14 @@ function update() {
     //Animate logo.fulltext layers based on bands
     logo.meshUpdate(animConfig);
 
-    // Animate image mesh with last letter
-    logoImageMesh.position.x = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.x;
-    logoImageMesh.position.y = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.y;
-    logoImageMesh.position.z = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.z;
+    // Animate image mesh with last logo section...
+    logoImageMesh.position.x = logo.sections[1].mesh.container.position.x;
+    logoImageMesh.position.y = logo.sections[1].mesh.container.position.y;
+    logoImageMesh.position.z = logo.sections[1].mesh.container.position.z;
+    // ..and last letter
+    logoImageMesh.position.x += logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.x;
+    logoImageMesh.position.y += logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.y;
+    logoImageMesh.position.z += logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.z;
     // Position correction from config
     logoImageMesh.position.x += currentConfig.logoImagePosCorr.x;
     logoImageMesh.position.y += currentConfig.logoImagePosCorr.y;
