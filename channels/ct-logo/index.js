@@ -23,7 +23,9 @@ const config = {
     transparent: {
         bgColor: [0x000000, 0],
         textColor: 0xffffff,
-        contLogo: '../../assets/controller-white.png',
+        typeFace: 'rigid-square',
+        logoImage: 'controller-white.png',
+        logoImageSize: 256,
         vignette: {
             offset: 0.0,
             darkness: 0.0,
@@ -33,7 +35,9 @@ const config = {
     classic: {
         bgColor: [0xffffff, 1],
         textColor: 0x000000,
-        contLogo: '../../assets/controller.png',
+        typeFace: 'rigid-square',
+        logoImage: 'controller.png',
+        logoImageSize: 256,
         vignette: {
             offset: 0.5,
             darkness: 1.6,
@@ -146,7 +150,7 @@ function init() {
     Pumper.globalSpikeTolerance = 14;
 
     //Create logo
-    logo = new Logo()
+    logo = new Logo("CONSOLETATION", 7, currentConfig.typeFace)
     logo.createBands(); // Pumper bands
 
     //Create renderer
@@ -233,16 +237,16 @@ async function initOBS(address, password) {
 
 // Big logo code
 class Logo {
-    constructor() {
-        this.fulltext = "CONSOLETATION";
-        this.splitPoint = 7;
+    constructor(text, splitPoint, typeFace) {
+        this.fulltext = text;
+        this.splitPoint = splitPoint;
         this.text = [
             this.fulltext.slice(0, this.splitPoint),
             this.fulltext.slice(this.splitPoint, this.fulltext.length)
         ];
         this.font = [
-            '600 160px rigid-square',
-            '300 160px rigid-square'
+            '600 160px ' + typeFace,
+            '300 160px ' + typeFace
         ];
         this.sections = [
             {
@@ -418,12 +422,14 @@ class Logo {
 };
 
 function initLogoImage(){
-    var texture = new THREE.TextureLoader().load(currentConfig.contLogo);
-    var material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
-    var geometry = new THREE.PlaneGeometry(256, 256);
+    const basePath = '../../assets/';
+    let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImage);
+    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+    let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
     logoImageMesh = new THREE.Mesh( geometry, material );
-    logoImageMesh.position.x = 557;  // y is determined in update()
+    // TODO: Set initial position
+    //logoImageMesh.position.x = 557;  // y is determined in update()
 
     scene.add(logoImageMesh);
 }
@@ -438,10 +444,10 @@ function initHeading(){
     for (var heading = 0; heading < headings.length; heading++){
         bitmap = document.createElement('canvas');
         g = bitmap.getContext('2d');
-        g.font = 'normal 48px rigid-square';
+        g.font = 'normal 48px ' + currentConfig.typeFace;
         bitmap.width = g.measureText(headings[heading]).width;
         bitmap.height = 200;
-        g.font = 'normal 48px rigid-square';
+        g.font = 'normal 48px ' + currentConfig.typeFace;
         g.fillStyle = 'white';
         g.fillText(headings[heading], 0, 160);
 
