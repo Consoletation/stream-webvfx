@@ -299,17 +299,21 @@ function update() {
     //Animate logo.fulltext layers based on bands
     logo.meshUpdate(animConfig);
 
-    // Animate image mesh with last logo section...
-    logoImageMesh.position.x = logo.sections[1].mesh.container.position.x;
-    logoImageMesh.position.y = logo.sections[1].mesh.container.position.y;
-    logoImageMesh.position.z = logo.sections[1].mesh.container.position.z;
-    // ..and last letter
-    logoImageMesh.position.x += logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.x;
-    logoImageMesh.position.y += logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.y;
-    logoImageMesh.position.z += logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.z;
+    // Animate image mesh with a section and a letter
+    let tS = Math.round(animConfig.positions.image.tracker[0]);
+    let tL = Math.round(animConfig.positions.image.tracker[1]);
+    logoImageMesh.position.x = logo.sections[tS].mesh.container.position.x;
+    logoImageMesh.position.y = logo.sections[tS].mesh.container.position.y;
+    logoImageMesh.position.z = logo.sections[tS].mesh.container.position.z;
+    logoImageMesh.position.x += logo.sections[tS].mesh.slices[0][tL].position.x;
+    logoImageMesh.position.y += logo.sections[tS].mesh.slices[0][tL].position.y;
+    logoImageMesh.position.z += logo.sections[tS].mesh.slices[0][tL].position.z;
     // Position correction from config
     logoImageMesh.position.x += currentConfig.logoImagePosCorr.x;
     logoImageMesh.position.y += currentConfig.logoImagePosCorr.y;
+    // Position correction from animation config
+    logoImageMesh.position.x += animConfig.positions.image.x;
+    logoImageMesh.position.y += animConfig.positions.image.y;
 
     // Headings container position
     headingsContainer.position.y = animConfig.positions.headings.y;
