@@ -48,39 +48,208 @@ let baseCameraDirection = new THREE.Vector3;
 let currentConfig = config.transparent; // Default config
 // Globals updated via init() or update()
 let cameraDirection = new THREE.Vector3;
+let logo;
 let logoImageMesh;
 let headingsContainer; // Updated by click() or OBS events
 let currentHeading = 0;
 let mainView = true;
 let mainViewUpdate = true;
 
-// Big logo code
-const logo = new function() {
-    this.fulltext = "CONSOLETATION";
-    this.splitPoint = 7;
-    this.text = [
-        this.fulltext.slice(0, this.splitPoint),
-        this.fulltext.slice(this.splitPoint, this.fulltext.length)
-    ];
-    this.font = [
-        '600 160px rigid-square',
-        '300 160px rigid-square'
-    ];
-    this.sections = [
-        {
-            text: this.text[0],
-            font: this.font[0],
-            bands: {}
+const animConfigs = {
+    main: {
+        logo: {
+            base: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            highM: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
+            midM: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
+            lowM: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
+            globM: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
         },
-        {
-            text: this.text[1],
-            font: this.font[1],
-            bands: {}
-        }
-    ];
-    this.bands = {};
+        headings: {
+            base: { y: -900, z: 0 },
+            globM: { y: 0.3, z: 0 },
+        },
+        camera: {
+            base: { x: -43, y: -90, z: 1000 },
+            dirB: { x: 0, y: 0, z: 0 },
+            dirT: { x: 0.18, y: 0, z: 0 },
+            globM: { x: 1, y: 0.3, z: 0.09 },
+        },
+    },
+    low: {
+        logo: {
+            base: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            highM: { y: [0.6, 0.6, 0.6, 0.6], z: [0, 0, 0, 0] },
+            midM: { y: [0.2, 0.2, 0.2, 0.2], z: [0, 0, 0, 0] },
+            lowM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            globM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+        },
+        headings: {
+            base: { y: -1000, z: 0 },
+            globM: { y: 0, z: 0 },
+        },
+        camera: {
+            base: { x: -43, y: 100, z: 720 },
+            dirB: { x: 0, y: 0, z: 0 },
+            dirT: { x: 0, y: 0, z: 0 },
+            globM: { x: 0, y: 0.2, z: 0 },
+        },
+    },
+}
 
-    this.createBands = function() {
+let currAnimConfig = JSON.parse(JSON.stringify(animConfigs.main)); // so gross
+var cameraDir = Object.assign({}, currAnimConfig.camera.dirB);
+const tweenLow = new TWEEN.Tween(currAnimConfig)
+    .to(animConfigs.low, 300)
+    .easing(TWEEN.Easing.Quintic.InOut);
+const tweenMain = new TWEEN.Tween(currAnimConfig)
+    .to(animConfigs.main, 1200)
+    .easing(TWEEN.Easing.Quintic.InOut);
+const transCamLow = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.low.camera.dirT, 150)
+    .easing(TWEEN.Easing.Sinusoidal.In);
+const transCamLow2 = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.low.camera.dirB, 150)
+    .easing(TWEEN.Easing.Sinusoidal.Out);
+transCamLow.chain(transCamLow2);
+const transCamMain = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.main.camera.dirT, 600)
+    .easing(TWEEN.Easing.Sinusoidal.In);
+const transCamMain2 = new TWEEN.Tween(cameraDir)
+    .to(animConfigs.main.camera.dirB, 1200)
+    .easing(TWEEN.Easing.Sinusoidal.Out);
+transCamMain.chain(transCamMain2);
+
+function init() {
+
+    // Get URL parameters
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    // Get config from query
+    if (urlParams.has('config')) {
+        currentConfig = config[urlParams.get('config')]
+    }
+
+    //Create logo
+    logo = new Logo()
+    logo.createBands();
+
+    //Create renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    renderer.domElement.addEventListener('click', click);
+    renderer.setClearColor.apply(null, currentConfig.bgColor);
+
+    //Create camera
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
+    camera.position.x = currAnimConfig.camera.base.x;
+    camera.position.y = currAnimConfig.camera.base.y;
+    camera.position.z = currAnimConfig.camera.base.z;
+    // Get base camera direction
+    camera.getWorldDirection(baseCameraDirection);
+    cameraDirection.copy(baseCameraDirection);
+    cameraDirection.x += cameraDir.x;
+    cameraDirection.y += cameraDir.y;
+    cameraDirection.z += cameraDir.z;
+    // Calculate camera position
+    cameraDirection.add(camera.position);
+    camera.lookAt(cameraDirection);
+
+    //Create scene
+    scene = new THREE.Scene();
+
+    // Initialize OBS client if we have values
+    if (urlParams.has('obs_password')) {
+        let address = 'localhost:4444';
+        if (urlParams.has('obs_address')) {
+            address = urlParams.get('obs_address');
+        }
+        let password = urlParams.get('obs_password');
+        initOBS(address, password);
+    }
+
+    logo.createMeshs(); // Initialize logo meshs
+    initLogoImage();    // Initialize logo image
+    initHeading();      // Initialize subheadings
+
+    //Bring the lights
+    scene.add(new THREE.AmbientLight(0xcacaca));
+
+    initPostProcessing();
+
+    window.addEventListener('resize', onWindowResize, false);
+
+    frame();
+}
+
+function initOBS(address, password) {
+    obsClient.connect({ address: address, password: password }).then(
+        () => {
+            console.log(`OBS Client Connected!`);
+
+            // Get current scene
+            obsClient.send('GetCurrentScene').then(
+                (data) => {
+                    // set mainView if 'Title'
+                    mainView = data.name.startsWith('Title');
+                }
+            );
+
+            // Handle transitions to/from Title scene
+            obsClient.on('TransitionBegin', function callback(data) {
+                mainView = data.toScene.startsWith('Title');
+            })
+
+            // Handle Title text sources
+            obsClient.on('SceneItemVisibilityChanged', function callback(data) {
+                if (data.itemName.startsWith('Heading')) {
+                    let heading = data.itemName.charAt(data.itemName.length-1) - 1;
+                    console.log("Setting heading text to:", headings[heading]);
+                    headingsContainer.remove(headingsMesh[currentHeading]);
+                    currentHeading = heading;
+                    headingsContainer.add(headingsMesh[currentHeading]);
+                }
+            })
+        }
+    ).catch(
+        err => {
+            console.log(err);
+            console.log("Failed to connect to OBS :(");
+        }
+    );
+}
+
+// Big logo code
+class Logo {
+    constructor() {
+        this.fulltext = "CONSOLETATION";
+        this.splitPoint = 7;
+        this.text = [
+            this.fulltext.slice(0, this.splitPoint),
+            this.fulltext.slice(this.splitPoint, this.fulltext.length)
+        ];
+        this.font = [
+            '600 160px rigid-square',
+            '300 160px rigid-square'
+        ];
+        this.sections = [
+            {
+                text: this.text[0],
+                font: this.font[0],
+                bands: {}
+            },
+            {
+                text: this.text[1],
+                font: this.font[1],
+                bands: {}
+            }
+        ];
+        this.bands = {};
+    }
+
+    createBands() {
         this.bands.low = Pumper.createBands(80, 220, this.fulltext.length, 0.3, 0.39, 1.5);
         this.bands.mid = Pumper.createBands(1000, 2800, this.fulltext.length, 0.5, 0.77, 1.1);
         this.bands.high = Pumper.createBands(2440, 10400, this.fulltext.length, 0.6, 0.9, 1.5);
@@ -91,8 +260,9 @@ const logo = new function() {
         this.sections[1].bands.mid = this.bands.mid.slice(this.splitPoint, this.fulltext.length);
         this.sections[0].bands.high = this.bands.high.slice(0, this.splitPoint);
         this.sections[1].bands.high = this.bands.high.slice(this.splitPoint, this.fulltext.length);
-    };
-    this.createMeshs = function() {
+    }
+
+    createMeshs() {
         this.sections.forEach(function(section) {
             let logoTextLayerContainer = new THREE.Object3D();
             scene.add(logoTextLayerContainer);
@@ -205,8 +375,9 @@ const logo = new function() {
         let totalWidth = this.sections[0].mesh.width + this.sections[1].mesh.width;
         this.sections[0].mesh.container.position.x -= (totalWidth - this.sections[0].mesh.width)/2;
         this.sections[1].mesh.container.position.x += (totalWidth - this.sections[1].mesh.width)/2;
-    };
-    this.meshUpdate = function() {
+    }
+
+    meshUpdate() {
         this.sections.forEach(function(section) {
             for (let letter = 0; letter < section.text.length; letter++) {
                 // Band volumes
@@ -235,171 +406,6 @@ const logo = new function() {
         });
     };
 };
-
-const animConfigs = {
-    main: {
-        logo: {
-            base: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
-            highM: { y: [1, 0.1, 1.95, 1.5], z: [0, 0, 0, 0] },
-            midM: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
-            lowM: { y: [0, 0, 0, 0], z: [1, 1, 1, 1] },
-            globM: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
-        },
-        headings: {
-            base: { y: -900, z: 0 },
-            globM: { y: 0.3, z: 0 },
-        },
-        camera: {
-            base: { x: -43, y: -90, z: 1000 },
-            dirB: { x: 0, y: 0, z: 0 },
-            dirT: { x: 0.18, y: 0, z: 0 },
-            globM: { x: 1, y: 0.3, z: 0.09 },
-        },
-    },
-    low: {
-        logo: {
-            base: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-            highM: { y: [0.6, 0.6, 0.6, 0.6], z: [0, 0, 0, 0] },
-            midM: { y: [0.2, 0.2, 0.2, 0.2], z: [0, 0, 0, 0] },
-            lowM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-            globM: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-        },
-        headings: {
-            base: { y: -1000, z: 0 },
-            globM: { y: 0, z: 0 },
-        },
-        camera: {
-            base: { x: -43, y: 100, z: 720 },
-            dirB: { x: 0, y: 0, z: 0 },
-            dirT: { x: 0, y: 0, z: 0 },
-            globM: { x: 0, y: 0.2, z: 0 },
-        },
-    },
-}
-
-let currAnimConfig = JSON.parse(JSON.stringify(animConfigs.main)); // so gross
-var cameraDir = Object.assign({}, currAnimConfig.camera.dirB);
-const tweenLow = new TWEEN.Tween(currAnimConfig)
-    .to(animConfigs.low, 300)
-    .easing(TWEEN.Easing.Quintic.InOut);
-const tweenMain = new TWEEN.Tween(currAnimConfig)
-    .to(animConfigs.main, 1200)
-    .easing(TWEEN.Easing.Quintic.InOut);
-const transCamLow = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.low.camera.dirT, 150)
-    .easing(TWEEN.Easing.Sinusoidal.In);
-const transCamLow2 = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.low.camera.dirB, 150)
-    .easing(TWEEN.Easing.Sinusoidal.Out);
-transCamLow.chain(transCamLow2);
-const transCamMain = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.main.camera.dirT, 600)
-    .easing(TWEEN.Easing.Sinusoidal.In);
-const transCamMain2 = new TWEEN.Tween(cameraDir)
-    .to(animConfigs.main.camera.dirB, 1200)
-    .easing(TWEEN.Easing.Sinusoidal.Out);
-transCamMain.chain(transCamMain2);
-
-function init() {
-
-    // Get URL parameters
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-
-    // Get config from query
-    if (urlParams.has('config')) {
-        currentConfig = config[urlParams.get('config')]
-    }
-
-    //Create bands
-    logo.createBands();
-
-    //Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-    renderer.domElement.addEventListener('click', click);
-    renderer.setClearColor.apply(null, currentConfig.bgColor);
-
-    //Create camera
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.x = currAnimConfig.camera.base.x;
-    camera.position.y = currAnimConfig.camera.base.y;
-    camera.position.z = currAnimConfig.camera.base.z;
-    // Get base camera direction
-    camera.getWorldDirection(baseCameraDirection);
-    cameraDirection.copy(baseCameraDirection);
-    cameraDirection.x += cameraDir.x;
-    cameraDirection.y += cameraDir.y;
-    cameraDirection.z += cameraDir.z;
-    // Calculate camera position
-    cameraDirection.add(camera.position);
-    camera.lookAt(cameraDirection);
-
-    //Create scene
-    scene = new THREE.Scene();
-
-    // Initialize OBS client if we have values
-    if (urlParams.has('obs_password')) {
-        let address = 'localhost:4444';
-        if (urlParams.has('obs_address')) {
-            address = urlParams.get('obs_address');
-        }
-        let password = urlParams.get('obs_password');
-        initOBS(address, password);
-    }
-
-    logo.createMeshs(); // Initialize logo meshs
-    initLogoImage();    // Initialize logo image
-    initHeading();      // Initialize subheadings
-
-    //Bring the lights
-    scene.add(new THREE.AmbientLight(0xcacaca));
-
-    initPostProcessing();
-
-    window.addEventListener('resize', onWindowResize, false);
-
-    frame();
-}
-
-function initOBS(address, password) {
-    obsClient.connect({ address: address, password: password }).then(
-        () => {
-            console.log(`OBS Client Connected!`);
-
-            // Get current scene
-            obsClient.send('GetCurrentScene').then(
-                (data) => {
-                    // set mainView if 'Title'
-                    mainView = data.name.startsWith('Title');
-                }
-            );
-
-            // Handle transitions to/from Title scene
-            obsClient.on('TransitionBegin', function callback(data) {
-                mainView = data.toScene.startsWith('Title');
-            })
-
-            // Handle Title text sources
-            obsClient.on('SceneItemVisibilityChanged', function callback(data) {
-                if (data.itemName.startsWith('Heading')) {
-                    let heading = data.itemName.charAt(data.itemName.length-1) - 1;
-                    console.log("Setting heading text to:", headings[heading]);
-                    headingsContainer.remove(headingsMesh[currentHeading]);
-                    currentHeading = heading;
-                    headingsContainer.add(headingsMesh[currentHeading]);
-                }
-            })
-        }
-    ).catch(
-        err => {
-            console.log(err);
-            console.log("Failed to connect to OBS :(");
-        }
-    );
-}
 
 function initLogoImage(){
     var texture = new THREE.TextureLoader().load(currentConfig.contLogo);
