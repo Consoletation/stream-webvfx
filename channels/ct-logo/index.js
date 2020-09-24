@@ -30,6 +30,7 @@ const config = {
         logoImage: 'controller-white.png',
         logoImageSize: 256,
         logoImagePosCorr: { x: 342, y: -175 },
+        animationProfiles: ['main', 'low'],
         vignette: {
             offset: 0.0,
             darkness: 0.0,
@@ -43,6 +44,7 @@ const config = {
         logoImage: 'controller.png',
         logoImageSize: 256,
         logoImagePosCorr: { x: 342, y: -175 },
+        animationProfiles: ['main', 'low'],
         vignette: {
             offset: 0.5,
             darkness: 1.6,
@@ -56,6 +58,7 @@ const config = {
         logoImage: 'controller-up-white.png',
         logoImageSize: 198,
         logoImagePosCorr: { x: 284, y: -159 },
+        animationProfiles: ['main', 'lowsplit'],
         vignette: {
             offset: 0.0,
             darkness: 0.0,
@@ -69,6 +72,7 @@ const config = {
         logoImage: 'controller-up.png',
         logoImageSize: 198,
         logoImagePosCorr: { x: 284, y: -159 },
+        animationProfiles: ['main', 'lowsplit'],
         vignette: {
             offset: 0.5,
             darkness: 1.6,
@@ -89,10 +93,7 @@ let headingsContainer; // Updated by click() or OBS events
 let currentHeading = 0;
 let mainView = true;
 let mainViewUpdate = true;
-
-// Current animation presets
-// Updated via tweens and applied within update()
-const animConfig = new AnimationConfig('main');
+let animConfig;
 
 function init() {
 
@@ -104,6 +105,9 @@ function init() {
     if (urlParams.has('config')) {
         currentConfig = config[urlParams.get('config')]
     }
+
+    // Set up animation config
+    animConfig = new AnimationConfig(currentConfig.animationProfiles[0]);
 
     // Initialize OBS client if we have values
     // This is asyncronous and will set up in the background
@@ -285,10 +289,10 @@ function update() {
         mainViewUpdate = mainView;
         if (mainViewUpdate) {
             console.log('Tweening to main');
-            animConfig.transition('main');
+            animConfig.transition(currentConfig.animationProfiles[0]);
         } else {
-            console.log('Tweening to low');
-            animConfig.transition('low');
+            console.log('Tweening to sub');
+            animConfig.transition(currentConfig.animationProfiles[1]);
         }
     }
 

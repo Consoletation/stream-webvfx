@@ -9,6 +9,7 @@ function jCopy(object) {
 const profiles = {
     main: {},
     low: {},
+    lowsplit: {},
 };
 profiles.main.multipliers = {
     base: {
@@ -107,6 +108,38 @@ profiles.low.directions = {
         },
     },
 };
+profiles.lowsplit.multipliers = profiles.low.multipliers;
+profiles.lowsplit.positions = {
+    base: {
+        logo: [
+            { x: 259, y: 68 },
+            { x: -258, y: -68 },
+        ],
+        letters: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+        headings: { y: -1000, z: 0 },
+        camera: { x: -43, y: 100, z: 720 },
+    },
+    transition: {
+        logo: [
+            { x: 0, y: 68 },
+            { x: 0, y: -68 },
+        ],
+        letters: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+        headings: { y: -1000, z: 0 },
+        camera: { x: -43, y: 100, z: 720 },
+    },
+    tween: {
+        base: {
+            time: 300,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+        transition: {
+            time: 600,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+    },
+};
+profiles.lowsplit.directions = profiles.low.directions;
 
 class AnimationConfig {
 
