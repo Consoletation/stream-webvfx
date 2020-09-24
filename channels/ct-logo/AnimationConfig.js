@@ -34,6 +34,10 @@ profiles.main.multipliers = {
 };
 profiles.main.positions = {
     base: {
+        logo: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+        ],
         letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
         headings: { y: -900, z: 0 },
         camera: { x: -43, y: -90, z: 1000 },
@@ -82,6 +86,10 @@ profiles.low.multipliers = {
 };
 profiles.low.positions = {
     base: {
+        logo: [
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
+        ],
         letters: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
         headings: { y: -1000, z: 0 },
         camera: { x: -43, y: 100, z: 720 },

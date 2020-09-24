@@ -159,6 +159,19 @@ class Logo {
     }
 
     meshUpdate(config) {
+        // Base position calculation
+        let totalWidth = this.sections[0].mesh.width + this.sections[1].mesh.width;
+        this.sections[0].mesh.container.position.x = -(totalWidth - this.sections[0].mesh.width)/2;
+        this.sections[1].mesh.container.position.x = +(totalWidth - this.sections[1].mesh.width)/2;
+        this.sections[0].mesh.container.position.y = 0;
+        this.sections[1].mesh.container.position.y = 0;
+        // Offset from animConfig
+        this.sections[0].mesh.container.position.x += config.positions.logo[0].x;
+        this.sections[0].mesh.container.position.y += config.positions.logo[0].y;
+        this.sections[1].mesh.container.position.x += config.positions.logo[1].x;
+        this.sections[1].mesh.container.position.y += config.positions.logo[1].y;
+
+        // Letter position and animation
         this.sections.forEach(function(section) {
             for (let letter = 0; letter < section.text.length; letter++) {
                 // Band volumes
@@ -166,7 +179,7 @@ class Logo {
                 let midVolume = section.bands.mid[letter].volume;
                 let highVolume = section.bands.high[letter].volume;
 
-                // Letter animation
+                // Per slice
                 for (let slice = 0; slice < section.mesh.slices.length; slice++) {
                     // Base positions
                     section.mesh.slices[slice][letter].position.y = config.positions.letters.y[slice];
