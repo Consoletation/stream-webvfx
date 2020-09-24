@@ -64,9 +64,7 @@ let mainViewUpdate = true;
 
 // Current animation presets
 // Updated via tweens and applied within update()
-let animConfig = new AnimationConfig();
-animConfig.loadProfile('main');
-animConfig.setupTweens(); // Set up tweens
+const animConfig = new AnimationConfig('main');
 
 function init() {
 
@@ -108,15 +106,15 @@ function init() {
 
     //Create camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.x = animConfig.current.positions.camera.x;
-    camera.position.y = animConfig.current.positions.camera.y;
-    camera.position.z = animConfig.current.positions.camera.z;
+    camera.position.x = animConfig.positions.camera.x;
+    camera.position.y = animConfig.positions.camera.y;
+    camera.position.z = animConfig.positions.camera.z;
     // Get base camera direction
     camera.getWorldDirection(baseCameraDirection);
     cameraDirection.copy(baseCameraDirection);
-    cameraDirection.x += animConfig.current.directions.camera.x;
-    cameraDirection.y += animConfig.current.directions.camera.y;
-    cameraDirection.z += animConfig.current.directions.camera.z;
+    cameraDirection.x += animConfig.directions.camera.x;
+    cameraDirection.y += animConfig.directions.camera.y;
+    cameraDirection.z += animConfig.directions.camera.z;
     // Calculate camera position
     cameraDirection.add(camera.position);
     camera.lookAt(cameraDirection);
@@ -259,21 +257,15 @@ function update() {
         mainViewUpdate = mainView;
         if (mainViewUpdate) {
             console.log('Tweening to main');
-            //animConfig.transition.main.start();
-            animConfig.transition.main.tweens.forEach(function(tween) {
-                tween.start();
-            });
+            animConfig.transition('main');
         } else {
             console.log('Tweening to low');
-            //animConfig.transition.low.start();
-            animConfig.transition.low.tweens.forEach(function(tween) {
-                tween.start();
-            });
+            animConfig.transition('low');
         }
     }
 
     //Animate logo.fulltext layers based on bands
-    logo.meshUpdate(animConfig.current);
+    logo.meshUpdate(animConfig);
 
     // Animate image mesh with last letter
     logoImageMesh.position.x = logo.sections[1].mesh.slices[0][logo.sections[1].text.length - 1].position.x;
@@ -284,30 +276,30 @@ function update() {
     logoImageMesh.position.y -= 175;
 
     // Headings container position
-    headingsContainer.position.y = animConfig.current.positions.headings.y;
-    headingsContainer.position.z = animConfig.current.positions.headings.z;
-    headingsContainer.position.y += Pumper.volume * animConfig.current.multipliers.headings.global.y;
-    headingsContainer.position.z += Pumper.volume * animConfig.current.multipliers.headings.global.z;
+    headingsContainer.position.y = animConfig.positions.headings.y;
+    headingsContainer.position.z = animConfig.positions.headings.z;
+    headingsContainer.position.y += Pumper.volume * animConfig.multipliers.headings.global.y;
+    headingsContainer.position.z += Pumper.volume * animConfig.multipliers.headings.global.z;
 
     // Calculate camera direction
     cameraDirection.copy(baseCameraDirection);
-    cameraDirection.x += animConfig.current.directions.camera.x;
-    cameraDirection.y += animConfig.current.directions.camera.y;
-    cameraDirection.z += animConfig.current.directions.camera.z;
+    cameraDirection.x += animConfig.directions.camera.x;
+    cameraDirection.y += animConfig.directions.camera.y;
+    cameraDirection.z += animConfig.directions.camera.z;
     // Calculate camera position
     cameraDirection.add(camera.position);
     camera.lookAt(cameraDirection);
 
     // Base camera positions
-    camera.position.x = animConfig.current.positions.camera.x;
-    camera.position.y = animConfig.current.positions.camera.y;
-    camera.position.z = animConfig.current.positions.camera.z;
-    camera.position.y += Pumper.volume * animConfig.current.multipliers.camera.global.y;
-    camera.position.z += Pumper.volume * animConfig.current.multipliers.camera.global.z;
+    camera.position.x = animConfig.positions.camera.x;
+    camera.position.y = animConfig.positions.camera.y;
+    camera.position.z = animConfig.positions.camera.z;
+    camera.position.y += Pumper.volume * animConfig.multipliers.camera.global.y;
+    camera.position.z += Pumper.volume * animConfig.multipliers.camera.global.z;
 
     // Extra illegal X-axis sizzle
-    camera.position.x += logo.bands.high[6].volume * animConfig.current.multipliers.camera.global.x;
-    camera.position.x -= logo.bands.high[7].volume * animConfig.current.multipliers.camera.global.x;
+    camera.position.x += logo.bands.high[6].volume * animConfig.multipliers.camera.global.x;
+    camera.position.x -= logo.bands.high[7].volume * animConfig.multipliers.camera.global.x;
 }
 
 function frame() {
