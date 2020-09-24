@@ -28,7 +28,7 @@ const config = {
         bgColor: [0x000000, 0],
         textColor: 0xffffff,
         typeFace: 'rigid-square',
-        logoImage: 'controller-white.png',
+        logoImages: ['controller-white.png'],
         logoImageSize: 256,
         logoImagePosCorr: { x: -48, y: -175 },
         animationProfiles: ['main', 'low'],
@@ -42,7 +42,7 @@ const config = {
         bgColor: [0xffffff, 1],
         textColor: 0x000000,
         typeFace: 'rigid-square',
-        logoImage: 'controller.png',
+        logoImages: ['controller.png'],
         logoImageSize: 256,
         logoImagePosCorr: { x: -48, y: -175 },
         animationProfiles: ['main', 'low'],
@@ -56,7 +56,7 @@ const config = {
         bgColor: [0x000000, 0],
         textColor: 0xffffff,
         typeFace: 'video',
-        logoImage: 'controller-up-white.png',
+        logoImages: ['controller-up-white.png', 'controller-right-white.png'],
         logoImageSize: 198,
         logoImagePosCorr: { x: -51, y: -159 },
         animationProfiles: ['main', 'lowsplit'],
@@ -70,7 +70,7 @@ const config = {
         bgColor: [0xffffff, 1],
         textColor: 0x000000,
         typeFace: 'video',
-        logoImage: 'controller-up.png',
+        logoImages: ['controller-up.png', 'controller-right.png'],
         logoImageSize: 198,
         logoImagePosCorr: { x: -51, y: -159 },
         animationProfiles: ['main', 'lowsplit'],
@@ -92,6 +92,7 @@ let logo;
 let headingsContainer; // Updated by click() or OBS events
 let imageContainer;
 let currentHeading = 0;
+let currentImage = 0;
 let mainView = true;
 let mainViewUpdate = true;
 let animConfig;
@@ -216,13 +217,15 @@ function initLogoImage(scene){
     scene.add(imageContainer);
 
     const basePath = '../../assets/';
-    let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImage);
-    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
-    let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
+    for (let image = 0; image < currentConfig.logoImages.length; image++) {
+        let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImages[image]);
+        let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+        let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
-    let logoImageMesh = new THREE.Mesh( geometry, material );
-    imagesMesh.push(logoImageMesh);
-    imageContainer.add(imagesMesh[0]);
+        let logoImageMesh = new THREE.Mesh( geometry, material );
+        imagesMesh.push(logoImageMesh);
+    }
+    imageContainer.add(imagesMesh[currentImage]);
 }
 
 function initHeading(scene){
