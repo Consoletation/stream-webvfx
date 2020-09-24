@@ -130,9 +130,24 @@ function init() {
         currentConfig = config[urlParams.get('config')]
     }
 
+    // Initialize OBS client if we have values
+    // This is asyncronous and will set up in the background
+    if (urlParams.has('obs_password')) {
+        let address = 'localhost:4444';
+        if (urlParams.has('obs_address')) {
+            address = urlParams.get('obs_address');
+        }
+        let password = urlParams.get('obs_password');
+        initOBS(address, password);
+    }
+
+    // Initialize pumper
+    Pumper.start('mic', 1160, 14000, 12);
+    Pumper.globalSpikeTolerance = 14;
+
     //Create logo
     logo = new Logo()
-    logo.createBands();
+    logo.createBands(); // Pumper bands
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -160,16 +175,6 @@ function init() {
     //Create scene
     scene = new THREE.Scene();
 
-    // Initialize OBS client if we have values
-    if (urlParams.has('obs_password')) {
-        let address = 'localhost:4444';
-        if (urlParams.has('obs_address')) {
-            address = urlParams.get('obs_address');
-        }
-        let password = urlParams.get('obs_password');
-        initOBS(address, password);
-    }
-
     logo.createMeshs(); // Initialize logo meshs
     initLogoImage();    // Initialize logo image
     initHeading();      // Initialize subheadings
@@ -184,8 +189,8 @@ function init() {
     frame();
 }
 
-function initOBS(address, password) {
-    obsClient.connect({ address: address, password: password }).then(
+async function initOBS(address, password) {
+    return obsClient.connect({ address: address, password: password }).then(
         () => {
             console.log(`OBS Client Connected!`);
 
@@ -194,19 +199,22 @@ function initOBS(address, password) {
                 (data) => {
                     // set mainView if 'Title'
                     mainView = data.name.startsWith('Title');
+                    console.log(`Current scene is ${data.name}, mainView is ${mainView}`);
                 }
             );
 
             // Handle transitions to/from Title scene
+            console.log(`Subscribing to 'TransitionBegin' events for mainView`);
             obsClient.on('TransitionBegin', function callback(data) {
                 mainView = data.toScene.startsWith('Title');
             })
 
             // Handle Title text sources
+            console.log(`Subscribing to Headings sources changes for headings`);
             obsClient.on('SceneItemVisibilityChanged', function callback(data) {
                 if (data.itemName.startsWith('Heading')) {
                     let heading = data.itemName.charAt(data.itemName.length-1) - 1;
-                    console.log("Setting heading text to:", headings[heading]);
+                    console.log(`Setting heading text to: ${headings[heading]}`);
                     headingsContainer.remove(headingsMesh[currentHeading]);
                     currentHeading = heading;
                     headingsContainer.add(headingsMesh[currentHeading]);
