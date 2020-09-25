@@ -1,3 +1,4 @@
+import 'core-js/features/math/clamp';
 import * as THREE from 'three';
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
 import { TestShader } from '../../libs/three/shaders/TestShader.js';
@@ -96,6 +97,7 @@ let currentImage = 0;
 let mainView = true;
 let mainViewUpdate = true;
 let animConfig;
+const updateFuncs = [];
 
 function init() {
 
@@ -217,15 +219,53 @@ function initLogoImage(scene){
     scene.add(imageContainer);
 
     const basePath = '../../assets/';
-    for (let image = 0; image < currentConfig.logoImages.length; image++) {
-        let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImages[image]);
-        let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
-        let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
+    let loader = new THREE.FileLoader();
+    let textureLoader = new THREE.TextureLoader();
+    for (let i = 0; i < currentConfig.logoImages.length; i++) {
+        let image = currentConfig.logoImages[i];
+        let json = false;
+        if (image.endsWith('.json')) {
+            json = image;
+            image = image.replace('.json', '.png');
+        }
+        textureLoader.load(basePath + image, function(texture) {
+            let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+            let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
+            let logoImageMesh = new THREE.Mesh( geometry, material );
+            imagesMesh.push(logoImageMesh);
+            // Add first loaded image to imageContainer
+            if (i == 0) {
+                currentImage = i;
+                imageContainer.add(imagesMesh[currentImage]);
+            }
 
-        let logoImageMesh = new THREE.Mesh( geometry, material );
-        imagesMesh.push(logoImageMesh);
+            // If sprite sheet, load all textures and store a reference within the material
+            // We'll use these later for animation
+            if (json) {
+                loader.load(basePath + json, function(data) {
+                    data = JSON.parse(data);
+                    // Update texture with frame data
+                    sheetLoader(data, texture);
+                    // Create an update function to call during update loop
+                    let updateTexture = new function() {
+                        this.texture = texture;
+                        this.update = function() {
+                            if (this.texture.hasOwnProperty('_frames')) {
+                                // Clamp to frames in case we're out of bounds
+                                let frame = Math.clamp(
+                                    Math.round(animConfig.references.image.frame),
+                                    0,
+                                    this.texture._frames.length - 1
+                                );
+                                this.texture.offset = this.texture._frames[frame].offset;
+                            }
+                        }
+                    }
+                    updateFuncs.push(updateTexture);
+                });
+            }
+        });
     }
-    imageContainer.add(imagesMesh[currentImage]);
 }
 
 function initHeading(scene){
@@ -288,6 +328,7 @@ function initPostProcessing(scene){
 function update() {
     Pumper.update();
     TWEEN.update();
+    updateFuncs.forEach(function(func) { func.update(); });
 
     // Handle animation config change
     if (mainView !== mainViewUpdate) {
@@ -377,6 +418,35 @@ function click() {
     if (currentHeading > headings.length - 1) {currentHeading = 0;}
     headingsContainer.add(headingsMesh[currentHeading]);
     mainView = !mainView;
+}
+
+// Loads spritesheet information and stores it within the texture
+function sheetLoader(json, texture) {
+    let frames = [];
+    let width = json.meta.size.w;
+    let height = json.meta.size.h;
+
+    for (let i = 0; i < json.frames.length; i++) {
+        let data = json.frames[i];
+        let frame = {};
+        if (data.rotated) {
+            throw "We can't handle rotated textures yet!";
+        } else {
+            frame.repeat = [ data.frame.w / width, data.frame.h / height ];
+            frame.offset = {
+                x: (data.frame.x) / width,
+                y: 1 - (data.frame.h / height) - (data.frame.y / height)
+            };
+        }
+        frames.push(frame);
+    }
+    // Store frame data in texture
+    texture._frames = frames;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    // Set offset once
+    texture.repeat.set(...texture._frames[0].repeat);
+    // Update texture to first frame
+    texture.offset = texture._frames[0].offset;
 }
 
 var BeatProcessing = {
