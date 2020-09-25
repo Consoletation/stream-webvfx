@@ -376,6 +376,7 @@ function click() {
     currentHeading++;
     if (currentHeading > headings.length - 1) {currentHeading = 0;}
     headingsContainer.add(headingsMesh[currentHeading]);
+    mainView = !mainView;
 }
 
 var BeatProcessing = {
