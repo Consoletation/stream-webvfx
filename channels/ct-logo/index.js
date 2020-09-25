@@ -304,9 +304,16 @@ function update() {
     //Animate logo.fulltext layers based on bands
     logo.meshUpdate(animConfig);
 
+    // Check if we should change image
+    let iC = animConfig.references.image.current;
+    if (iC != currentImage) {
+        imageContainer.remove(imagesMesh[currentImage]);
+        currentImage = iC;
+        imageContainer.add(imagesMesh[currentImage]);
+    }
     // Animate image mesh with a section and a letter
-    let tS = Math.round(animConfig.positions.image.tracker[0]);
-    let tL = Math.round(animConfig.positions.image.tracker[1]);
+    let tS = animConfig.references.image.tracker[0];
+    let tL = animConfig.references.image.tracker[1];
     imageContainer.position.x = logo.sections[tS].mesh.container.position.x;
     imageContainer.position.y = logo.sections[tS].mesh.container.position.y;
     imageContainer.position.z = logo.sections[tS].mesh.container.position.z;

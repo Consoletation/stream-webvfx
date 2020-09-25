@@ -4,6 +4,9 @@ function jCopy(object) {
     return JSON.parse(JSON.stringify(object));
 };
 
+function Round(k) {
+	return Math.round(k);
+}
 
 // Animation configurations
 const profiles = {
@@ -40,7 +43,7 @@ profiles.main.positions = {
             { x: 0, y: 0 },
         ],
         letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
-        image: { x: 0, y: 0, tracker: [1, 5] },
+        image: { x: 0, y: 0 },
         headings: { y: -900, z: 0 },
         camera: { x: -43, y: -90, z: 1000 },
     },
@@ -61,6 +64,20 @@ profiles.main.directions = {
         transition: {
             time: 600,
             easing: TWEEN.Easing.Sinusoidal.In,
+        },
+    },
+};
+profiles.main.references = {
+    base: {
+        image: {
+            current: 0,
+            tracker: [1, 5],
+        },
+    },
+    tween: {
+        base: {
+            time: 1200,
+            easing: Round,
         },
     },
 };
@@ -93,7 +110,7 @@ profiles.low.positions = {
             { x: 0, y: 0 },
         ],
         letters: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-        image: { x: 0, y: 0, tracker: [1, 5] },
+        image: { x: 0, y: 0 },
         headings: { y: -1000, z: 0 },
         camera: { x: -43, y: 100, z: 720 },
     },
@@ -110,6 +127,7 @@ profiles.low.directions = {
         },
     },
 };
+profiles.low.references = profiles.main.references;
 profiles.lowsplit.multipliers = profiles.low.multipliers;
 profiles.lowsplit.positions = {
     base: {
@@ -118,7 +136,7 @@ profiles.lowsplit.positions = {
             { x: -258, y: -68 },
         ],
         letters: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-        image: { x: -88, y: 118, tracker: [1, 0] },
+        image: { x: -88, y: 118 },
         headings: { y: -1000, z: 0 },
         camera: { x: -43, y: 100, z: 720 },
     },
@@ -128,7 +146,7 @@ profiles.lowsplit.positions = {
             { x: 0, y: -68 },
         ],
         letters: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
-        image: { x: 0, y: -400, tracker: [1, 2] },
+        image: { x: 0, y: -400 },
         headings: { y: -1000, z: 0 },
         camera: { x: -43, y: 100, z: 720 },
     },
@@ -144,6 +162,30 @@ profiles.lowsplit.positions = {
     },
 };
 profiles.lowsplit.directions = profiles.low.directions;
+profiles.lowsplit.references = {
+    base: {
+        image: {
+            current: 1,
+            tracker: [1, 0],
+        },
+    },
+    transition: {
+        image: {
+            current: 0,
+            tracker: [1, 5],
+        },
+    },
+    tween: {
+        base: {
+            time: 1,
+            easing: Round,
+        },
+        transition: {
+            time: 600,
+            easing: Round,
+        },
+    },
+};
 
 class AnimationConfig {
 
@@ -153,6 +195,7 @@ class AnimationConfig {
         this.multipliers = jCopy(profiles[profile].multipliers.base);
         this.positions = jCopy(profiles[profile].positions.base);
         this.directions = jCopy(profiles[profile].directions.base);
+        this.references = jCopy(profiles[profile].references.base);
         this._tweens = {};
         // set up tweens
         for (const [profile, config] of Object.entries(profiles)) {
@@ -161,7 +204,7 @@ class AnimationConfig {
     };
 
     // Set up tweens for a profile
-    // Handles the three presets (multipliers, positions, directions)
+    // Handles all presets
     // If we have an intermediate (transition) we set up a chain
     setupTween(config) {
         const tweens = [];
