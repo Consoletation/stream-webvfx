@@ -47,8 +47,27 @@ profiles.main.positions = {
         headings: { y: -900, z: 0 },
         camera: { x: -43, y: -90, z: 1000 },
     },
+    transition: {
+        logo: [
+            { x: 0, y: 68 },
+            { x: 0, y: -68 },
+        ],
+        letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+        image: { x: 0, y: -1600 },
+        headings: { y: -900, z: 0 },
+        camera: { x: -43, y: -90, z: 1000 },
+    },
+    tween: {
+        base: {
+            time: 600,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+        transition: {
+            time: 300,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+    },
 };
-profiles.main.positions.tween = profiles.main.multipliers.tween;
 profiles.main.directions = {
     base: {
         camera: { x: 0, y: 0, z: 0 },
