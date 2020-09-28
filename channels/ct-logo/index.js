@@ -18,10 +18,15 @@ import Logo from './Logo.js';
 const obsClient = new OBSWebSocket(); // OBS client
 const headingsMesh = [];
 const headings = [
-    'Starting soon...',
-    'Taking a quick break!',
-    'Thanks for watching!'
+    ['Want to improve your game for stream?'],
+    ['Create beautiful alerts and logos?'],
+    [
+        '9TH - 10TH OCTOBER 2020, ONLINE',
+        'WORKSHOP PRE-DAY 8TH OCTOBER',
+        '#NIDC2020'
+    ]
 ];
+const views = ['one', 'two', 'three'];
 const imagesMesh = [];
 const config = {
     transparent: {
@@ -55,9 +60,9 @@ const config = {
     transparentNew: {
         bgColor: [0x000000, 0],
         textColor: 0xffffff,
-        typeFace: 'video',
-        logoImages: ['controller-up-white.png', 'controller-right-white.png'],
-        logoImageSize: 198,
+        typeFace: 'Open Sans',
+        logoImages: ['NIDevConf2020.png'],
+        logoImageSize: 1093,
         logoImagePosCorr: { x: -51, y: -159 },
         animationProfiles: ['main', 'lowsplit'],
         vignette: {
@@ -92,10 +97,27 @@ let logo;
 let headingsContainer; // Updated by click() or OBS events
 let imageContainer;
 let currentHeading = 0;
+let currentView = views[0];
 let currentImage = 0;
 let mainView = true;
 let mainViewUpdate = true;
 let animConfig;
+let video;
+
+let loopy = function() {
+    setTimeout(function() {
+        renderer.domElement.click(); // First
+        setTimeout(function() {
+            renderer.domElement.click(); // Second
+            setTimeout(function() {
+                renderer.domElement.click(); // Third
+                loopy();
+            }, 7031.25);
+        }, 4218.75);
+    }, 3750);
+};
+loopy();
+
 
 function init() {
 
@@ -109,7 +131,7 @@ function init() {
     }
 
     // Set up animation config
-    animConfig = new AnimationConfig(currentConfig.animationProfiles[0]);
+    animConfig = new AnimationConfig(currentView);
 
     // Initialize OBS client if we have values
     // This is asyncronous and will set up in the background
@@ -127,7 +149,7 @@ function init() {
     Pumper.globalSpikeTolerance = 14;
 
     //Create logo
-    logo = new Logo("CONSOLETATION", 7, currentConfig.typeFace, currentConfig.textColor)
+    logo = new Logo("             ", 7, currentConfig.typeFace, currentConfig.textColor)
     logo.createBands(); // Pumper bands
 
     //Create renderer
@@ -158,6 +180,7 @@ function init() {
 
     logo.createMeshs(scene); // Initialize logo meshs
     initLogoImage(scene);    // Initialize logo image
+    initVideo(scene);
     initHeading(scene);      // Initialize subheadings
 
     //Bring the lights
@@ -201,6 +224,10 @@ async function initOBS(address, password) {
                     headingsContainer.remove(headingsMesh[currentHeading]);
                     currentHeading = heading;
                     headingsContainer.add(headingsMesh[currentHeading]);
+                    glitchPass.goWild = true;
+                    setTimeout(function (){
+                        glitchPass.goWild = false;
+                    }, 100)
                 }
             })
         }
@@ -219,13 +246,31 @@ function initLogoImage(scene){
     const basePath = '../../assets/';
     for (let image = 0; image < currentConfig.logoImages.length; image++) {
         let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImages[image]);
-        let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+        let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 1.0, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
         let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
         let logoImageMesh = new THREE.Mesh( geometry, material );
         imagesMesh.push(logoImageMesh);
     }
     imageContainer.add(imagesMesh[currentImage]);
+}
+
+function initVideo(scene) {
+    //assuming you have created a HTML video element with id="video"
+    video = document.createElement('video');
+    video.src = "../../assets/nidc-promo.webm";
+    video.load();
+    //video.play();
+
+    let texture = new THREE.VideoTexture( video );
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.format = THREE.RGBFormat;
+    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: false, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+    let geometry = new THREE.PlaneGeometry(960, 540);
+    let videoMesh = new THREE.Mesh( geometry, material );
+    imagesMesh.push(videoMesh);
+    //scene.add(videoMesh);
 }
 
 function initHeading(scene){
@@ -235,29 +280,35 @@ function initHeading(scene){
     scene.add(headingsContainer);
 
     var headingMesh, bitmap, g, texture, material, geometry;
-    for (var heading = 0; heading < headings.length; heading++){
-        bitmap = document.createElement('canvas');
-        g = bitmap.getContext('2d');
-        g.font = 'normal 48px ' + currentConfig.typeFace;
-        bitmap.width = g.measureText(headings[heading]).width;
-        bitmap.height = 200;
-        g.font = 'normal 48px ' + currentConfig.typeFace;
-        g.fillStyle = 'white';
-        g.fillText(headings[heading], 0, 160);
+    for (let set = 0; set < headings.length; set++) {
+        let setContainer = new THREE.Object3D();
 
-        texture = new THREE.Texture(bitmap);
-        texture.needsUpdate = true;
-        texture.minFilter = THREE.LinearFilter;
-
-        material = new THREE.MeshBasicMaterial({
-            map: texture, color: currentConfig.textColor, transparent: true, opacity: 1
-        });
-        geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
-        headingMesh = new THREE.Mesh(geometry, material);
-        headingMesh.position.x = window.innerWidth * -0.5;
-        headingMesh.position.y = window.innerHeight * 0.5;
-
-        headingsMesh.push(headingMesh);
+        for (let heading = 0; heading < headings[set].length; heading++){
+            bitmap = document.createElement('canvas');
+            g = bitmap.getContext('2d');
+            g.font = '600 72px ' + currentConfig.typeFace;
+            bitmap.width = g.measureText(headings[set][heading]).width;
+            bitmap.height = 200;
+            g.font = '600 72px ' + currentConfig.typeFace;
+            g.fillStyle = 'white';
+            g.fillText(headings[set][heading], 0, 160);
+    
+            texture = new THREE.Texture(bitmap);
+            texture.needsUpdate = true;
+            texture.minFilter = THREE.LinearFilter;
+    
+            material = new THREE.MeshBasicMaterial({
+                map: texture, color: currentConfig.textColor, transparent: true, opacity: 1, depthFunc: THREE.AlwaysDepth
+            });
+            geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
+            headingMesh = new THREE.Mesh(geometry, material);
+            headingMesh.position.x = window.innerWidth * -0.5;
+            headingMesh.position.y = window.innerHeight * 0.5;
+            headingMesh.position.y -= heading * 100;
+    
+            setContainer.add(headingMesh);
+        }
+        headingsMesh.push(setContainer);
     }
     headingsContainer.add(headingsMesh[currentHeading]);
 }
@@ -289,18 +340,6 @@ function update() {
     Pumper.update();
     TWEEN.update();
 
-    // Handle animation config change
-    if (mainView !== mainViewUpdate) {
-        mainViewUpdate = mainView;
-        if (mainViewUpdate) {
-            console.log('Tweening to main');
-            animConfig.transition(currentConfig.animationProfiles[0]);
-        } else {
-            console.log('Tweening to sub');
-            animConfig.transition(currentConfig.animationProfiles[1]);
-        }
-    }
-
     //Animate logo.fulltext layers based on bands
     logo.meshUpdate(animConfig);
 
@@ -309,6 +348,8 @@ function update() {
     if (iC != currentImage) {
         imageContainer.remove(imagesMesh[currentImage]);
         currentImage = iC;
+        video.currentTime = 0;
+        video.play();
         imageContainer.add(imagesMesh[currentImage]);
     }
     // Animate image mesh with a section and a letter
@@ -328,6 +369,8 @@ function update() {
     imageContainer.position.y += animConfig.positions.image.y;
 
     // Headings container position
+    headingsContainer.position.x = window.innerWidth * 0.5;
+    headingsContainer.position.x += animConfig.positions.headings.x;
     headingsContainer.position.y = animConfig.positions.headings.y;
     headingsContainer.position.z = animConfig.positions.headings.z;
     headingsContainer.position.y += Pumper.volume * animConfig.multipliers.headings.global.y;
@@ -368,15 +411,18 @@ function onWindowResize() {
 
 function click() {
     //Pumper.play();  // if needed
-    glitchPass.goWild = true;
-    setTimeout(function (){
-        glitchPass.goWild = false;
-    }, 100)
-    headingsContainer.remove(headingsMesh[currentHeading]);
+    let current = currentHeading;
     currentHeading++;
-    if (currentHeading > headings.length - 1) {currentHeading = 0;}
-    headingsContainer.add(headingsMesh[currentHeading]);
-    mainView = !mainView;
+    if (currentHeading > headingsMesh.length - 1) {currentHeading = 0;}
+    setTimeout(function() {
+        headingsContainer.remove(headingsMesh[current]);
+        headingsContainer.add(headingsMesh[currentHeading]);
+    }, 500);
+    let view = views[currentHeading];
+    if (view != currentView) {
+        animConfig.transition(view);
+        currentView = view;
+    }
 }
 
 var BeatProcessing = {
