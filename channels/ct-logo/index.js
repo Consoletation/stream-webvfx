@@ -57,9 +57,9 @@ const config = {
         bgColor: [0x000000, 0],
         textColor: 0xffffff,
         typeFace: 'video',
-        logoImages: ['controller-up-white.png', 'controller-right-white.png'],
+        logoImages: ['controller-up-white.png', 'controller-right-white2.json'],
         logoImageSize: 198,
-        logoImagePosCorr: { x: -51, y: -159 },
+        logoImagePosCorr: { x: -35, y: -80 },
         animationProfiles: ['main', 'lowsplit'],
         vignette: {
             offset: 0.0,
@@ -229,7 +229,11 @@ function initLogoImage(scene){
             image = image.replace('.json', '.png');
         }
         textureLoader.load(basePath + image, function(texture) {
-            let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+            let material = new THREE.MeshLambertMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+            material.needsUpdate = true;
+            material.polygonOffset = true;
+            material.polygonOffsetUnits = 1;
+            material.polygonOffsetFactor = -1;
             let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
             let logoImageMesh = new THREE.Mesh( geometry, material );
             imagesMesh.push(logoImageMesh);

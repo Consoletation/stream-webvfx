@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "CST_Controller_00013",
+	"frame": {"x":1,"y":1,"w":990,"h":990},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":990,"h":990},
+	"sourceSize": {"w":990,"h":990}
+},
+{
+	"filename": "CST_Controller_00014",
+	"frame": {"x":993,"y":1,"w":990,"h":990},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":990,"h":990},
+	"sourceSize": {"w":990,"h":990}
+},
+{
+	"filename": "CST_Controller_00015",
+	"frame": {"x":1985,"y":1,"w":990,"h":990},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":990,"h":990},
+	"sourceSize": {"w":990,"h":990}
+},
+{
+	"filename": "CST_Controller_00016",
+	"frame": {"x":2977,"y":1,"w":990,"h":990},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":990,"h":990},
+	"sourceSize": {"w":990,"h":990}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "controller-right-white3.png",
+	"format": "RGBA8888",
+	"size": {"w":3968,"h":992},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:5624f2183d8d4ad3c9e92e2a045b7e9a:7792873fe201ca63b4ae85bfdec2e6aa:9a5f4adbcefdcf8df6dddc641e350434$"
+}
+}
