@@ -27,6 +27,7 @@ const config = {
     transparent: {
         bgColor: [0x000000, 0],
         textColor: 0xffffff,
+        opacityFactor: 1,
         typeFace: 'rigid-square',
         logoImages: ['controller-white.png'],
         logoImageSize: 256,
@@ -41,6 +42,7 @@ const config = {
     classic: {
         bgColor: [0xffffff, 1],
         textColor: 0x000000,
+        opacityFactor: 0.8,
         typeFace: 'rigid-square',
         logoImages: ['controller.png'],
         logoImageSize: 256,
@@ -55,6 +57,7 @@ const config = {
     transparentNew: {
         bgColor: [0x000000, 0],
         textColor: 0xffffff,
+        opacityFactor: 1,
         typeFace: 'video',
         logoImages: ['controller-up-white.png', 'controller-right-white.png'],
         logoImageSize: 198,
@@ -69,6 +72,7 @@ const config = {
     classicNew: {
         bgColor: [0xffffff, 1],
         textColor: 0x000000,
+        opacityFactor: 0.8,
         typeFace: 'video',
         logoImages: ['controller-up.png', 'controller-right.png'],
         logoImageSize: 198,
@@ -127,7 +131,7 @@ function init() {
     Pumper.globalSpikeTolerance = 14;
 
     //Create logo
-    logo = new Logo("CONSOLETATION", 7, currentConfig.typeFace, currentConfig.textColor)
+    logo = new Logo("CONSOLETATION", 7, currentConfig.typeFace, currentConfig.textColor, currentConfig.opacityFactor * 0.6)
     logo.createBands(); // Pumper bands
 
     //Create renderer
@@ -219,7 +223,7 @@ function initLogoImage(scene){
     const basePath = '../../assets/';
     for (let image = 0; image < currentConfig.logoImages.length; image++) {
         let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImages[image]);
-        let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+        let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: currentConfig.opacityFactor * 0.8, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
         let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
         let logoImageMesh = new THREE.Mesh( geometry, material );
@@ -250,7 +254,7 @@ function initHeading(scene){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map: texture, color: currentConfig.textColor, transparent: true, opacity: 1
+            map: texture, color: currentConfig.textColor, transparent: true, opacity: currentConfig.opacityFactor
         });
         geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
         headingMesh = new THREE.Mesh(geometry, material);

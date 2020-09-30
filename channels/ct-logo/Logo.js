@@ -3,7 +3,7 @@ import Pumper from 'pumper';
 
 // Big logo code
 class Logo {
-    constructor(text, splitPoint, typeFace, color) {
+    constructor(text, splitPoint, typeFace, color, opacity) {
         this.fulltext = text;
         this.splitPoint = splitPoint;
         this.text = [
@@ -15,6 +15,7 @@ class Logo {
             '300 160px ' + typeFace
         ];
         this.color = color;
+        this.opacity = opacity;
         this.sections = [
             {
                 text: this.text[0],
@@ -112,7 +113,7 @@ class Logo {
                     map: texture,
                     color: this.color,
                     transparent: true,
-                    opacity: 0.0,
+                    opacity: this.opacity,
                     side: THREE.DoubleSide,
                     polygonOffset: true,
                     polygonOffsetUnits: -1,
@@ -126,7 +127,7 @@ class Logo {
                 let posY = 0;
 
                 let logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(bitmap.width, 200), material);
-                logoTextLayerMesh.material.opacity = 0.6;
+                logoTextLayerMesh.material.opacity = this.opacity * 1;
                 logoTextLayerMesh.position.set(posX, posY, 0);
                 logoTextLayerMesh.material.polygonOffsetFactor = -1;
                 logoTextLayerContainer.add(logoTextLayerMesh);
@@ -136,7 +137,7 @@ class Logo {
                 logoTextLayerMesh2.material = material.clone();
                 logoTextLayerMesh2.position.set(posX, posY, 0);
                 logoTextLayerMesh2.material.polygonOffsetFactor = -2;
-                logoTextLayerMesh2.material.opacity = 0.05;
+                logoTextLayerMesh2.material.opacity /= 5;
                 logoTextLayerContainer.add(logoTextLayerMesh2);
                 slices2.push(logoTextLayerMesh2);
 
@@ -144,7 +145,7 @@ class Logo {
                 logoTextLayerMesh3.material = material.clone();
                 logoTextLayerMesh3.position.set(posX, posY, 0);
                 logoTextLayerMesh3.material.polygonOffsetFactor = -3;
-                logoTextLayerMesh3.material.opacity = 0.05;
+                logoTextLayerMesh3.material.opacity /= 5;
                 logoTextLayerContainer.add(logoTextLayerMesh3);
                 slices3.push(logoTextLayerMesh3);
 
@@ -152,7 +153,7 @@ class Logo {
                 logoTextLayerMesh4.material = material.clone();
                 logoTextLayerMesh4.position.set(posX, posY, 0);
                 logoTextLayerMesh4.material.polygonOffsetFactor = -4;
-                logoTextLayerMesh4.material.opacity = 0.1;
+                logoTextLayerMesh4.material.opacity /= 3;
                 logoTextLayerContainer.add(logoTextLayerMesh4);
                 slices4.push(logoTextLayerMesh4);
             };
