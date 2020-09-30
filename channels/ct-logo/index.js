@@ -8,6 +8,7 @@ import { GlitchPass } from '../../libs/three/postprocessing/GlitchPassCustom.js'
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import Pumper from 'pumper';
+import WebMidi from 'webmidi';
 import OBSWebSocket from 'obs-websocket-js';
 import TWEEN from '@tweenjs/tween.js';
 
@@ -97,6 +98,7 @@ let headingsContainer; // Updated by click() or OBS events
 let imageContainer;
 let currentHeading = 0;
 let currentImage = 0;
+let beatMs; // Updated by initWebMidi listener if enabled
 let mainView = true;
 let mainViewUpdate = true;
 let animConfig;
@@ -124,6 +126,10 @@ function init() {
         }
         let password = urlParams.get('obs_password');
         initOBS(address, password);
+    }
+
+    if (urlParams.has('midi')) {
+        initWebMidi(urlParams.get('midi'));
     }
 
     // Initialize pumper
@@ -211,6 +217,42 @@ async function initOBS(address, password) {
             console.log("Failed to connect to OBS :(");
         }
     );
+}
+
+function initWebMidi(device) {
+    console.log("Setting up WebMidi...");
+    WebMidi.enable(function(err) {
+        if (err) {
+            console.warn("WebMidi could not be enabled.", err);
+            return;
+        }
+
+        console.log(`Setting up WebMidi with ${device}`);
+        let midiDevice =
+            WebMidi.getInputById(device) ||
+            WebMidi.getInputByName(device) ||
+            false;
+        if (!midiDevice) {
+            console.warn(`Could not find MIDI device ${device}`);
+            return;
+        }
+
+        let clockTimes = [];
+        let lastTimestamp;
+        let beat = 24; // 24 clock events is 1 beat;
+        let getBeatMs = () => clockTimes.reduce((a, b) => a+b, 0) * (beat / clockTimes.length);
+        midiDevice.addListener('clock', "all", function(e) {
+            if (lastTimestamp) clockTimes.push(e.timestamp - lastTimestamp);
+            while (clockTimes.length > beat) clockTimes.shift();
+            lastTimestamp = e.timestamp;
+
+            beatMs = getBeatMs();
+            // Scale between 60-120bpm
+            //while (beatMs < 500) beatMs *= 2;
+            //while (beatMs >= 1000) beatMs /= 2;
+            //let bpm = 60000 / beatMs;
+        });
+    });
 }
 
 function initLogoImage(scene){
