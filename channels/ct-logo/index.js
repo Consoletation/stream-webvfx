@@ -164,9 +164,6 @@ function init() {
     initLogoImage(scene);    // Initialize logo image
     initHeading(scene);      // Initialize subheadings
 
-    //Bring the lights
-    scene.add(new THREE.AmbientLight(0xcacaca));
-
     initPostProcessing(scene);
 
     window.addEventListener('resize', onWindowResize, false);
