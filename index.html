@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+<title>.:. +rehabstudio 10th Birthday Party .:.</title>
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=VT323">
+<link rel="stylesheet" href="common.css"/>
+
+<style>
+    body {
+        background: black url('./assets/static.gif') repeat center center;
+        background-size: 500px;
+    }
+
+    #controls {
+        position: absolute;
+        overflow: hidden;
+        opacity: 0.5;
+        width: 20px;
+        height: 20px;
+        bottom: 0;
+        left: 0;
+        z-index: 60;
+    }
+
+    #instructions {
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        position: absolute;
+        z-index: 40;
+        bottom: 30px;
+        left: 30px;
+        font-size: 2em;
+        padding: 1em;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 3s linear;
+        -webkit-transition: opacity 3s linear;
+    }
+
+    #instructions.visible {
+        transition: none;
+        opacity: 1;
+    }
+
+    #instructions p {
+        padding: 0;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    #frame {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+
+    #mainframe {
+        background: transparent;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    #cross {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        top: 50%;
+        left: 50%;
+        margin-top: -250px;
+        margin-left: -250px;
+        background: transparent url('./assets/static.gif') repeat center center;
+        background-size: 502px;
+        -webkit-clip-path: polygon(0% 35%, 35% 35%, 35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%);
+        clip-path: polygon(0% 35%, 35% 35%, 35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%);
+    }
+
+    #osd {
+        position: absolute;
+        z-index: 30;
+        top: 20px;
+        right: 20px;
+        background: black;
+        text-align: right;
+        padding: 0.5em;
+        font-size: 3em;
+        font-family: 'VT323', monospace;
+        color: #00ff00;
+        text-transform: lowercase;
+        display: none;
+    }
+
+    #channel-name {
+        text-transform: uppercase;
+    }
+
+    #osd.visible {
+        display: block;
+    }
+</style>
+</head>
+<body>
+    <div id="controls">
+        <input type="text" size="1" readonly />
+    </div>
+    <div id="frame">
+        <iframe id="mainframe" width="100%" height="100%" allowscrolling="no" frameborder="0" src=""></iframe>
+        <div id="cross"></div>
+    </div>
+    <div id="osd">
+        <span id="channel-name">algoviz</span><br/ >
+        <small id="channel-author">Neil</small>
+    </div>
+    <div id="instructions" class="visible">
+        <div id="channel-list">
+            <p>0 - [dead]</p>
+        </div>
+        <div>
+            <p>------</p>
+            <p>r - toggle auto-random</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/jquery@1.11.3"></script>
+    <script src="main.js"></script>
+</body>
+</html>
