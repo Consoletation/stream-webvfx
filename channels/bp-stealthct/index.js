@@ -21,16 +21,17 @@ var currentColor = 0;
 var main;
 var divisions = 16, bands = [];
 
-var camera, scene, renderer, composer, glitchPass;
+var camera, scene, renderer, composer, filmPass, glitchPass;
 var shapesContainer, light;
-var shapeMesh, shapeMaterial, shapeGeometry;
-var shapeStrokeLine, shapeStrokeLine, shapeStrokeGeometry;
+var shape, shapeMesh, shapeMaterial, shapeGeometry, shapePoints;
+var shapeStrokeLine, shapeStrokeLine, shapeStrokeMaterial, shapeStrokeGeometry;
+var namesContainer;
 var namesMesh = [];
 var currentName = 6;
 var currentShape = 0;
-var glitchPass;
 var stage = 0;
 
+var circleLine;
 var randomCircleScale = 0;
 
 function init() {
@@ -44,7 +45,7 @@ function init() {
     Datas.names.unshift('Starting soon');
 
     //Create bands
-    Pumper.createBands(divisions, 1, 1.25);
+    Pumper.createBands(1440, 14000, divisions, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
