@@ -58,23 +58,23 @@ profiles.main.positions = {
         },
         {
             logo: [
-                { x: 0, y: 0 },
-                { x: 0, y: 0 },
+                { x: 0, y: 68 },
+                { x: 0, y: 68 },
             ],
             letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
             image: { x: 0, y: -800 },
             headings: { y: -900, z: 0 },
-            camera: { x: -43, y: -90, z: 1000 },
+            camera: { x: -43, y: 0, z: 1000 },
         },
         {
             logo: [
-                { x: 0, y: 0 },
-                { x: 0, y: 0 },
+                { x: 0, y: 90 },
+                { x: 0, y: 90 },
             ],
             letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
             image: { x: 0, y: 0 },
             headings: { y: -900, z: 0 },
-            camera: { x: -43, y: -90, z: 1000 },
+            camera: { x: -43, y: 0, z: 1000 },
         },
     ],
     tween: [
@@ -182,6 +182,48 @@ profiles.low.directions = {
 };
 profiles.low.references = profiles.main.references;
 profiles.lowsplit.multipliers = profiles.low.multipliers;
+profiles.lowsplit.multipliers = {
+    data: [
+        {
+            letters: {
+                high: { y: [0.8, 0.2, 1.4, 1], z: [0, 0, 0, 0] },
+                mid: { y: [0.5, 0.1, 0.8, 0.4], z: [0, 0, 0, 0] },
+                low: { y: [0, 0, 0, 0], z: [0.5, 0.5, 0.5, 0.5] },
+                global: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            },
+            headings: {
+                global: { y: 0, z: 0 },
+            },
+            camera: {
+                global: { x: 0, y: 0.2, z: 0 },
+            },
+        },
+        {
+            letters: {
+                high: { y: [0.6, 0.6, 0.6, 0.6], z: [0, 0, 0, 0] },
+                mid: { y: [0.2, 0.2, 0.2, 0.2], z: [0, 0, 0, 0] },
+                low: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+                global: { y: [0, 0, 0, 0], z: [0, 0, 0, 0] },
+            },
+            headings: {
+                global: { y: 0, z: 0 },
+            },
+            camera: {
+                global: { x: 0, y: 0.2, z: 0 },
+            },
+        },
+    ],
+    tween: [
+        {
+            time: 600,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+        {
+            time: 300,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+    ],
+};
 profiles.lowsplit.positions = {
     data: [
         {
@@ -191,8 +233,8 @@ profiles.lowsplit.positions = {
             ],
             letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
             image: { x: 0, y: -400 },
-            headings: { y: -1000, z: 0 },
-            camera: { x: -43, y: 100, z: 720 },
+            headings: { y: -1100, z: 0 },
+            camera: { x: -43, y: 0, z: 720 },
         },
         {
             logo: [
@@ -201,8 +243,8 @@ profiles.lowsplit.positions = {
             ],
             letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
             image: { x: -88, y: -400 },
-            headings: { y: -1000, z: 0 },
-            camera: { x: -43, y: 100, z: 720 },
+            headings: { y: -1100, z: 0 },
+            camera: { x: -43, y: 0, z: 720 },
         },
         {
             logo: [
@@ -211,8 +253,8 @@ profiles.lowsplit.positions = {
             ],
             letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
             image: { x: -88, y: 118 },
-            headings: { y: -1000, z: 0 },
-            camera: { x: -43, y: 100, z: 720 },
+            headings: { y: -1100, z: 0 },
+            camera: { x: -43, y: 0, z: 520 },
         },
     ],
     tween: [
@@ -226,7 +268,7 @@ profiles.lowsplit.positions = {
         },
         {
             time: 900,
-            easing: TWEEN.Easing.Sinusoidal.Out,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
         },
     ],
 };
