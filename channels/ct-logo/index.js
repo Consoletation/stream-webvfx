@@ -202,6 +202,12 @@ async function initOBS(address, password) {
                     headingsContainer.remove(headingsMesh[currentHeading]);
                     currentHeading = heading;
                     headingsContainer.add(headingsMesh[currentHeading]);
+
+                    // Do some glitch effect
+                    glitchPass.goWild = true;
+                    setTimeout(function (){
+                        glitchPass.goWild = false;
+                    }, 100)
                 }
             })
         }
