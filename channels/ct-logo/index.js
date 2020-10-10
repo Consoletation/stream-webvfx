@@ -32,7 +32,7 @@ const config = {
         logoImages: ['controller-white.png'],
         logoImageSize: 256,
         logoImagePosCorr: { x: -48, y: -175 },
-        animationProfiles: ['main', 'low'],
+        animationProfiles: { title: 'main', corner: 'low', alert: 'low' },
         vignette: {
             offset: 0.0,
             darkness: 0.0,
@@ -47,7 +47,7 @@ const config = {
         logoImages: ['controller.png'],
         logoImageSize: 256,
         logoImagePosCorr: { x: -48, y: -175 },
-        animationProfiles: ['main', 'low'],
+        animationProfiles: { title: 'main', corner: 'low', alert: 'low' },
         vignette: {
             offset: 0.5,
             darkness: 1.6,
@@ -62,7 +62,7 @@ const config = {
         logoImages: ['controller-up-white.png', 'controller-right-white.png'],
         logoImageSize: 198,
         logoImagePosCorr: { x: -51, y: -159 },
-        animationProfiles: ['main', 'lowsplit'],
+        animationProfiles: { title: 'main', corner: 'lowsplit', alert: 'alert' },
         vignette: {
             offset: 0.0,
             darkness: 0.0,
@@ -77,7 +77,7 @@ const config = {
         logoImages: ['controller-up.png', 'controller-right.png'],
         logoImageSize: 198,
         logoImagePosCorr: { x: -51, y: -159 },
-        animationProfiles: ['main', 'lowsplit'],
+        animationProfiles: { title: 'main', corner: 'lowsplit', alert: 'alert' },
         vignette: {
             offset: 0.5,
             darkness: 1.6,
@@ -97,8 +97,8 @@ let headingsContainer; // Updated by click() or OBS events
 let imageContainer;
 let currentHeading = 0;
 let currentImage = 0;
-let mainView = true;
-let mainViewUpdate = true;
+let newProfile = 'title';
+let currentProfile = 'title';
 let animConfig;
 
 function init() {
@@ -113,7 +113,7 @@ function init() {
     }
 
     // Set up animation config
-    animConfig = new AnimationConfig(currentConfig.animationProfiles[0]);
+    animConfig = new AnimationConfig(currentConfig.animationProfiles[currentProfile]);
 
     // Initialize OBS client if we have values
     // This is asyncronous and will set up in the background
@@ -171,6 +171,12 @@ function init() {
     frame();
 }
 
+function sceneAnimProfile(sceneName) {
+    if (sceneName.startsWith('Title')) return 'title';
+    if (sceneName.includes('Alert')) return 'alert';
+    return 'corner';
+}
+
 async function initOBS(address, password) {
     return obsClient.connect({ address: address, password: password }).then(
         () => {
@@ -179,16 +185,16 @@ async function initOBS(address, password) {
             // Get current scene
             obsClient.send('GetCurrentScene').then(
                 (data) => {
-                    // set mainView if 'Title'
-                    mainView = data.name.startsWith('Title');
-                    console.log(`Current scene is ${data.name}, mainView is ${mainView}`);
+                    // set animProfile from scene
+                    newProfile = sceneAnimProfile(data.name);
+                    console.log(`Current scene is ${data.name}, newProfile is ${newProfile}`);
                 }
             );
 
-            // Handle transitions to/from Title scene
-            console.log(`Subscribing to 'TransitionBegin' events for mainView`);
+            // Handle transitions to/from scenes
+            console.log(`Subscribing to 'TransitionBegin' events for newProfile`);
             obsClient.on('TransitionBegin', function callback(data) {
-                mainView = data.toScene.startsWith('Title');
+                newProfile = sceneAnimProfile(data.toScene);
             })
 
             // Handle Title text sources
@@ -297,15 +303,11 @@ function update() {
     TWEEN.update();
 
     // Handle animation config change
-    if (mainView !== mainViewUpdate) {
-        mainViewUpdate = mainView;
-        if (mainViewUpdate) {
-            console.log('Tweening to main');
-            animConfig.transition(currentConfig.animationProfiles[0]);
-        } else {
-            console.log('Tweening to sub');
-            animConfig.transition(currentConfig.animationProfiles[1]);
-        }
+    if (newProfile !== currentProfile) {
+        currentProfile = newProfile;
+        let name = currentConfig.animationProfiles[currentProfile];
+        console.log(`Tweening to ${name}`);
+        animConfig.transition(name);
     }
 
     //Animate logo.fulltext layers based on bands
@@ -383,7 +385,6 @@ function click() {
     currentHeading++;
     if (currentHeading > headings.length - 1) {currentHeading = 0;}
     headingsContainer.add(headingsMesh[currentHeading]);
-    mainView = !mainView;
 }
 
 var BeatProcessing = {

@@ -19,6 +19,7 @@ const profiles = {
     main: {},
     low: {},
     lowsplit: {},
+    alert: {},
 };
 profiles.main.multipliers = {
     data: [
@@ -141,7 +142,7 @@ profiles.low.multipliers = {
                 global: { y: 0, z: 0 },
             },
             camera: {
-                global: { x: 0, y: 0.2, z: 0 },
+                global: { x: 0, y: 0.5, z: 0 },
             },
         },
     ],
@@ -209,7 +210,7 @@ profiles.lowsplit.multipliers = {
                 global: { y: 0, z: 0 },
             },
             camera: {
-                global: { x: 0, y: 0.2, z: 0 },
+                global: { x: 0, y: 1.0, z: 0 },
             },
         },
     ],
@@ -256,6 +257,16 @@ profiles.lowsplit.positions = {
             headings: { y: -1100, z: 0 },
             camera: { x: -43, y: 0, z: 520 },
         },
+        {
+            logo: [
+                { x: 259, y: 68 },
+                { x: -258, y: -68 },
+            ],
+            letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            image: { x: -88, y: 118 },
+            headings: { y: -1100, z: 0 },
+            camera: { x: -2600, y: 1450, z: 2500 },
+        },
     ],
     tween: [
         {
@@ -269,6 +280,10 @@ profiles.lowsplit.positions = {
         {
             time: 900,
             easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+        {
+            time: 2500,
+            easing: TWEEN.Easing.Quintic.InOut,
         },
     ],
 };
@@ -285,6 +300,96 @@ profiles.lowsplit.references = {
             image: {
                 current: 1,
                 tracker: [1, 0],
+            },
+        },
+    ],
+    tween: [
+        {
+            time: 600,
+            easing: Round,
+        },
+        {
+            time: 1,
+            easing: Round,
+        },
+    ],
+};
+profiles.alert.multipliers = profiles.lowsplit.multipliers;
+profiles.alert.positions = {
+    data: [
+        {
+            logo: [
+                { x: 259, y: 68 },
+                { x: -258, y: -68 },
+            ],
+            letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            image: { x: -88, y: -800 },
+            headings: { y: -1300, z: 0 },
+            camera: { x: -500, y: 0, z: 1020 },
+        },
+        {
+            logo: [
+                { x: 0, y: 68 },
+                { x: 0, y: -68 },
+            ],
+            letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            image: { x: 0, y: -800 },
+            headings: { y: -1300, z: 0 },
+            camera: { x: -500, y: 0, z: 1020 },
+        },
+        {
+            logo: [
+                { x: 0, y: 150 },
+                { x: 0, y: 150 },
+            ],
+            letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            image: { x: 0, y: 0 },
+            headings: { y: -1300, z: 0 },
+            camera: { x: -500, y: 0, z: 1020 },
+        },
+        {
+            logo: [
+                { x: 0, y: 150 },
+                { x: 0, y: 150 },
+            ],
+            letters: { y: [0, 8, 0, 0], z: [0, 0, 0, 0] },
+            image: { x: 0, y: 0 },
+            headings: { y: -1300, z: 0 },
+            camera: { x: -600, y: 0, z: 1020 },
+        },
+    ],
+    tween: [
+        {
+            time: 600,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+        {
+            time: 300,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+        {
+            time: 900,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
+        },
+        {
+            time: 5000,
+            easing: TWEEN.Easing.Linear.None,
+        },
+    ],
+};
+profiles.alert.directions = profiles.lowsplit.directions;
+profiles.alert.references = {
+    data: [
+        {
+            image: {
+                current: 1,
+                tracker: [1, 0],
+            },
+        },
+        {
+            image: {
+                current: 0,
+                tracker: [1, 5],
             },
         },
     ],
