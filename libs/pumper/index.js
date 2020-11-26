@@ -160,6 +160,10 @@ Pumper.start = function(srcValue, start = 880, end = 7720, precision = 12) {
                     echoCancellation: false,
                     noiseSuppression: false,
                     autoGainControl: false,
+                    latency: {
+                        exact: 0.003,
+                        ideal: 0.003,
+                    },
                 },
                 video: false
             },
