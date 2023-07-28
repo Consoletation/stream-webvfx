@@ -1,3 +1,4 @@
+import TweenMax from 'gsap';
 import * as THREE from 'three';
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
 import { TestShader } from '../../libs/three/shaders/TestShader.js';
@@ -33,6 +34,8 @@ var stage = 0;
 
 var randomCircleScale = 0;
 
+var circleLine, shapeStrokeMaterial, namesContainer, shapePoints;
+
 function init() {
 
     Datas.names = shuffle(Datas.names);
@@ -44,7 +47,7 @@ function init() {
     Datas.names.unshift('Starting soon');
 
     //Create bands
-    Pumper.createBands(divisions, 1, 1.25);
+    Pumper.createBands(800, 12000, divisions, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -78,7 +81,7 @@ function init() {
     window.addEventListener( 'resize', onWindowResize, false );
     glitchPass.goWild = false;
 
-
+    var _t, _ft, _rft;
     _t = _ft = _rft = Date.now();
     frame();
 }
@@ -186,17 +189,7 @@ function initName(){
 function initCircle(){
     var segmentCount = 256,
     radius = 200,
-    geometry = new THREE.Geometry();
-
-    for (var i = 0; i <= segmentCount; i++) {
-        var theta = (i / segmentCount) * Math.PI * 2;
-        geometry.vertices.push(
-            new THREE.Vector3(
-                Math.cos(theta) * radius,
-                Math.sin(theta) * radius,
-                0));
-    }
-
+    geometry = new THREE.CircleGeometry( radius, segmentCount );
 
     circleLine = new THREE.LineSegments(
         geometry,
@@ -223,7 +216,7 @@ function initShape(){
     }
 
     //Create current shape
-    shape = new THREE.Shape( shapePoints );
+    var shape = new THREE.Shape( shapePoints );
     shapeStrokeGeometry = shape.createPointsGeometry();
     var spacedPoints = shape.createSpacedPointsGeometry( 20 );
 
@@ -261,7 +254,7 @@ function initPostProcessing(){
     effectVignette.uniforms[ "darkness" ].value = 1.6;
     composer.addPass( effectVignette );
 
-    effectFilmPass = new FilmPass( 0.12, 0.125, 648, false );
+    var effectFilmPass = new FilmPass( 0.12, 0.125, 648, false );
     effectFilmPass.renderToScreen = true;
     composer.addPass( effectFilmPass );
 }
@@ -370,7 +363,7 @@ function tweenVertices(duration){
 }
 
 function update() {
-    _t = Date.now();
+    var _t = Date.now();
 
     Pumper.update();
 
@@ -416,7 +409,7 @@ function update() {
     // camera.rotation.x = Pumper.volume * -0.0005;
     scale = Pumper.volume * 0.002 + 1;
     shapeMesh.scale.set(scale, scale, scale);
-    circleScale = randomCircleScale + (scale * 1.3);
+    var circleScale = randomCircleScale + (scale * 1.3);
     circleLine.scale.set(circleScale, circleScale, circleScale);
     setTimeout(function (){
         shapeStrokeLine.scale.set(scale + 0.1, scale + 0.1, scale + 0.1);
