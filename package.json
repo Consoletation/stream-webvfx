@@ -11,7 +11,7 @@
   "dependencies": {
     "@tweenjs/tween.js": "^21.0.0",
     "obs-websocket-js": "^4.0.3",
-    "three": "^0.124.0",
+    "three": "^0.128.0",
     "webmidi": "^3.1.6"
   },
   "scripts": {
