@@ -167,19 +167,17 @@ Pumper.start = function(srcValue, start = 880, end = 7720, precision = 12) {
                 video: false
             },
             function(stream) {
-                console.log('foo');
                 window.stream = stream; // make stream available to console
                 micStream = stream;
                 const audioTracks = stream.getAudioTracks();
                 console.log('Using audio device: ' + audioTracks[0].label);
-                console.debug(`Pumper: mic stream ready`, stream);
                 // TODO: throw 'ready' event
                 source = AUDIO.createMediaStreamSource(stream);
                 source.connect(analyzer); // Don't connect mic to output
                 console.log('Pumper: mic stream ready');
             },
             function(error) {
-                __err('Error opening microphone stream');
+                __err('Error opening microphone stream', error);
             }
         );
     } else {
