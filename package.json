@@ -14,7 +14,7 @@
     "obs-websocket-js": "^4.0.1",
     "pex-geom": "^2.0.2",
     "three": "^0.120.0",
-    "webmidi": "^2.5.1"
+    "webmidi": "^3.1.6"
   },
   "scripts": {
     "start:dev": "webpack-dev-server --host 0.0.0.0 --hot --https",

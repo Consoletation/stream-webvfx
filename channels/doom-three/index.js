@@ -3,7 +3,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 
 import Pumper from 'pumper';
-import WebMidi from 'webmidi';
+import { WebMidi } from 'webmidi';
 import TWEEN from '@tweenjs/tween.js';
 
 const pumperBandCount = 26;

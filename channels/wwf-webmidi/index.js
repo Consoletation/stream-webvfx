@@ -7,7 +7,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import Pumper from 'pumper';
-import WebMidi from 'webmidi';
+import { WebMidi } from 'webmidi';
 import TWEEN from '@tweenjs/tween.js';
 
 var logoText = 'WWF';
