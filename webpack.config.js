@@ -46,5 +46,11 @@ module.exports = {
                 ]
             }
         ]
-    }
+    },
+    mode: 'development',
+    performance: {
+        hints: false,
+        maxEntrypointSize: 1024000,
+        maxAssetSize: 1024000
+    },
 };

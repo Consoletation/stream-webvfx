@@ -1,10 +1,12 @@
 {
   "devDependencies": {
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
     "copy-webpack-plugin": "^6.1.1",
     "glslify-loader": "^2.0.0",
-    "webpack": "~4",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "~3.11.0"
+    "webpack": "~5",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "~4.15.1"
   },
   "dependencies": {
     "@tweenjs/tween.js": "^18.6.0",
@@ -15,7 +17,7 @@
     "webmidi": "^2.5.1"
   },
   "scripts": {
-    "start:dev": "webpack-dev-server --host 0.0.0.0 --public 10.20.103.67:8080 --hot --inline",
-    "build": "webpack -d"
+    "start:dev": "webpack-dev-server --host 0.0.0.0 --hot --https",
+    "build": "webpack"
   }
 }
