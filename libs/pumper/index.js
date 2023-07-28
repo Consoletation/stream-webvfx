@@ -140,6 +140,7 @@ Pumper.start = function(srcValue, start = 880, end = 7720, precision = 12) {
     analyzer.fftSize = Math.pow(2, precision);
     analyzer.minDecibels = -90;
     analyzer.maxDecibels = -10;
+    console.debug(`analyser: ${analyzer}`);
 
     Pumper.start = rangeCheck(start);
     Pumper.end = rangeCheck(end);
@@ -152,10 +153,8 @@ Pumper.start = function(srcValue, start = 880, end = 7720, precision = 12) {
 
     if (FORCE_MIC || srcValue === 'mic') {
         // Request mic access, create source node and connect to analyzer
-        navigator.getMedia = (navigator.getUserMedia || navigator
-            .webkitGetUserMedia || navigator.mozGetUserMedia || navigator
-            .msGetUserMedia);
-        navigator.getMedia({
+        console.log('Pumper: requesting mic stream');
+        navigator.getUserMedia({
                 audio: {
                     echoCancellation: false,
                     noiseSuppression: false,
@@ -168,7 +167,12 @@ Pumper.start = function(srcValue, start = 880, end = 7720, precision = 12) {
                 video: false
             },
             function(stream) {
+                console.log('foo');
+                window.stream = stream; // make stream available to console
                 micStream = stream;
+                const audioTracks = stream.getAudioTracks();
+                console.log('Using audio device: ' + audioTracks[0].label);
+                console.debug(`Pumper: mic stream ready`, stream);
                 // TODO: throw 'ready' event
                 source = AUDIO.createMediaStreamSource(stream);
                 source.connect(analyzer); // Don't connect mic to output
