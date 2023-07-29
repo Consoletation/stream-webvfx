@@ -56,7 +56,7 @@ const config = {
         textColor: 0xffffff,
         opacityFactor: 1,
         typeFace: 'video',
-        logoImages: ['controller-up-white.png', 'controller-right-white.png'],
+        logoImages: ['controller-up-white.png', 'controller-right-white2.json'],
         logoImageSize: 198,
         logoImagePosCorr: { x: -51, y: -159 },
         animationProfiles: { title: 'main', corner: 'lowsplit', alert: 'alert' },
@@ -262,6 +262,7 @@ function initLogoImage(scene) {
             polygonOffsetFactor: -1,
             polygonOffsetUnits: 1,
         });
+        console.log('new material', material);
         const geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
         const logoImageMesh = new THREE.Mesh(geometry, material);
@@ -454,10 +455,10 @@ function sheetLoader(texture, data) {
     // Set offset once
     texture.repeat.set(...texture.frames[0].repeat);
     // Update texture to first frame
-    texture.offset.set(texture.frames[0].offset);
+    texture.offset = texture.frames[0].offset;
     // Set onUpdate callback
     texture.onUpdate = function (self) {
-        const newFrame = Math.clamp(Math.round(animConfig.references.image.frame), 0, self.frames.length - 1);
+        const newFrame = Math.clamp(Math.round(currentFrame), 0, self.frames.length - 1);
         if (self.frames[newFrame].offset === self.offset) return;
         self.offset = self.frames[newFrame].offset;
         //self.needsUpdate = true;
