@@ -2,7 +2,7 @@ import {
 	DataTexture,
 	FloatType,
 	MathUtils,
-	RGBFormat,
+	RGBAFormat,
 	ShaderMaterial,
 	UniformsUtils
 } from "three";
@@ -78,7 +78,7 @@ class GlitchPass extends Pass {
 			data_arr[i * 3 + 2] = val;
 		}
 
-		return new DataTexture(data_arr, dt_size, dt_size, RGBFormat, FloatType);
+		return new DataTexture(data_arr, dt_size, dt_size, RGBAFormat, FloatType);
 	}
 }
 
