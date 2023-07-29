@@ -5,13 +5,12 @@
  */
 
 const TestShader = {
+    uniforms: {
+        tDiffuse: { type: 't', value: null },
+        amount: { type: 'f', value: 0.5 },
+    },
 
-	uniforms: {
-		"tDiffuse": { type: "t", value: null },
-		"amount":     { type: "f", value: 0.5 }
-	},
-
-    vertexShader: /* glsl */`
+    vertexShader: /* glsl */ `
 
         varying vec2 vUv;
 	    void main() {
@@ -19,7 +18,7 @@ const TestShader = {
 		    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 	    }`,
 
-    fragmentShader: /* glsl */`
+    fragmentShader: /* glsl */ `
 
 	    uniform sampler2D tDiffuse;
 	    uniform float amount;
@@ -28,8 +27,7 @@ const TestShader = {
 	    void main() {
 		    vec4 color = texture2D(tDiffuse, vUv);
 		    gl_FragColor = color*amount;
-	    }`
-
+	    }`,
 };
 
 export { TestShader };

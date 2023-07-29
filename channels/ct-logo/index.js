@@ -17,11 +17,7 @@ import Logo from './Logo.js';
 // Static globals
 const obsClient = new OBSWebSocket(); // OBS client
 const headingsMesh = [];
-const headings = [
-    'Starting soon...',
-    'Taking a quick break!',
-    'Thanks for watching!'
-];
+const headings = ['Starting soon...', 'Taking a quick break!', 'Thanks for watching!'];
 const imagesMesh = [];
 const config = {
     transparent: {
@@ -37,7 +33,7 @@ const config = {
             offset: 0.0,
             darkness: 0.0,
         },
-        filmGrain: [0, 0, 648, false]
+        filmGrain: [0, 0, 648, false],
     },
     classic: {
         bgColor: [0xffffff, 1],
@@ -52,7 +48,7 @@ const config = {
             offset: 0.5,
             darkness: 1.6,
         },
-        filmGrain: [0.12, 0.125, 648, false]
+        filmGrain: [0.12, 0.125, 648, false],
     },
     transparentNew: {
         bgColor: [0x000000, 0],
@@ -67,7 +63,7 @@ const config = {
             offset: 0.0,
             darkness: 0.0,
         },
-        filmGrain: [0, 0, 648, false]
+        filmGrain: [0, 0, 648, false],
     },
     classicNew: {
         bgColor: [0xffffff, 1],
@@ -82,16 +78,16 @@ const config = {
             offset: 0.5,
             darkness: 1.6,
         },
-        filmGrain: [0.12, 0.125, 648, false]
+        filmGrain: [0.12, 0.125, 648, false],
     },
 };
 
 // Globals updated via init()
 let camera, renderer, composer, glitchPass;
-let baseCameraDirection = new THREE.Vector3;
+let baseCameraDirection = new THREE.Vector3();
 let currentConfig = config.transparent; // Default config
 // Globals updated via init() or update()
-let cameraDirection = new THREE.Vector3;
+let cameraDirection = new THREE.Vector3();
 let logo;
 let headingsContainer; // Updated by click() or OBS events
 let imageContainer;
@@ -102,14 +98,13 @@ let currentProfile = 'title';
 let animConfig;
 
 function init() {
-
     // Get URL parameters
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
     // Get config from query
     if (urlParams.has('config')) {
-        currentConfig = config[urlParams.get('config')]
+        currentConfig = config[urlParams.get('config')];
     }
 
     // Set up animation config
@@ -131,7 +126,13 @@ function init() {
     Pumper.globalSpikeTolerance = 14;
 
     //Create logo
-    logo = new Logo("CONSOLETATION", 7, currentConfig.typeFace, currentConfig.textColor, currentConfig.opacityFactor * 0.6)
+    logo = new Logo(
+        'CONSOLETATION',
+        7,
+        currentConfig.typeFace,
+        currentConfig.textColor,
+        currentConfig.opacityFactor * 0.6,
+    );
     logo.createBands(); // Pumper bands
 
     //Create renderer
@@ -161,8 +162,8 @@ function init() {
     const scene = new THREE.Scene();
 
     logo.createMeshs(scene); // Initialize logo meshs
-    initLogoImage(scene);    // Initialize logo image
-    initHeading(scene);      // Initialize subheadings
+    initLogoImage(scene); // Initialize logo image
+    initHeading(scene); // Initialize subheadings
 
     initPostProcessing(scene);
 
@@ -178,24 +179,23 @@ function sceneAnimProfile(sceneName) {
 }
 
 async function initOBS(address, password) {
-    return obsClient.connect({ address: address, password: password }).then(
-        () => {
+    return obsClient
+        .connect({ address: address, password: password })
+        .then(() => {
             console.log(`OBS Client Connected!`);
 
             // Get current scene
-            obsClient.send('GetCurrentScene').then(
-                (data) => {
-                    // set animProfile from scene
-                    newProfile = sceneAnimProfile(data.name);
-                    console.log(`Current scene is ${data.name}, newProfile is ${newProfile}`);
-                }
-            );
+            obsClient.send('GetCurrentScene').then(data => {
+                // set animProfile from scene
+                newProfile = sceneAnimProfile(data.name);
+                console.log(`Current scene is ${data.name}, newProfile is ${newProfile}`);
+            });
 
             // Handle transitions to/from scenes
             console.log(`Subscribing to 'TransitionBegin' events for newProfile`);
             obsClient.on('TransitionBegin', function callback(data) {
                 newProfile = sceneAnimProfile(data.toScene);
-            })
+            });
 
             // Handle Title text sources
             console.log(`Subscribing to Headings sources changes for headings`);
@@ -203,7 +203,7 @@ async function initOBS(address, password) {
                 // Ignore events not on 'Flegs' scene
                 if (data.sceneName != 'Flegs') return;
                 if (data.itemName.startsWith('Heading')) {
-                    let heading = data.itemName.charAt(data.itemName.length-1) - 1;
+                    let heading = data.itemName.charAt(data.itemName.length - 1) - 1;
                     console.log(`Setting heading text to: ${headings[heading]}`);
                     headingsContainer.remove(headingsMesh[currentHeading]);
                     currentHeading = heading;
@@ -211,44 +211,48 @@ async function initOBS(address, password) {
 
                     // Do some glitch effect
                     glitchPass.goWild = true;
-                    setTimeout(function (){
+                    setTimeout(function () {
                         glitchPass.goWild = false;
-                    }, 100)
+                    }, 100);
                 }
-            })
-        }
-    ).catch(
-        err => {
+            });
+        })
+        .catch(err => {
             console.log(err);
-            console.log("Failed to connect to OBS :(");
-        }
-    );
+            console.log('Failed to connect to OBS :(');
+        });
 }
 
-function initLogoImage(scene){
+function initLogoImage(scene) {
     imageContainer = new THREE.Object3D();
     scene.add(imageContainer);
 
     const basePath = '../../assets/';
     for (let image = 0; image < currentConfig.logoImages.length; image++) {
         let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImages[image]);
-        let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: currentConfig.opacityFactor * 0.8, side: THREE.DoubleSide, depthFunc: THREE.AlwaysDepth});
+        let material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true,
+            opacity: currentConfig.opacityFactor * 0.8,
+            side: THREE.DoubleSide,
+            depthFunc: THREE.AlwaysDepth,
+        });
         let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
-        let logoImageMesh = new THREE.Mesh( geometry, material );
+        let logoImageMesh = new THREE.Mesh(geometry, material);
         imagesMesh.push(logoImageMesh);
     }
     imageContainer.add(imagesMesh[currentImage]);
 }
 
-function initHeading(scene){
+function initHeading(scene) {
     headingsContainer = new THREE.Object3D();
     headingsContainer.position.x = window.innerWidth * 0.5;
     headingsContainer.position.y = -1100;
     scene.add(headingsContainer);
 
     var headingMesh, bitmap, g, texture, material, geometry;
-    for (var heading = 0; heading < headings.length; heading++){
+    for (var heading = 0; heading < headings.length; heading++) {
         bitmap = document.createElement('canvas');
         g = bitmap.getContext('2d');
         g.font = 'normal 48px ' + currentConfig.typeFace;
@@ -263,7 +267,10 @@ function initHeading(scene){
         texture.minFilter = THREE.LinearFilter;
 
         material = new THREE.MeshBasicMaterial({
-            map: texture, color: currentConfig.textColor, transparent: true, opacity: currentConfig.opacityFactor
+            map: texture,
+            color: currentConfig.textColor,
+            transparent: true,
+            opacity: currentConfig.opacityFactor,
         });
         geometry = new THREE.PlaneGeometry(bitmap.width, bitmap.height);
         headingMesh = new THREE.Mesh(geometry, material);
@@ -275,17 +282,17 @@ function initHeading(scene){
     headingsContainer.add(headingsMesh[currentHeading]);
 }
 
-function initPostProcessing(scene){
+function initPostProcessing(scene) {
     // postprocessing
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
 
     var testPass = new ShaderPass(TestShader);
-    testPass.uniforms[ "amount" ].value = 0.95;
+    testPass.uniforms['amount'].value = 0.95;
     composer.addPass(testPass);
 
     glitchPass = new GlitchPass();
-    composer.addPass( glitchPass );
+    composer.addPass(glitchPass);
 
     var shaderVignette = VignetteShader;
     var effectVignette = new ShaderPass(shaderVignette);
@@ -378,17 +385,19 @@ function onWindowResize() {
 function click() {
     //Pumper.play();  // if needed
     glitchPass.goWild = true;
-    setTimeout(function (){
+    setTimeout(function () {
         glitchPass.goWild = false;
-    }, 100)
+    }, 100);
     headingsContainer.remove(headingsMesh[currentHeading]);
     currentHeading++;
-    if (currentHeading > headings.length - 1) {currentHeading = 0;}
+    if (currentHeading > headings.length - 1) {
+        currentHeading = 0;
+    }
     headingsContainer.add(headingsMesh[currentHeading]);
 }
 
 var BeatProcessing = {
-    init: init
-}
+    init: init,
+};
 
 export default BeatProcessing;

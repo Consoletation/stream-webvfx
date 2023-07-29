@@ -10,7 +10,7 @@ Pumper.globalSpikeTolerance = 14;
 WebFont.load({
     custom: {
         families: ['Turnpike'],
-        urls: ['https://consoletation.live/fonts/turnpike/stylesheet.css']
+        urls: ['https://consoletation.live/fonts/turnpike/stylesheet.css'],
     },
-    active: BeatProcessing.init
+    active: BeatProcessing.init,
 });

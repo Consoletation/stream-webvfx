@@ -1,17 +1,17 @@
 import TWEEN from '@tweenjs/tween.js';
 
 if (!Array.prototype.last) {
-    Array.prototype.last = function() {
+    Array.prototype.last = function () {
         return this[this.length - 1];
     };
-};
+}
 
 function jCopy(object) {
     return JSON.parse(JSON.stringify(object));
-};
+}
 
 function Round(k) {
-	return Math.round(k);
+    return Math.round(k);
 }
 
 // Animation configurations
@@ -406,7 +406,6 @@ profiles.alert.references = {
 };
 
 class AnimationConfig {
-
     // Set up an active configuration based on 'profile'
     // Tween data configured for all available profiles
     constructor(profile) {
@@ -418,8 +417,8 @@ class AnimationConfig {
         // set up tweens
         for (const [profile, config] of Object.entries(profiles)) {
             this._tweens[profile] = this.setupTween(config);
-        };
-    };
+        }
+    }
 
     // Set up tweens for a profile
     // Handles all presets
@@ -437,16 +436,16 @@ class AnimationConfig {
                 tween = tween2;
             }
             tweens.push(tween);
-        };
+        }
         return tweens;
-    };
+    }
 
     // Calls the tweens for the specified profile
     transition(profile) {
-        this._tweens[profile].forEach(function(tween) {
+        this._tweens[profile].forEach(function (tween) {
             tween.start();
         });
-    };
-};
+    }
+}
 
 export default AnimationConfig;

@@ -18,7 +18,6 @@ var logoTextMesh = [];
 var logoImageMesh;
 
 function init() {
-
     //Create bands
     Pumper.createBands(textDivisions, 1, 1.25);
 
@@ -50,20 +49,33 @@ function init() {
     frame();
 }
 
-function initLogoText(){
+function initLogoText() {
     var letters = {
         W: new THREE.TextureLoader().load('../../assets/wwf/wwf_w.png'),
-        F: new THREE.TextureLoader().load('../../assets/wwf/wwf_f.png')
-    }
+        F: new THREE.TextureLoader().load('../../assets/wwf/wwf_f.png'),
+    };
     var letterSize = {
-        W: {width: 446, height: 342},
-        F: {width: 288, height: 342}
-    }
+        W: { width: 446, height: 342 },
+        F: { width: 288, height: 342 },
+    };
     //Create shapes container
-    var texture, material, geometry, logoTextLayerContainer,
-        logoTextLayerMesh, logoTextLayerMesh2, logoTextLayerMesh3, logoTextLayerMesh4,
-        divisionWidth, divisionHeight, slices1, slices2, slices3, slices4,
-        posX, posY, charOffset = 0;
+    var texture,
+        material,
+        geometry,
+        logoTextLayerContainer,
+        logoTextLayerMesh,
+        logoTextLayerMesh2,
+        logoTextLayerMesh3,
+        logoTextLayerMesh4,
+        divisionWidth,
+        divisionHeight,
+        slices1,
+        slices2,
+        slices3,
+        slices4,
+        posX,
+        posY,
+        charOffset = 0;
 
     //create text image
     // canvas contents will be used for a texture
@@ -74,20 +86,21 @@ function initLogoText(){
     slices2 = [];
     slices3 = [];
     slices4 = [];
-    for (var j = 0 ; j < textDivisions ; j ++){
+    for (var j = 0; j < textDivisions; j++) {
         //Dirty as fuck, but I've got to create a canvas per logo slice
         //Also, weirdly the width can't seem to be set after adding a text in
         divisionWidth = letterSize[logoText.charAt(j)].width;
         divisionHeight = letterSize[logoText.charAt(j)].height;
-
 
         texture = letters[logoText.charAt(j)];
         material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
         geometry = new THREE.PlaneGeometry(divisionWidth, divisionHeight);
         posX = charOffset - divisionWidth * 0.5;
         posY = 0;
-        var next = letterSize[logoText.charAt(j+1)];
-        if (next) {charOffset += next.width}
+        var next = letterSize[logoText.charAt(j + 1)];
+        if (next) {
+            charOffset += next.width;
+        }
 
         logoTextLayerMesh = new THREE.Mesh(geometry, material);
         logoTextLayerMesh.material.opacity = 1.0;
@@ -121,30 +134,30 @@ function initLogoText(){
         slices1: slices1,
         slices2: slices2,
         slices3: slices3,
-        slices4: slices4
+        slices4: slices4,
     });
 }
 
-function initLogoImage(){
+function initLogoImage() {
     var texture = new THREE.TextureLoader().load('../../assets/wwf/wwf_panda.png');
     var material = new THREE.MeshLambertMaterial({ map: texture, transparent: true });
     var geometry = new THREE.PlaneGeometry(1200, 1357);
 
-    logoImageMesh = new THREE.Mesh( geometry, material );
+    logoImageMesh = new THREE.Mesh(geometry, material);
     logoImageMesh.material.side = THREE.DoubleSide;
     logoImageMesh.material.opacity = 1.0;
-    logoImageMesh.position.x = 140;  // y is determined in update()
+    logoImageMesh.position.x = 140; // y is determined in update()
 
     scene.add(logoImageMesh);
 }
 
-function initPostProcessing(){
+function initPostProcessing() {
     // postprocessing
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
 
     var testPass = new ShaderPass(TestShader);
-    testPass.uniforms[ "amount" ].value = 0.95;
+    testPass.uniforms['amount'].value = 0.95;
     composer.addPass(testPass);
 
     var shaderVignette = VignetteShader;
@@ -167,10 +180,12 @@ function update() {
     var logoTextLayers3 = logoTextMesh[0].slices3;
     var logoTextLayers4 = logoTextMesh[0].slices4;
     var bandVolume;
-    for (var i = 0 ; i < logoTextLayers1.length ; i ++){
+    for (var i = 0; i < logoTextLayers1.length; i++) {
         bandVolume = Pumper.bands[i].volume;
         // Band corrections
-        if (i === 2) {bandVolume = bandVolume * 1.2}
+        if (i === 2) {
+            bandVolume = bandVolume * 1.2;
+        }
         bandVolume = bandVolume * 2; // Multiplier
         logoTextLayers1[i].position.y = bandVolume * 0.2 - logoSpacing;
         logoTextLayers2[i].position.y = bandVolume * 0.05 - logoSpacing;
@@ -179,7 +194,7 @@ function update() {
     }
 
     // Animate image mesh with volume of last band
-    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume
+    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume;
     logoImageMesh.position.y = bandVolume * 0.2 + logoSpacing;
 
     // Give the camera a shove
@@ -207,7 +222,7 @@ function click() {
 }
 
 var BeatProcessing = {
-    init: init
+    init: init,
 };
 
 export default BeatProcessing;

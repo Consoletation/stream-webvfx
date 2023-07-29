@@ -8,6 +8,6 @@ Pumper.start('mic', 5760, 10080);
 Pumper.globalSpikeTolerance = 14;
 
 WebFont.load({
-    typekit: {id: 'oiz4knz'},
-    active: BeatProcessing.init
+    typekit: { id: 'oiz4knz' },
+    active: BeatProcessing.init,
 });
