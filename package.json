@@ -3,7 +3,11 @@
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "copy-webpack-plugin": "^6.1.1",
+    "eslint": "^8.46.0",
     "glslify-loader": "^2.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.0",
     "webpack": "~5",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "~4.15.1"
@@ -13,6 +17,22 @@
     "obs-websocket-js": "^4.0.3",
     "three": "^0.155.0",
     "webmidi": "^3.1.6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ],
+    "*.{html,css,less,ejs}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "scripts": {
     "start:dev": "webpack-dev-server --host 0.0.0.0 --hot --https",
