@@ -7,7 +7,7 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { GlitchPass } from '../../libs/three/postprocessing/GlitchPassCustom.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
-import Pumper from 'pumper';
+import { Pumper } from 'pumper';
 import OBSWebSocket from 'obs-websocket-js';
 import TWEEN from '@tweenjs/tween.js';
 
@@ -83,6 +83,7 @@ const config = {
 };
 
 // Globals updated via init()
+let pumper;
 let camera, renderer, composer, glitchPass;
 let baseCameraDirection = new THREE.Vector3();
 let currentConfig = config.transparent; // Default config
@@ -121,11 +122,8 @@ function init() {
         initOBS(address, password);
     }
 
-    // Initialize pumper
-    Pumper.start('mic', 1160, 14000, 12);
-    Pumper.globalSpikeTolerance = 14;
-
-    //Create logo
+    // Initialize pumper and logo
+    pumper = new Pumper();
     logo = new Logo(
         'CONSOLETATION',
         7,
@@ -133,7 +131,6 @@ function init() {
         currentConfig.textColor,
         currentConfig.opacityFactor * 0.6,
     );
-    logo.createBands(); // Pumper bands
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, logarithmicDepthBuffer: true });
@@ -161,15 +158,24 @@ function init() {
     //Create scene
     const scene = new THREE.Scene();
 
-    logo.createMeshs(scene); // Initialize logo meshs
-    initLogoImage(scene); // Initialize logo image
-    initHeading(scene); // Initialize subheadings
+    pumper
+        .start('mic', 1160, 14000, 12)
+        .then(() => {
+            pumper.globalSpikeTolerance = 14;
+            logo.createBands(pumper); // Pumper bands
+            logo.createMeshs(scene); // Initialize logo meshs
+            initLogoImage(scene); // Initialize logo image
+            initHeading(scene); // Initialize subheadings
 
-    initPostProcessing(scene);
+            initPostProcessing(scene);
 
-    window.addEventListener('resize', onWindowResize, false);
+            window.addEventListener('resize', onWindowResize, false);
 
-    frame();
+            frame();
+        })
+        .catch(err => {
+            console.error(err);
+        });
 }
 
 function sceneAnimProfile(sceneName) {
@@ -306,7 +312,7 @@ function initPostProcessing(scene) {
 }
 
 function update() {
-    Pumper.update();
+    pumper.update();
     TWEEN.update();
 
     // Handle animation config change
@@ -318,7 +324,7 @@ function update() {
     }
 
     //Animate logo.fulltext layers based on bands
-    logo.meshUpdate(animConfig);
+    logo.meshUpdate(animConfig, pumper);
 
     // Check if we should change image
     let iC = animConfig.references.image.current;
@@ -346,8 +352,8 @@ function update() {
     // Headings container position
     headingsContainer.position.y = animConfig.positions.headings.y;
     headingsContainer.position.z = animConfig.positions.headings.z;
-    headingsContainer.position.y += Pumper.volume * animConfig.multipliers.headings.global.y;
-    headingsContainer.position.z += Pumper.volume * animConfig.multipliers.headings.global.z;
+    headingsContainer.position.y += pumper.volume * animConfig.multipliers.headings.global.y;
+    headingsContainer.position.z += pumper.volume * animConfig.multipliers.headings.global.z;
 
     // Calculate camera direction
     cameraDirection.copy(baseCameraDirection);
@@ -362,8 +368,8 @@ function update() {
     camera.position.x = animConfig.positions.camera.x;
     camera.position.y = animConfig.positions.camera.y;
     camera.position.z = animConfig.positions.camera.z;
-    camera.position.y += Pumper.volume * animConfig.multipliers.camera.global.y;
-    camera.position.z += Pumper.volume * animConfig.multipliers.camera.global.z;
+    camera.position.y += pumper.volume * animConfig.multipliers.camera.global.y;
+    camera.position.z += pumper.volume * animConfig.multipliers.camera.global.z;
 
     // Extra illegal X-axis sizzle
     camera.position.x += logo.bands.high[6].volume * animConfig.multipliers.camera.global.x;
@@ -383,7 +389,7 @@ function onWindowResize() {
 }
 
 function click() {
-    //Pumper.play();  // if needed
+    //pumper.play();  // if needed
     glitchPass.goWild = true;
     setTimeout(function () {
         glitchPass.goWild = false;

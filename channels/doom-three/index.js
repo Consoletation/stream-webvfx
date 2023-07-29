@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 
-import Pumper from 'pumper';
 import { WebMidi } from 'webmidi';
 import TWEEN from '@tweenjs/tween.js';
 
@@ -43,7 +42,7 @@ function init() {
     });
 
     //Create bands
-    Pumper.createBands(logoText.length, 1, 1.25);
+    window.pumper.createBands(logoText.length, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -201,7 +200,7 @@ function initLogoImage() {
 }
 
 function update() {
-    Pumper.update();
+    window.pumper.update();
     TWEEN.update();
 
     // Beat tween
@@ -217,7 +216,7 @@ function update() {
     for (var j = 0; j < logoTextMesh.length; j++) {
         logoTextLayers = logoTextMesh[j].slices;
         for (var i = 0; i < logoTextLayers.length; i++) {
-            bandVolume = Pumper.bands[i].volume;
+            bandVolume = window.pumper.bands[i].volume;
             logoTextLayers[i].position.y = logoTextMesh[j].height + bandVolume;
         }
     }
@@ -225,7 +224,7 @@ function update() {
     // Camera changes
     let cameraNewPos = { x: 0, y: 0, z: 0 };
     Object.assign(cameraNewPos, cameraInitPos);
-    //cameraNewPos.z -= Pumper.bands[0].volume * 0.15; // Pumper Z shove
+    //cameraNewPos.z -= window.pumper.bands[0].volume * 0.15; // Pumper Z shove
     cameraNewPos.z += tweenBeatCoords.z; // Beat shove
     cameraNewPos.x += tweenAnimCoords.x; // Anim shove
     cameraNewPos.y += tweenAnimCoords.y; // Anim shove
@@ -248,7 +247,7 @@ function onWindowResize() {
 function click() {
     console.log('click!');
     tweenAnimIn.start();
-    //Pumper.play();  // if needed
+    //window.pumper.play();  // if needed
 }
 
 var BeatProcessing = {

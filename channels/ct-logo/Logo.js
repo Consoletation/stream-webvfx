@@ -28,10 +28,10 @@ class Logo {
         this.bands = {};
     }
 
-    createBands() {
-        this.bands.low = Pumper.createBands(80, 220, this.fulltext.length, 0.3, 0.39, 1.5);
-        this.bands.mid = Pumper.createBands(1000, 2800, this.fulltext.length, 0.5, 0.77, 1.1);
-        this.bands.high = Pumper.createBands(2440, 10400, this.fulltext.length, 0.6, 0.9, 1.5);
+    createBands(pumper) {
+        this.bands.low = pumper.createBands(80, 220, this.fulltext.length, 0.3, 0.39, 1.5);
+        this.bands.mid = pumper.createBands(1000, 2800, this.fulltext.length, 0.5, 0.77, 1.1);
+        this.bands.high = pumper.createBands(2440, 10400, this.fulltext.length, 0.6, 0.9, 1.5);
 
         this.sections[0].bands.low = this.bands.low.slice(0, this.splitPoint);
         this.sections[1].bands.low = this.bands.low.slice(this.splitPoint, this.fulltext.length);
@@ -170,7 +170,7 @@ class Logo {
         this.sections[1].mesh.container.position.x += (totalWidth - this.sections[1].mesh.width) / 2;
     }
 
-    meshUpdate(config) {
+    meshUpdate(config, pumper) {
         // Base position calculation
         let totalWidth = this.sections[0].mesh.width + this.sections[1].mesh.width;
         this.sections[0].mesh.container.position.x = -(totalWidth - this.sections[0].mesh.width) / 2;
@@ -213,9 +213,9 @@ class Logo {
                         lowVolume * config.multipliers.letters.low.z[slice];
                     //global work
                     section.mesh.slices[slice][letter].position.y +=
-                        Pumper.volume * config.multipliers.letters.global.y[slice];
+                        pumper.volume * config.multipliers.letters.global.y[slice];
                     section.mesh.slices[slice][letter].position.z +=
-                        Pumper.volume * config.multipliers.letters.global.z[slice];
+                        pumper.volume * config.multipliers.letters.global.z[slice];
                 }
             }
         });

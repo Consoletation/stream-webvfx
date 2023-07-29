@@ -6,7 +6,6 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
-import Pumper from 'pumper';
 import { WebMidi } from 'webmidi';
 import TWEEN from '@tweenjs/tween.js';
 
@@ -43,7 +42,7 @@ function init() {
     });
 
     //Create bands
-    Pumper.createBands(textDivisions, 1, 1.25);
+    window.pumper.createBands(textDivisions, 1, 1.25);
 
     //Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -196,7 +195,7 @@ function initPostProcessing() {
 }
 
 function update() {
-    Pumper.update();
+    window.pumper.update();
     TWEEN.update();
     if (clockCounter > 23) {
         clockCounter = 1;
@@ -211,7 +210,7 @@ function update() {
     var logoTextLayers4 = logoTextMesh[0].slices4;
     var bandVolume;
     for (var i = 0; i < logoTextLayers1.length; i++) {
-        bandVolume = Pumper.bands[i].volume;
+        bandVolume = window.pumper.bands[i].volume;
         // Band corrections
         if (i === 2) {
             bandVolume = bandVolume * 1.2;
@@ -224,15 +223,15 @@ function update() {
     }
 
     // Animate image mesh with volume of last band
-    bandVolume = Pumper.bands[logoTextLayers1.length - 1].volume;
+    bandVolume = window.pumper.bands[logoTextLayers1.length - 1].volume;
     logoImageMesh.position.y = bandVolume * 0.2 + logoSpacing;
 
     // Give the camera a shove
-    camera.position.y = Pumper.bands[1].volume * -0.1;
+    camera.position.y = window.pumper.bands[1].volume * -0.1;
     //-camera.position.x =- 2500;
-    camera.position.x = Pumper.bands[0].volume * 0.05;
-    camera.position.x -= Pumper.bands[2].volume * 0.05;
-    camera.position.z = 2100 - Pumper.bands[0].volume * 0.35 - tweenCoords.z;
+    camera.position.x = window.pumper.bands[0].volume * 0.05;
+    camera.position.x -= window.pumper.bands[2].volume * 0.05;
+    camera.position.z = 2100 - window.pumper.bands[0].volume * 0.35 - tweenCoords.z;
 }
 
 function frame() {
@@ -248,7 +247,7 @@ function onWindowResize() {
 }
 
 function click() {
-    //Pumper.play();  // if needed
+    //window.pumper.play();  // if needed
 }
 
 var BeatProcessing = {

@@ -16,7 +16,8 @@
     "@tweenjs/tween.js": "^21.0.0",
     "obs-websocket-js": "^4.0.3",
     "three": "^0.155.0",
-    "webmidi": "^3.1.6"
+    "webmidi": "^3.1.6",
+    "webrtc-adapter": "^8.2.3"
   },
   "husky": {
     "hooks": {
