@@ -51,13 +51,9 @@ function __warn(msg) {
     throw 'Pumper: ' + msg;
 }
 
-function getURLParam(name, url) {
-    if (!url) url = location.href;
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regexS = '[\\?&]' + name + '=([^&#]*)';
-    var regex = new RegExp(regexS);
-    var results = regex.exec(url);
-    return results == null ? null : results[1];
+function getURLParam(name, url = window.location.href) {
+    const urlObj = new URL(url);
+    return urlObj.searchParams.get(name);
 }
 
 function rangeCheck(freq) {
@@ -68,7 +64,7 @@ function rangeCheck(freq) {
     }
 }
 
-var AUDIO, source, analyzer, maxFreq, timeData, freqData, timeDataLength, freqDataLength, micStream;
+var AUDIO, source, analyzer, maxFreq, timeData, freqData, timeDataLength, freqDataLength;
 
 /**
  * 'Band' (frequency range) class.
@@ -165,7 +161,6 @@ Pumper.start = function (srcValue, start = 880, end = 7720, precision = 12) {
             },
             function (stream) {
                 window.stream = stream; // make stream available to console
-                micStream = stream;
                 const audioTracks = stream.getAudioTracks();
                 console.log('Using audio device: ' + audioTracks[0].label);
                 // TODO: throw 'ready' event
