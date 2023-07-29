@@ -60,10 +60,7 @@ class Logo {
                     bitmap.height = 200;
 
                     g.font = section.font;
-                    g.fillStyle = 'white';
                     let currWidth = g.measureText(section.text.slice(0, i + 1)).width;
-                    g.font = section.font;
-                    g.fillStyle = 'white';
                     let prevWidth = g.measureText(section.text.slice(0, i)).width;
 
                     bitmap.width = currWidth - prevWidth;
@@ -114,7 +111,7 @@ class Logo {
                         opacity: this.opacity,
                         side: THREE.DoubleSide,
                         polygonOffset: true,
-                        polygonOffsetUnits: -1,
+                        polygonOffsetUnits: 1,
                         polygonOffsetFactor: 0,
                         depthFunc: THREE.LessEqualDepth,
                     });

@@ -1,3 +1,4 @@
+import 'core-js/features/math/clamp';
 import * as THREE from 'three';
 import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
 import { TestShader } from '../../libs/three/shaders/TestShader.js';
@@ -97,6 +98,7 @@ let currentImage = 0;
 let newProfile = 'title';
 let currentProfile = 'title';
 let animConfig;
+let currentFrame = 0;
 
 function init() {
     // Get URL parameters
@@ -234,18 +236,35 @@ function initLogoImage(scene) {
     scene.add(imageContainer);
 
     const basePath = '../../assets/';
-    for (let image = 0; image < currentConfig.logoImages.length; image++) {
-        let texture = new THREE.TextureLoader().load(basePath + currentConfig.logoImages[image]);
-        let material = new THREE.MeshBasicMaterial({
+    const fileLoader = new THREE.FileLoader();
+    const textureLoader = new THREE.TextureLoader();
+    for (let i = 0; i < currentConfig.logoImages.length; i++) {
+        const file = basePath + currentConfig.logoImages[i];
+        let texture;
+        if (file.endsWith('.json')) {
+            fileLoader.load(file, function (json) {
+                const data = JSON.parse(json);
+                texture = textureLoader.load(file.replace('.json', '.png'));
+                console.log('texture', texture);
+                sheetLoader(texture, data);
+                console.log('texture', texture);
+            });
+        } else {
+            texture = textureLoader.load(file);
+        }
+        const material = new THREE.MeshBasicMaterial({
             map: texture,
             transparent: true,
             opacity: currentConfig.opacityFactor * 0.8,
             side: THREE.DoubleSide,
             depthFunc: THREE.AlwaysDepth,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+            polygonOffsetUnits: 1,
         });
-        let geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
+        const geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
 
-        let logoImageMesh = new THREE.Mesh(geometry, material);
+        const logoImageMesh = new THREE.Mesh(geometry, material);
         imagesMesh.push(logoImageMesh);
     }
     imageContainer.add(imagesMesh[currentImage]);
@@ -333,6 +352,13 @@ function update() {
         currentImage = iC;
         imageContainer.add(imagesMesh[currentImage]);
     }
+
+    // Update image frame if needed
+    if (currentFrame !== animConfig.references.image.frame) {
+        currentFrame = animConfig.references.image.frame;
+        imagesMesh[currentImage].material.map.needsUpdate = true;
+    }
+
     // Animate image mesh with a section and a letter
     let tS = animConfig.references.image.tracker[0];
     let tL = animConfig.references.image.tracker[1];
@@ -400,6 +426,42 @@ function click() {
         currentHeading = 0;
     }
     headingsContainer.add(headingsMesh[currentHeading]);
+}
+
+/**
+ * Load spritesheet and create a texture atlas
+ * @param {THREE.Texture} texture
+ * @param {data} data
+ */
+function sheetLoader(texture, data) {
+    const frames = [];
+    const width = data.meta.size.w;
+    const height = data.meta.size.h;
+
+    for (let i = 0; i < data.frames.length; i++) {
+        if (data.frames[i].rotated) {
+            throw('rotated frames not supported');
+        }
+        const frame = {
+            repeat: [ data.frames[i].frame.w / width, data.frames[i].frame.h / height ],
+            offset: [ data.frames[i].frame.x / width, 1 - (data.frames[i].frame.y / height) ],
+        };
+        frames.push(frame);
+    }
+    // Store frame data in texture
+    texture.frames = frames;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    // Set offset once
+    texture.repeat.set(...texture.frames[0].repeat);
+    // Update texture to first frame
+    texture.offset.set(texture.frames[0].offset);
+    // Set onUpdate callback
+    texture.onUpdate = function (self) {
+        const newFrame = Math.clamp(Math.round(animConfig.references.image.frame), 0, self.frames.length - 1);
+        if (self.frames[newFrame].offset === self.offset) return;
+        self.offset = self.frames[newFrame].offset;
+        //self.needsUpdate = true;
+    }
 }
 
 var BeatProcessing = {

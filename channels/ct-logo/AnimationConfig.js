@@ -118,6 +118,7 @@ profiles.main.references = {
         {
             image: {
                 current: 0,
+                frame: 0,
                 tracker: [1, 5],
             },
         },
@@ -282,7 +283,7 @@ profiles.lowsplit.positions = {
             easing: TWEEN.Easing.Sinusoidal.InOut,
         },
         {
-            time: 2500,
+            time: 1200,
             easing: TWEEN.Easing.Quintic.InOut,
         },
     ],
@@ -293,12 +294,21 @@ profiles.lowsplit.references = {
         {
             image: {
                 current: 0,
+                frame: 0,
                 tracker: [1, 5],
             },
         },
         {
             image: {
                 current: 1,
+                frame: 0,
+                tracker: [1, 0],
+            },
+        },
+        {
+            image: {
+                current: 1,
+                frame: 33,
                 tracker: [1, 0],
             },
         },
@@ -309,8 +319,12 @@ profiles.lowsplit.references = {
             easing: Round,
         },
         {
-            time: 1,
+            time: 300,
             easing: Round,
+        },
+        {
+            time: 1500,
+            easing: TWEEN.Easing.Sinusoidal.InOut,
         },
     ],
 };
