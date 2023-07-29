@@ -265,7 +265,7 @@ function initHeading(scene){
         material = new THREE.MeshBasicMaterial({
             map: texture, color: currentConfig.textColor, transparent: true, opacity: currentConfig.opacityFactor
         });
-        geometry = new THREE.PlaneBufferGeometry(bitmap.width, bitmap.height);
+        geometry = new THREE.PlaneGeometry(bitmap.width, bitmap.height);
         headingMesh = new THREE.Mesh(geometry, material);
         headingMesh.position.x = window.innerWidth * -0.5;
         headingMesh.position.y = window.innerHeight * 0.5;

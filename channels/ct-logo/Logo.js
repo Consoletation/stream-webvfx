@@ -127,7 +127,7 @@ class Logo {
                 posX += (currWidth-prevWidth)/2;
                 let posY = 0;
 
-                let logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(bitmap.width, 200), material);
+                let logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneGeometry(bitmap.width, 200), material);
                 logoTextLayerMesh.material.opacity = this.opacity * 1;
                 logoTextLayerMesh.position.set(posX, posY, 0);
                 logoTextLayerMesh.material.polygonOffsetFactor = -1;

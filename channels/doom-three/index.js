@@ -143,7 +143,7 @@ function initLogoText(alertTextP, posY, posX2 = 0, posZ = 0){
         //posY = 0;
         charOffset += divisionWidth;
 
-        logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(divisionWidth, 200), material);
+        logoTextLayerMesh = new THREE.Mesh(new THREE.PlaneGeometry(divisionWidth, 200), material);
         logoTextLayerMesh.material.opacity = 0.95;
         logoTextLayerMesh.position.set(posX, posY, posZ);
         logoTextLayerContainer.add(logoTextLayerMesh);
