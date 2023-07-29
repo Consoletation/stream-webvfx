@@ -118,7 +118,7 @@ class Logo {
                     polygonOffset: true,
                     polygonOffsetUnits: -1,
                     polygonOffsetFactor: 0,
-                    depthFunc: THREE.AlwaysDepth
+                    depthFunc: THREE.LessEqualDepth
                 });
 
                 let posX = -charArray[charArray.length - 1].currWidth/2;
