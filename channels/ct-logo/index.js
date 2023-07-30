@@ -28,7 +28,7 @@ const config = {
         typeFace: 'rigid-square',
         logoImages: ['controller-white.png'],
         logoImageSize: 256,
-        logoImagePosCorr: { x: -48, y: -175 },
+        logoImagePosCorr: [{ x: -48, y: -175 }],
         animationProfiles: { title: 'main', corner: 'low', alert: 'low' },
         vignette: {
             offset: 0.0,
@@ -43,7 +43,7 @@ const config = {
         typeFace: 'rigid-square',
         logoImages: ['controller.png'],
         logoImageSize: 256,
-        logoImagePosCorr: { x: -48, y: -175 },
+        logoImagePosCorr: [{ x: -48, y: -175 }],
         animationProfiles: { title: 'main', corner: 'low', alert: 'low' },
         vignette: {
             offset: 0.5,
@@ -56,9 +56,9 @@ const config = {
         textColor: 0xffffff,
         opacityFactor: 1,
         typeFace: 'video',
-        logoImages: ['controller-up-white.png', 'controller-right-white4.json'],
+        logoImages: ['controller-up-white2.json', 'controller-right-white4.json'],
         logoImageSize: 198,
-        logoImagePosCorr: { x: -35, y: -80 },
+        logoImagePosCorr: [{ x: -33, y: -120 }, { x: -33, y: -80 }],
         animationProfiles: { title: 'main', corner: 'lowsplit', alert: 'alert' },
         vignette: {
             offset: 0.0,
@@ -73,7 +73,7 @@ const config = {
         typeFace: 'video',
         logoImages: ['controller-up.png', 'controller-right.png'],
         logoImageSize: 198,
-        logoImagePosCorr: { x: -51, y: -159 },
+        logoImagePosCorr: [{ x: -51, y: -159 }, { x: -51, y: -159 }],
         animationProfiles: { title: 'main', corner: 'lowsplit', alert: 'alert' },
         vignette: {
             offset: 0.5,
@@ -326,6 +326,7 @@ function initPostProcessing(scene) {
     composer.addPass(testPass);
 
     glitchPass = new GlitchPass();
+    console.log('glitchPass', glitchPass);
     composer.addPass(glitchPass);
 
     var shaderVignette = VignetteShader;
@@ -360,7 +361,7 @@ function update() {
 
     // Check if we should change image
     let iC = animConfig.references.image.current;
-    if (iC != currentImage) {
+    if (iC != currentImage && iC < imagesMesh.length) {
         imageContainer.remove(imagesMesh[currentImage]);
         currentImage = iC;
         imageContainer.add(imagesMesh[currentImage]);
@@ -391,11 +392,13 @@ function update() {
     imageContainer.position.y += logo.sections[tS].mesh.slices[0][tL].position.y;
     imageContainer.position.z += logo.sections[tS].mesh.slices[0][tL].position.z;
     // Position correction from config
-    imageContainer.position.x += currentConfig.logoImagePosCorr.x;
-    imageContainer.position.y += currentConfig.logoImagePosCorr.y;
+    imageContainer.position.x += currentConfig.logoImagePosCorr[currentImage].x;
+    imageContainer.position.y += currentConfig.logoImagePosCorr[currentImage].y;
     // Position correction from animation config
     imageContainer.position.x += animConfig.positions.image.x;
     imageContainer.position.y += animConfig.positions.image.y;
+    // Rotation from animation config
+    imageContainer.rotation.z = animConfig.positions.image.rotate;
 
     // Headings container position
     headingsContainer.position.y = animConfig.positions.headings.y;
