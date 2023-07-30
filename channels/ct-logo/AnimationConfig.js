@@ -267,6 +267,7 @@ profiles.lowsplit.positions = {
             image: { x: -88, y: 118 },
             headings: { y: -1100, z: 0 },
             camera: { x: -2600, y: 1450, z: 2500 },
+            //camera: { x: -43, y: 0, z: 720 },
         },
     ],
     tween: [
@@ -323,8 +324,8 @@ profiles.lowsplit.references = {
             easing: Round,
         },
         {
-            time: 1500,
-            easing: TWEEN.Easing.Sinusoidal.InOut,
+            time: 900,
+            easing: TWEEN.Easing.Exponential.In,
         },
     ],
 };

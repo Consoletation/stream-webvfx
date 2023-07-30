@@ -56,9 +56,9 @@ const config = {
         textColor: 0xffffff,
         opacityFactor: 1,
         typeFace: 'video',
-        logoImages: ['controller-up-white.png', 'controller-right-white2.json'],
+        logoImages: ['controller-up-white.png', 'controller-right-white4.json'],
         logoImageSize: 198,
-        logoImagePosCorr: { x: -51, y: -159 },
+        logoImagePosCorr: { x: -35, y: -80 },
         animationProfiles: { title: 'main', corner: 'lowsplit', alert: 'alert' },
         vignette: {
             offset: 0.0,
@@ -234,6 +234,7 @@ async function initOBS(address, password) {
 function initLogoImage(scene) {
     imageContainer = new THREE.Object3D();
     scene.add(imageContainer);
+    window.imageContainer = imageContainer;
 
     const basePath = '../../assets/';
     const fileLoader = new THREE.FileLoader();
@@ -245,30 +246,37 @@ function initLogoImage(scene) {
             fileLoader.load(file, function (json) {
                 const data = JSON.parse(json);
                 texture = textureLoader.load(file.replace('.json', '.png'));
-                console.log('texture', texture);
+                console.log('anim texture', texture);
                 sheetLoader(texture, data);
-                console.log('texture', texture);
+                console.log('anim texture update', texture);
+                createMaterialAndMesh(texture);
             });
         } else {
             texture = textureLoader.load(file);
+            console.log('norm texture', texture);
+            createMaterialAndMesh(texture);
         }
-        const material = new THREE.MeshBasicMaterial({
-            map: texture,
-            transparent: true,
-            opacity: currentConfig.opacityFactor * 0.8,
-            side: THREE.DoubleSide,
-            depthFunc: THREE.AlwaysDepth,
-            polygonOffset: true,
-            polygonOffsetFactor: -1,
-            polygonOffsetUnits: 1,
-        });
-        console.log('new material', material);
-        const geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
-
-        const logoImageMesh = new THREE.Mesh(geometry, material);
-        imagesMesh.push(logoImageMesh);
     }
     imageContainer.add(imagesMesh[currentImage]);
+}
+
+function createMaterialAndMesh(texture) {
+    console.log('texture pre material', texture);
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: currentConfig.opacityFactor * 0.8,
+        side: THREE.DoubleSide,
+        depthFunc: THREE.AlwaysDepth,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: 1,
+    });
+    console.log('new material', material);
+    const geometry = new THREE.PlaneGeometry(currentConfig.logoImageSize, currentConfig.logoImageSize);
+
+    const logoImageMesh = new THREE.Mesh(geometry, material);
+    imagesMesh.push(logoImageMesh);
 }
 
 function initHeading(scene) {
@@ -335,6 +343,10 @@ function update() {
     pumper.update();
     TWEEN.update();
 
+    if (window.currentConfig !== currentConfig) {
+        window.currentConfig = currentConfig;
+    }
+
     // Handle animation config change
     if (newProfile !== currentProfile) {
         currentProfile = newProfile;
@@ -355,9 +367,18 @@ function update() {
     }
 
     // Update image frame if needed
-    if (currentFrame !== animConfig.references.image.frame) {
-        currentFrame = animConfig.references.image.frame;
-        imagesMesh[currentImage].material.map.needsUpdate = true;
+    const currentTexture = imagesMesh[currentImage].material.map;
+    if (currentTexture.frames) {
+        const newFrame = Math.clamp(0, Math.round(animConfig.references.image.frame), currentTexture.frames.length - 1);
+        if (currentFrame !== newFrame) {
+            currentFrame = newFrame;
+            const newFrameData = currentTexture.frames[newFrame];
+            currentTexture.offset = newFrameData.offset;
+            currentTexture.repeat = newFrameData.repeat;
+            // console.log('new frame', newFrame, currentTexture.offset, currentTexture.repeat);
+            // window.testTexture = currentTexture;
+
+        }
     }
 
     // Animate image mesh with a section and a letter
@@ -444,8 +465,10 @@ function sheetLoader(texture, data) {
             throw('rotated frames not supported');
         }
         const frame = {
-            repeat: [ data.frames[i].frame.w / width, data.frames[i].frame.h / height ],
-            offset: [ data.frames[i].frame.x / width, 1 - (data.frames[i].frame.y / height) ],
+            repeat: { x: data.frames[i].frame.w / width, y: data.frames[i].frame.h / height },
+            offset: { x: data.frames[i].frame.x / width, y: 1 - ((data.frames[i].frame.y + data.frames[i].sourceSize.h) / height) },
+            //x: data.frames[i].frame.x,
+            //y: data.frames[i].frame.y,
         };
         frames.push(frame);
     }
@@ -453,16 +476,22 @@ function sheetLoader(texture, data) {
     texture.frames = frames;
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     // Set offset once
-    texture.repeat.set(...texture.frames[0].repeat);
+    console.log(`Setting texture repeat to ${texture.frames[0].repeat}`);
+    texture.repeat = texture.frames[0].repeat;
     // Update texture to first frame
+    console.log(`Setting texture offset to ${texture.frames[0].offset}`);
     texture.offset = texture.frames[0].offset;
     // Set onUpdate callback
-    texture.onUpdate = function (self) {
-        const newFrame = Math.clamp(Math.round(currentFrame), 0, self.frames.length - 1);
-        if (self.frames[newFrame].offset === self.offset) return;
-        self.offset = self.frames[newFrame].offset;
-        //self.needsUpdate = true;
-    }
+    // texture.onUpdate = function (self) {
+    //     console.log(`Updating texture`);
+    //     const newFrame = Math.clamp(currentFrame, 0, self.frames.length - 1);
+    //     if (self.frames[newFrame].offset === self.offset) return;
+    //     console.log(`Updating texture to frame ${newFrame}`);
+    //     self.offset = self.frames[newFrame].offset;
+    //     self.repeat = self.frames[newFrame].repeat;
+    //     //console.log(`Setting texture offset to ${self.frames[newFrame].offset}`);
+    //     window.testTexture = self;
+    // }
 }
 
 var BeatProcessing = {
