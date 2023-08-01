@@ -123,7 +123,7 @@ function init() {
     }
 
     // Initialize pumper and logo
-    pumper = new Pumper();
+    pumper = new Pumper(1160, 14000, 12);
     logo = new Logo(
         'CONSOLETATION',
         7,
@@ -159,7 +159,7 @@ function init() {
     const scene = new THREE.Scene();
 
     pumper
-        .start('mic', 1160, 14000, 12)
+        .load('mic')
         .then(() => {
             pumper.globalSpikeTolerance = 14;
             logo.createBands(pumper); // Pumper bands
