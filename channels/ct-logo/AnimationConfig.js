@@ -1,10 +1,4 @@
-import TWEEN from '@tweenjs/tween.js';
-
-if (!Array.prototype.last) {
-    Array.prototype.last = function () {
-        return this[this.length - 1];
-    };
-}
+import * as TWEEN from '@tweenjs/tween.js';
 
 function jCopy(object) {
     return JSON.parse(JSON.stringify(object));
@@ -409,10 +403,10 @@ class AnimationConfig {
     // Set up an active configuration based on 'profile'
     // Tween data configured for all available profiles
     constructor(profile) {
-        this.multipliers = jCopy(profiles[profile].multipliers.data.last());
-        this.positions = jCopy(profiles[profile].positions.data.last());
-        this.directions = jCopy(profiles[profile].directions.data.last());
-        this.references = jCopy(profiles[profile].references.data.last());
+        this.multipliers = jCopy(profiles[profile].multipliers.data.at(-1));
+        this.positions = jCopy(profiles[profile].positions.data.at(-1));
+        this.directions = jCopy(profiles[profile].directions.data.at(-1));
+        this.references = jCopy(profiles[profile].references.data.at(-1));
         this._tweens = {};
         // set up tweens
         for (const [profile, config] of Object.entries(profiles)) {

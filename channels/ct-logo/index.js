@@ -9,7 +9,7 @@ import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 
 import { Pumper } from 'pumper';
 import OBSWebSocket from 'obs-websocket-js';
-import TWEEN from '@tweenjs/tween.js';
+import * as TWEEN from '@tweenjs/tween.js';
 
 import AnimationConfig from './AnimationConfig.js';
 import { Logo } from './logo.ts';
