@@ -1,12 +1,10 @@
-'use strict';
-
-var glob = require('glob');
-var path = require('path');
+const glob = require('glob');
+const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
 // Get all valid channels
-var CHANNELS = glob.sync("channels/**/boot.js").map(path => path.split('/')[1])
-var _entries = {};
+const CHANNELS = glob.sync("channels/**/boot.js").map(path => path.split('/')[1])
+const _entries = {};
 CHANNELS.forEach(function(c) {
     _entries[c] = './channels/' + c + '/boot.js';
 });
@@ -53,7 +51,6 @@ module.exports = {
             },
         ]
     },
-    mode: 'development',
     performance: {
         hints: false,
         maxEntrypointSize: 1024000,
