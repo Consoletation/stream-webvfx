@@ -33,7 +33,8 @@ module.exports = {
     resolve: {
         alias: {
             'pumper': __dirname + '/libs/pumper'
-        }
+        },
+        extensions: ['.ts', '.js'],
     },
     module: {
         rules: [
@@ -44,7 +45,12 @@ module.exports = {
                     'raw-loader',
                     'glslify-loader'
                 ]
-            }
+            },
+            {
+                test: /\.ts$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
         ]
     },
     mode: 'development',

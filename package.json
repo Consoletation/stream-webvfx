@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "copy-webpack-plugin": "^6.1.1",
@@ -14,8 +15,11 @@
   },
   "dependencies": {
     "@tweenjs/tween.js": "^21.0.0",
+    "@types/three": "^0.155.0",
     "obs-websocket-js": "^4.0.3",
     "three": "^0.155.0",
+    "ts-loader": "^9.4.4",
+    "typescript": "^4.9.5",
     "webmidi": "^3.1.6",
     "webrtc-adapter": "^8.2.3"
   },
