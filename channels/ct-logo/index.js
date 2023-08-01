@@ -12,7 +12,7 @@ import OBSWebSocket from 'obs-websocket-js';
 import TWEEN from '@tweenjs/tween.js';
 
 import AnimationConfig from './AnimationConfig.js';
-import Logo from './Logo.js';
+import { Logo } from './logo.ts';
 
 // Static globals
 const obsClient = new OBSWebSocket(); // OBS client
